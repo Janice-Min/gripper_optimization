@@ -1,0 +1,61 @@
+﻿r_mm,x_mm,y_mm,free_success,free_reason,rb5proto_success,rb5proto_reason,rb5proto_type,RB5_success,RB5_error,RB5_min_lift_m,RB5_end_tilt_deg
+20,0,5,True,success,False,close_force_margin,env,True,,0.14909815854923036,0.3
+20,0,25,True,success,False,lift_force_margin,env,True,,0.1446486243280498,0.4
+20,0,45,True,success,True,success,env,True,,0.13412457705398378,0.1
+20,0,65,True,success,False,lift_lost_contact,env,False,,-0.020032404588220906,90.0
+20,20,5,False,close_none,False,close_none,none,False,No bilateral finger contact; lift cancelled,,0.1
+20,20,25,False,close_none,False,close_none,none,False,No bilateral finger contact; lift cancelled,,17.0
+20,20,45,False,close_timeout,False,close_mixed,mixed,True,,0.13758537133759963,9.6
+20,20,65,False,close_mixed,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,90.0
+20,40,5,False,initial_overlap,False,initial_overlap,none,False,No bilateral finger contact; lift cancelled,,29.4
+20,40,25,False,excess_penetration,False,lift_lost_contact,env,True,,0.1409619358070581,3.9
+20,40,45,False,close_timeout,False,close_mixed,mixed,True,,0.152699148081663,22.2
+20,40,65,False,close_mixed,False,unintended_penetration,none,False,"Unintended collision: ['L_gd', 'palm']",,3.5
+30,0,5,True,success,True,success,env,True,,0.14909546039293137,0.1
+30,0,25,False,excess_penetration,True,success,env,True,,0.14471266044880704,0.1
+30,0,45,True,success,False,lift_slip,tip,True,,0.12755541912435042,8.9
+30,0,65,True,success,False,close_none,none,False,No bilateral finger contact; lift cancelled,,0.0
+30,20,5,True,success,True,success,env,True,,0.1492764637937425,4.2
+30,20,25,True,success,False,close_mixed,mixed,True,,0.14662413512024358,4.9
+30,20,45,True,success,False,lift_mixed,mixed,True,,0.1522179110240825,22.4
+30,20,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,90.0
+30,40,5,False,initial_overlap,False,initial_overlap,none,True,,0.14888509562183877,4.5
+30,40,25,True,success,False,close_mixed,mixed,True,,0.15394354320144976,12.8
+30,40,45,False,close_mixed,False,unintended_penetration,none,False,,-0.010032497214574977,90.0
+30,40,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,90.0
+40,0,5,True,success,True,success,env,True,,0.1501160914427715,1.0
+40,0,25,True,success,True,success,env,True,,0.143157201843469,7.4
+40,0,45,True,success,False,lift_slip,tip,True,,0.15082325379149644,16.5
+40,0,65,False,hold_changed_type,False,close_none,none,False,No bilateral finger contact; lift cancelled,,0.0
+40,20,5,True,success,False,close_mixed,mixed,True,,0.15080698593806835,2.4
+40,20,25,True,success,False,lift_mixed,mixed,True,,0.14734536529894154,10.6
+40,20,45,False,excess_penetration,False,lift_mixed,mixed,True,,0.15039332155054572,11.0
+40,20,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,9.0
+40,40,5,False,initial_overlap,False,initial_overlap,none,True,,0.1523529233568121,7.6
+40,40,25,False,close_mixed,False,lift_mixed,mixed,True,,0.1515365481721856,7.2
+40,40,45,False,close_mixed,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,1.9
+40,40,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,12.1
+50,0,5,False,close_timeout,True,success,env,True,,0.14926890433336448,0.1
+50,0,25,True,success,True,success,env,True,,0.14821782679090242,15.6
+50,0,45,False,close_timeout,False,close_force_margin,tip,False,"Unintended collision: ['R_gd', 'palm']",,14.1
+50,0,65,False,close_timeout,False,close_none,none,False,No bilateral finger contact; lift cancelled,,0.0
+50,20,5,False,initial_overlap,False,initial_overlap,none,True,,0.14939256741740464,0.1
+50,20,25,False,excess_penetration,False,return_timeout,env,True,,0.1475939888577533,14.6
+50,20,45,False,close_mixed,False,lift_lost_contact,tip,False,,0.009967476614082177,90.0
+50,20,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,2.1
+50,40,5,False,initial_overlap,False,initial_overlap,none,True,,0.1496734904263287,2.7
+50,40,25,False,initial_overlap,False,initial_overlap,none,True,,0.14875688429602496,2.4
+50,40,45,False,close_timeout,False,approach_collision,none,False,"Unintended collision: ['L_gd', 'palm']",,0.1
+50,40,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,0.0
+60,0,5,True,success,True,success,env,True,,0.14920574985181892,0.1
+60,0,25,True,success,True,success,env,True,,0.14794470192948098,4.0
+60,0,45,False,close_timeout,False,close_force_margin,tip,False,,-2.3528108016035443e-07,0.0
+60,0,65,False,close_timeout,False,close_none,none,False,No bilateral finger contact; lift cancelled,,0.0
+60,20,5,False,initial_overlap,False,initial_overlap,none,True,,0.14911821381310944,0.1
+60,20,25,True,success,True,success,tip,True,,0.14787068604814219,4.9
+60,20,45,True,success,False,lift_lost_contact,tip,False,,-2.6424656815460246e-07,0.0
+60,20,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,0.0
+60,40,5,False,initial_overlap,False,initial_overlap,none,True,,0.14734404053651692,6.5
+60,40,25,False,initial_overlap,False,initial_overlap,none,False,No bilateral finger contact; lift cancelled,,0.0
+60,40,45,False,initial_overlap,False,initial_overlap,none,False,No bilateral finger contact; lift cancelled,,0.0
+60,40,65,False,close_timeout,False,unintended_penetration,none,False,No bilateral finger contact; lift cancelled,,0.0

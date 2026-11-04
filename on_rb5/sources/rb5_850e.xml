@@ -1,0 +1,161 @@
+<!--
+  Rainbow Robotics RB5-850e for MuJoCo.
+
+  Converted by hand from rbpodo_description/robots/rb5_850e.urdf
+  (https://github.com/RainbowRobotics/rbpodo_ros2, see LICENSE in this folder).
+  Kinematics and inertias are taken verbatim from the URDF. Visual meshes are the
+  URDF .dae files split per color into .obj by tools/convert_meshes.py; collision
+  uses the URDF .stl meshes (MuJoCo collides with their convex hulls).
+
+  Joint limits are +/-360 deg as on the real RB5 (the URDF says +/-180 deg).
+
+  Actuators are joint position servos, like the real controller. Gravity
+  compensation is on for the arm bodies, mimicking the robot's internal gravity
+  compensation, so the servos only need to track the target.
+-->
+<mujoco model="rb5_850e">
+  <compiler angle="radian" meshdir="meshes" autolimits="true"/>
+
+  <option integrator="implicitfast"/>
+
+  <default>
+    <default class="rb5">
+      <joint axis="0 1 0" range="-6.2832 6.2832" armature="0.1" damping="1" frictionloss="0.2"/>
+      <position ctrlrange="-6.2832 6.2832" dampratio="1"/>
+      <default class="visual">
+        <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+      </default>
+      <default class="collision">
+        <geom type="mesh" group="3"/>
+      </default>
+      <default class="big_joint">
+        <position kp="3000" forcerange="-300 300"/>
+      </default>
+      <default class="small_joint">
+        <position kp="500" forcerange="-60 60"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <material name="light" rgba="0.80 0.80 0.80 1" specular="0.5" shininess="0.5"/>
+    <material name="dark" rgba="0.30 0.30 0.30 1" specular="0.3" shininess="0.3"/>
+    <material name="black" rgba="0.10 0.10 0.10 1" specular="0.2" shininess="0.2"/>
+
+    <mesh name="link0_light" file="visual_obj/link0_light.obj"/>
+    <mesh name="link0_black" file="visual_obj/link0_black.obj"/>
+    <mesh name="link1_light" file="visual_obj/link1_light.obj"/>
+    <mesh name="link1_dark" file="visual_obj/link1_dark.obj"/>
+    <mesh name="link1_black" file="visual_obj/link1_black.obj"/>
+    <mesh name="link2_light" file="visual_obj/link2_light.obj"/>
+    <mesh name="link2_dark" file="visual_obj/link2_dark.obj"/>
+    <mesh name="link2_black" file="visual_obj/link2_black.obj"/>
+    <mesh name="link3_light" file="visual_obj/link3_light.obj"/>
+    <mesh name="link3_dark" file="visual_obj/link3_dark.obj"/>
+    <mesh name="link3_black" file="visual_obj/link3_black.obj"/>
+    <mesh name="link4_light" file="visual_obj/link4_light.obj"/>
+    <mesh name="link4_dark" file="visual_obj/link4_dark.obj"/>
+    <mesh name="link4_black" file="visual_obj/link4_black.obj"/>
+    <mesh name="link5_light" file="visual_obj/link5_light.obj"/>
+    <mesh name="link5_dark" file="visual_obj/link5_dark.obj"/>
+    <mesh name="link5_black" file="visual_obj/link5_black.obj"/>
+    <mesh name="link6_light" file="visual_obj/link6_light.obj"/>
+    <mesh name="link6_dark" file="visual_obj/link6_dark.obj"/>
+
+    <mesh name="link0_col" file="collision/link0.stl"/>
+    <mesh name="link1_col" file="collision/link1.stl"/>
+    <mesh name="link2_col" file="collision/link2.stl"/>
+    <mesh name="link3_col" file="collision/link3.stl"/>
+    <mesh name="link4_col" file="collision/link4.stl"/>
+    <mesh name="link5_col" file="collision/link5.stl"/>
+    <mesh name="link6_col" file="collision/link6.stl"/>
+  </asset>
+
+  <worldbody>
+    <body name="link0" childclass="rb5">
+      <geom mesh="link0_light" material="light" class="visual"/>
+      <geom mesh="link0_black" material="black" class="visual"/>
+      <geom mesh="link0_col" class="collision"/>
+
+      <body name="link1" pos="0 0 0.1692" gravcomp="1">
+        <inertial pos="0.000057 -0.005795 -0.034516" mass="4.147"
+                  fullinertia="0.008787118 0.008888636 0.007845924 -8.564e-06 -8.047e-06 0.000893025"/>
+        <joint name="base" axis="0 0 1"/>
+        <geom mesh="link1_light" material="light" class="visual"/>
+        <geom mesh="link1_dark" material="dark" class="visual"/>
+        <geom mesh="link1_black" material="black" class="visual"/>
+        <geom mesh="link1_col" class="collision"/>
+
+        <body name="link2" gravcomp="1">
+          <inertial pos="-0.000037 -0.121603 0.212933" mass="9.633"
+                    fullinertia="0.392214367 0.388914548 0.021949397 -1.4684e-05 -5.721e-05 0.000255706"/>
+          <joint name="shoulder"/>
+          <geom mesh="link2_light" material="light" class="visual"/>
+          <geom mesh="link2_dark" material="dark" class="visual"/>
+          <geom mesh="link2_black" material="black" class="visual"/>
+          <geom mesh="link2_col" class="collision"/>
+
+          <body name="link3" pos="0 0 0.425" gravcomp="1">
+            <inertial pos="0.000021 -0.015845 0.202568" mass="3.915"
+                      fullinertia="0.112039835 0.111790094 0.007569107 -1.006e-06 1.4848e-05 0.002092668"/>
+            <joint name="elbow"/>
+            <geom mesh="link3_light" material="light" class="visual"/>
+            <geom mesh="link3_dark" material="dark" class="visual"/>
+            <geom mesh="link3_black" material="black" class="visual"/>
+            <geom mesh="link3_col" class="collision"/>
+
+            <body name="link4" pos="0 0 0.392" gravcomp="1">
+              <inertial pos="0.000057 -0.106332 0.025881" mass="1.452"
+                        fullinertia="0.001629031 0.001558024 0.001224887 3.99e-07 2.37e-07 0.000127282"/>
+              <joint name="wrist1"/>
+              <geom mesh="link4_light" material="light" class="visual"/>
+              <geom mesh="link4_dark" material="dark" class="visual"/>
+              <geom mesh="link4_black" material="black" class="visual"/>
+              <geom mesh="link4_col" class="collision"/>
+
+              <body name="link5" pos="0 -0.1107 0.1107" gravcomp="1">
+                <inertial pos="-0.000028 -0.025911 -0.004363" mass="1.454"
+                          fullinertia="0.001631445 0.001226962 0.001560416 1.764e-06 2.2e-07 0.000127473"/>
+                <joint name="wrist2" axis="0 0 1"/>
+                <geom mesh="link5_light" material="light" class="visual"/>
+                <geom mesh="link5_dark" material="dark" class="visual"/>
+                <geom mesh="link5_black" material="black" class="visual"/>
+                <geom mesh="link5_col" class="collision"/>
+
+                <body name="link6" gravcomp="1">
+                  <inertial pos="-0.000002 -0.079964 -0.000494" mass="0.243"
+                            fullinertia="0.000147823 0.000243703 0.000142339 2.46e-07 6.43e-07 -5.54e-07"/>
+                  <joint name="wrist3"/>
+                  <geom mesh="link6_light" material="light" class="visual"/>
+                  <geom mesh="link6_dark" material="dark" class="visual"/>
+                  <geom mesh="link6_col" class="collision"/>
+                  <!-- tool center point; z axis points out of the flange -->
+                  <site name="tcp" pos="0 -0.0967 0" quat="0.7071068 0.7071068 0 0" size="0.01" rgba="1 0.5 0 1"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <contact>
+    <!-- link0 is welded to the world, so the automatic parent/child filter does not apply -->
+    <exclude body1="link0" body2="link1"/>
+  </contact>
+
+  <actuator>
+    <position name="base" joint="base" class="big_joint"/>
+    <position name="shoulder" joint="shoulder" class="big_joint"/>
+    <position name="elbow" joint="elbow" class="big_joint"/>
+    <position name="wrist1" joint="wrist1" class="small_joint"/>
+    <position name="wrist2" joint="wrist2" class="small_joint"/>
+    <position name="wrist3" joint="wrist3" class="small_joint"/>
+  </actuator>
+
+  <keyframe>
+    <key name="zero" qpos="0 0 0 0 0 0" ctrl="0 0 0 0 0 0"/>
+    <key name="ready" qpos="0 -0.5 1.6 0.5 1.5708 0" ctrl="0 -0.5 1.6 0.5 1.5708 0"/>
+  </keyframe>
+</mujoco>

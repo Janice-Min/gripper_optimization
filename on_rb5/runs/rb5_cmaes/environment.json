@@ -1,0 +1,8 @@
+{
+  "python": "3.11.9",
+  "mujoco": "3.3.7",
+  "cma": "4.5.0",
+  "numpy": "2.4.6",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "input_sha256": "55b60f9e7d7981785d196412a247cb0718e9526572c7a8efbb32f20607383ff8"
+}

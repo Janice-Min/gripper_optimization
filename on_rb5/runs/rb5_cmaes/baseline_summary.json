@@ -1,0 +1,22 @@
+{
+  "J": 19.421163703738266,
+  "J_per_cell": 0.19421163703738265,
+  "cells": 100,
+  "success": 21,
+  "env": 19,
+  "tip": 2,
+  "workspace_term": 19.4,
+  "force_margin_sum": 21.163703738268886,
+  "force_term": 0.021163703738268886,
+  "rb5_pass": 23,
+  "prefiltered": 44,
+  "cell_seconds": 34.054573099827394,
+  "failures": {
+    "close_no_bilateral": 10,
+    "lift_height": 16,
+    "approach_overlap": 44,
+    "hold_mixed": 2,
+    "unintended_penetration": 1,
+    "unintended_collision": 6
+  }
+}
