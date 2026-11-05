@@ -1,0 +1,54 @@
+{
+  "design": {
+    "length_mm": 134.07011194712865,
+    "lp_ratio": 0.6990976852915213,
+    "gap_mm": 55.51152066587118,
+    "theta_p_deg": 44.98333284405917,
+    "lp_mm": 93.72810492901277,
+    "ld_mm": 40.34200701811588,
+    "theta_d_deg": -34.983332844026684,
+    "phi_d_deg": 10.000000000032486
+  },
+  "summary": {
+    "J": 22.622450977160486,
+    "J_per_cell": 0.22622450977160485,
+    "cells": 100,
+    "success": 25,
+    "env": 22,
+    "tip": 3,
+    "workspace_term": 22.6,
+    "force_margin_sum": 22.450977160485603,
+    "force_term": 0.022450977160485604,
+    "rb5_pass": 28,
+    "prefiltered": 40,
+    "cell_seconds": 53.57353679987136,
+    "failures": {
+      "close_no_bilateral": 13,
+      "lift_height": 10,
+      "approach_overlap": 40,
+      "hold_mixed": 3,
+      "unintended_penetration": 2,
+      "unintended_collision": 6,
+      "approach_push": 1
+    }
+  },
+  "grid": {
+    "r_mm": [
+      20,
+      60,
+      10
+    ],
+    "x_mm": [
+      0,
+      60,
+      20
+    ],
+    "y_mm": [
+      5,
+      85,
+      20
+    ]
+  },
+  "evaluation_id": 221,
+  "note": "Best observed on the RB5 search grid, not a guaranteed global maximum."
+}

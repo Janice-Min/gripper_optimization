@@ -1,0 +1,36 @@
+{
+  "label": "candidate_03",
+  "design": {
+    "length_mm": 134.5595406394391,
+    "lp_ratio": 0.6996567943935365,
+    "gap_mm": 55.78943937405516,
+    "theta_p_deg": 44.963917720194274,
+    "lp_mm": 94.14549685885675,
+    "ld_mm": 40.41404378058235,
+    "theta_d_deg": -34.96391772016179,
+    "phi_d_deg": 10.000000000032486
+  },
+  "summary": {
+    "J": 68.46845658769278,
+    "J_per_cell": 0.08645007144910705,
+    "cells": 792,
+    "success": 82,
+    "env": 65,
+    "tip": 17,
+    "workspace_term": 68.4,
+    "force_margin_sum": 68.45658769278292,
+    "force_term": 0.06845658769278291,
+    "rb5_pass": 92,
+    "prefiltered": 390,
+    "cell_seconds": 290.55835120065603,
+    "failures": {
+      "close_no_bilateral": 129,
+      "lift_height": 59,
+      "approach_overlap": 390,
+      "unintended_penetration": 17,
+      "hold_mixed": 10,
+      "unintended_collision": 70,
+      "ik_failed": 35
+    }
+  }
+}

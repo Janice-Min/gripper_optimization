@@ -3,7 +3,8 @@
 Writes to <run>/plots/:
   workspace_<label>.png       one panel per object radius: env / tip / failed / not
                               attempted, with the open hand drawn in the hand frame
-  diff_<label>_vs_baseline.png  cells gained / lost against design168
+  diff_<label>_vs_<ref>.png   cells gained / lost against the reference (default
+                              design168; --baseline design001 after add_reference.py)
   compare_designs.png         successful cells per radius for every final candidate
 
 Each cell is drawn at the object center (x, y+r) of the hand frame (palm face at y=0,
@@ -11,6 +12,7 @@ fingers toward +y). Only x >= 0 is simulated; x < 0 is mirrored (symmetric hand)
 
   python plot_workspace.py --run runs/rb5_cmaes
   python plot_workspace.py --run runs/rb5_cmaes --label candidate_01
+  python plot_workspace.py --run runs/rb5_cmaes --baseline design001
   python plot_workspace.py --run runs/rb5_cmaes --show
 """
 from __future__ import annotations
@@ -23,17 +25,20 @@ import numpy as np
 import mujoco
 
 from gripper_core import LINKS, build_xml, read_json
-from rb5_eval import hand_config, read_workspace
+from rb5_eval import hand_config, run_result
 
 BLOCKED = {"approach_overlap", "initial_palm_clearance", "initial_overlap", "approach_collision"}
 CATEGORIES = [("env", "env: all 4 finger links", "#1a9850"),
               ("tip", "tip: partial contact, held", "#fdd835"),
               ("fail", "failed", "#bdbdbd"),
               ("blocked", "not attempted: open hand hits object", "#ffffff")]
-DIFF = [("both", "success in both", "#4575b4"),
-        ("gained", "success only with optimized", "#1a9850"),
-        ("lost", "success only with baseline", "#d73027"),
-        ("neither", "neither", "#ffffff")]
+
+
+def diff_palette(label, base_label):
+    return [("both", "success in both", "#4575b4"),
+            ("gained", f"success only with {label}", "#1a9850"),
+            ("lost", f"success only with {base_label}", "#d73027"),
+            ("neither", "neither", "#ffffff")]
 
 
 def category(row):
@@ -75,9 +80,11 @@ def capsule_outline(p0, p1, radius, n=14):
     return np.vstack([p1+radius*np.c_[np.cos(t1), np.sin(t1)], p0+radius*np.c_[np.cos(t0), np.sin(t0)]])
 
 
-def hand_outline(template, design, cfg):
-    """Open-hand link outlines (palm and four finger links) in hand-frame mm."""
-    model = mujoco.MjModel.from_xml_string(build_xml(template, design, hand_config(cfg), radius_mm=20))
+def hand_outline(entry, cfg):
+    """Open-hand link outlines (palm and four finger links) in hand-frame mm, built from
+    the design's own template (design168 for optimizer results)."""
+    xml = build_xml(entry["template"], entry["design"], hand_config(cfg), radius_mm=20)
+    model = mujoco.MjModel.from_xml_string(xml)
     data = mujoco.MjData(model)
     mujoco.mj_forward(model, data)
     shapes = []
@@ -188,49 +195,53 @@ def plot_workspace(path, rows, label, design, summary, shapes):
     return fig
 
 
-def plot_diff(path, rows, base_rows, label, design, shapes, base_shapes):
-    codes = {k: i for i, (k, _, _) in enumerate(DIFF)}
-    base = {(r["r_mm"], r["x_mm"], r["y_mm"]): r["success"] for r in base_rows}
+def plot_diff(path, cur, ref, cfg):
+    """Cells gained / lost by `cur` against the reference design `ref` (both entries)."""
+    palette = diff_palette(cur["label"], ref["label"])
+    codes = {k: i for i, (k, _, _) in enumerate(palette)}
+    base = {(r["r_mm"], r["x_mm"], r["y_mm"]): r["success"] for r in ref["rows"]}
+    rows = cur["rows"]
 
     def value(row):
         b = base.get((row["r_mm"], row["x_mm"], row["y_mm"]), False)
         key = {(True, True): "both", (True, False): "gained", (False, True): "lost"}.get((row["success"], b), "neither")
         return codes[key]
 
+    shapes, ref_shapes = hand_outline(cur, cfg), hand_outline(ref, cfg)
     radii = sorted({row["r_mm"] for row in rows})
-    lim = limits(rows, shapes+base_shapes)
+    lim = limits(rows, shapes+ref_shapes)
     fig, axes = panel_layout(len(radii), lim)
     for ax, r in zip(axes, radii):
-        category_map(ax, rows, r, value, DIFF)
+        category_map(ax, rows, r, value, palette)
         draw_hand(ax, shapes)
-        draw_hand(ax, base_shapes, dashed=True)
+        draw_hand(ax, ref_shapes, dashed=True)
         sub = [row for row in rows if row["r_mm"] == r]
         gained = sum(value(row) == codes["gained"] for row in sub)
         lost = sum(value(row) == codes["lost"] for row in sub)
         ax.set_title(f"r = {r:g} mm   +{gained} / -{lost}", fontsize=10)
         finish_axes(ax, lim)
-    fig.suptitle(f"{label} (filled hand) vs baseline design168 (dashed hand), env and tip both count as success",
-                 fontsize=10)
-    legend(fig, DIFF)
+    sc, sr = cur["summary"], ref["summary"]
+    fig.suptitle(f"{cur['label']} (filled hand, J={sc['J']:.2f}, {sc['success']} cells) vs "
+                 f"{ref['label']} (dashed hand, J={sr['J']:.2f}, {sr['success']} cells)\n"
+                 "env and tip both count as success", fontsize=10)
+    legend(fig, palette)
     fig.tight_layout(rect=(0, 0.05, 1, 0.94))
     fig.savefig(path, dpi=200)
     return fig
 
 
-def plot_compare(path, results, rows_by_label):
+def plot_compare(path, entries):
     import matplotlib.pyplot as plt
-    radii = sorted({row["r_mm"] for rows in rows_by_label.values() for row in rows})
-    n = len(results)
-    width = 0.8/n
+    radii = sorted({row["r_mm"] for e in entries for row in e["rows"]})
+    width = 0.8/len(entries)
     fig, ax = plt.subplots(figsize=(max(7, 1.1*len(radii)+3), 4.5))
     colors = plt.get_cmap("tab10").colors
-    for k, res in enumerate(results):
-        rows = rows_by_label[res["label"]]
-        env = [sum(r["success"] and r["contact_type"] == "env" and r["r_mm"] == rad for r in rows) for rad in radii]
-        tip = [sum(r["success"] and r["contact_type"] == "tip" and r["r_mm"] == rad for r in rows) for rad in radii]
+    for k, e in enumerate(entries):
+        env = [sum(r["success"] and r["contact_type"] == "env" and r["r_mm"] == rad for r in e["rows"]) for rad in radii]
+        tip = [sum(r["success"] and r["contact_type"] == "tip" and r["r_mm"] == rad for r in e["rows"]) for rad in radii]
         pos = np.arange(len(radii))-0.4+width*(k+0.5)
-        s = res["summary"]
-        ax.bar(pos, env, width, color=colors[k % 10], label=f"{res['label']}  J={s['J']:.2f} (env {s['env']}, tip {s['tip']})")
+        s = e["summary"]
+        ax.bar(pos, env, width, color=colors[k % 10], label=f"{e['label']}  J={s['J']:.2f} (env {s['env']}, tip {s['tip']})")
         ax.bar(pos, tip, width, bottom=env, color=colors[k % 10], alpha=0.45, hatch="///", edgecolor="white")
     ax.set_xticks(np.arange(len(radii)), [f"{r:g}" for r in radii])
     ax.set_xlabel("object radius r [mm]")
@@ -245,7 +256,9 @@ def plot_compare(path, results, rows_by_label):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, required=True, help="Output folder of optimize_rb5_cmaes.py")
-    p.add_argument("--label", help="Design in <run>/final (default: the final best)")
+    p.add_argument("--label", help="Design to plot (default: the final best)")
+    p.add_argument("--baseline", help="Reference for the gain/loss plot, e.g. design001 added with "
+                                      "add_reference.py (default: baseline = design168)")
     p.add_argument("--show", action="store_true", help="Also open the figures in windows")
     args = p.parse_args()
     import matplotlib
@@ -254,45 +267,38 @@ def main():
     import matplotlib.pyplot as plt
     run = args.run.resolve()
     cfg = read_json(run/"config_used.json")
-    template = (run/"source_design168.xml").read_text(encoding="utf-8-sig")
+    final = run/"final"
+    entries = {}
+
+    def load(name):
+        label, design, summary, rows, template = run_result(run, name)
+        entries[label] = dict(label=label, design=design, summary=summary, rows=rows, template=template)
+        return entries[label]
+
+    chosen = load(args.label)
+    if (final/"comparison.json").is_file():
+        names = [r["label"] for r in read_json(final/"comparison.json")["results"]]
+    else:
+        names = [chosen["label"]] + (["baseline"] if (run/"baseline_workspace.csv").is_file() else [])
+    for name in names:
+        if name not in entries:
+            load(name)
+    ref_name = args.baseline or "baseline"
+    if args.baseline and ref_name not in entries:
+        raise SystemExit(f"No result '{ref_name}' in {run}. Available: {names}. "
+                         f"Add it first: python add_reference.py --run {args.run} --xml {ref_name}.xml")
     out = run/"plots"
     out.mkdir(exist_ok=True)
-    final = run/"final"
-    if (final/"comparison.json").is_file():
-        comparison = read_json(final/"comparison.json")
-        results = comparison["results"]
-        label = args.label or comparison["best_label"]
-        by_label = {r["label"]: r for r in results}
-        if label not in by_label:
-            raise SystemExit(f"No final result '{label}'. Available: {sorted(by_label)}")
-        rows_by_label = {r["label"]: read_workspace(final/f"{r['label']}_workspace.csv") for r in results}
-    else:  # Run without the final re-evaluation: plot the search-grid best.
-        best = read_json(run/"best_design.json")
-        label = "search_best"
-        results = [dict(label=label, design=best["design"], summary=best["summary"])]
-        by_label = {label: results[0]}
-        rows_by_label = {label: read_workspace(run/"best_workspace.csv")}
-        base_csv = run/"baseline_workspace.csv"
-        if base_csv.is_file():
-            base_summary = read_json(run/"baseline_summary.json")
-            results.append(dict(label="baseline", design=None, summary=base_summary))
-            rows_by_label["baseline"] = read_workspace(base_csv)
-    chosen = by_label[label]
-    shapes = hand_outline(template, chosen["design"], cfg)
+    label = chosen["label"]
     written = [out/f"workspace_{label}.png"]
-    plot_workspace(written[-1], rows_by_label[label], label, chosen["design"], chosen["summary"], shapes)
-    if "baseline" in rows_by_label and label != "baseline":
-        base_design = by_label.get("baseline", {}).get("design")
-        if base_design is None:
-            from gripper_core import VARIABLES, DesignSpace, baseline_parameters
-            base = baseline_parameters(template)
-            base_design = DesignSpace(cfg, base).derived({v: float(base[v]) for v in VARIABLES})
-        written.append(out/f"diff_{label}_vs_baseline.png")
-        plot_diff(written[-1], rows_by_label[label], rows_by_label["baseline"], label, chosen["design"],
-                  shapes, hand_outline(template, base_design, cfg))
-    if len(results) > 1:
+    plot_workspace(written[-1], chosen["rows"], label, chosen["design"], chosen["summary"],
+                   hand_outline(chosen, cfg))
+    if ref_name in entries and ref_name != label:
+        written.append(out/f"diff_{label}_vs_{ref_name}.png")
+        plot_diff(written[-1], chosen, entries[ref_name], cfg)
+    if len(names) > 1:
         written.append(out/"compare_designs.png")
-        plot_compare(written[-1], results, rows_by_label)
+        plot_compare(written[-1], [entries[n] for n in names])
     for path in written:
         print("Saved:", path)
     if args.show:

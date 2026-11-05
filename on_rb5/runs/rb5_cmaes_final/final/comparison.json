@@ -1,0 +1,168 @@
+{
+  "grid": {
+    "r_mm": [
+      10,
+      80,
+      10
+    ],
+    "x_mm": [
+      0,
+      80,
+      10
+    ],
+    "y_mm": [
+      5,
+      105,
+      10
+    ]
+  },
+  "results": [
+    {
+      "label": "baseline",
+      "design": {
+        "length_mm": 133.333333,
+        "lp_ratio": 0.69999999925,
+        "gap_mm": 50.0,
+        "theta_p_deg": 45.0000000001462,
+        "lp_mm": 93.33333300000001,
+        "ld_mm": 40.0,
+        "theta_d_deg": -35.000000000113715,
+        "phi_d_deg": 10.000000000032486
+      },
+      "summary": {
+        "J": 61.866457964374646,
+        "J_per_cell": 0.07811421460148314,
+        "cells": 792,
+        "success": 73,
+        "env": 59,
+        "tip": 14,
+        "workspace_term": 61.8,
+        "force_margin_sum": 66.45796437464935,
+        "force_term": 0.06645796437464935,
+        "rb5_pass": 81,
+        "prefiltered": 412,
+        "cell_seconds": 275.3517855992541,
+        "failures": {
+          "close_no_bilateral": 119,
+          "approach_overlap": 412,
+          "lift_height": 65,
+          "hold_mixed": 8,
+          "unintended_collision": 67,
+          "unintended_penetration": 12,
+          "ik_failed": 36
+        }
+      }
+    },
+    {
+      "label": "candidate_01",
+      "design": {
+        "length_mm": 134.07011194712865,
+        "lp_ratio": 0.6990976852915213,
+        "gap_mm": 55.51152066587118,
+        "theta_p_deg": 44.98333284405917,
+        "lp_mm": 93.72810492901277,
+        "ld_mm": 40.34200701811588,
+        "theta_d_deg": -34.983332844026684,
+        "phi_d_deg": 10.000000000032486
+      },
+      "summary": {
+        "J": 68.26943487298513,
+        "J_per_cell": 0.08619878140528425,
+        "cells": 792,
+        "success": 81,
+        "env": 65,
+        "tip": 16,
+        "workspace_term": 68.2,
+        "force_margin_sum": 69.43487298512292,
+        "force_term": 0.06943487298512292,
+        "rb5_pass": 91,
+        "prefiltered": 390,
+        "cell_seconds": 289.3398988995468,
+        "failures": {
+          "close_no_bilateral": 133,
+          "lift_height": 54,
+          "approach_overlap": 390,
+          "unintended_penetration": 17,
+          "hold_mixed": 10,
+          "unintended_collision": 70,
+          "approach_push": 2,
+          "ik_failed": 35
+        }
+      }
+    },
+    {
+      "label": "candidate_02",
+      "design": {
+        "length_mm": 134.44220591435408,
+        "lp_ratio": 0.6997726396330706,
+        "gap_mm": 55.57203772216005,
+        "theta_p_deg": 44.898113782765016,
+        "lp_mm": 94.07897731078036,
+        "ld_mm": 40.36322860357372,
+        "theta_d_deg": -34.89811378273253,
+        "phi_d_deg": 10.000000000032486
+      },
+      "summary": {
+        "J": 69.4688681787377,
+        "J_per_cell": 0.08771321739739608,
+        "cells": 792,
+        "success": 83,
+        "env": 66,
+        "tip": 17,
+        "workspace_term": 69.4,
+        "force_margin_sum": 68.86817873768884,
+        "force_term": 0.06886817873768884,
+        "rb5_pass": 93,
+        "prefiltered": 390,
+        "cell_seconds": 293.3354829986347,
+        "failures": {
+          "close_no_bilateral": 132,
+          "approach_overlap": 390,
+          "lift_height": 55,
+          "unintended_penetration": 16,
+          "hold_mixed": 10,
+          "unintended_collision": 69,
+          "approach_push": 1,
+          "ik_failed": 36
+        }
+      }
+    },
+    {
+      "label": "candidate_03",
+      "design": {
+        "length_mm": 134.5595406394391,
+        "lp_ratio": 0.6996567943935365,
+        "gap_mm": 55.78943937405516,
+        "theta_p_deg": 44.963917720194274,
+        "lp_mm": 94.14549685885675,
+        "ld_mm": 40.41404378058235,
+        "theta_d_deg": -34.96391772016179,
+        "phi_d_deg": 10.000000000032486
+      },
+      "summary": {
+        "J": 68.46845658769278,
+        "J_per_cell": 0.08645007144910705,
+        "cells": 792,
+        "success": 82,
+        "env": 65,
+        "tip": 17,
+        "workspace_term": 68.4,
+        "force_margin_sum": 68.45658769278292,
+        "force_term": 0.06845658769278291,
+        "rb5_pass": 92,
+        "prefiltered": 390,
+        "cell_seconds": 290.55835120065603,
+        "failures": {
+          "close_no_bilateral": 129,
+          "lift_height": 59,
+          "approach_overlap": 390,
+          "unintended_penetration": 17,
+          "hold_mixed": 10,
+          "unintended_collision": 70,
+          "ik_failed": 35
+        }
+      }
+    }
+  ],
+  "best_label": "candidate_02"
+}

@@ -446,6 +446,64 @@ def read_workspace(path):
     return rows
 
 
+def baseline_design(template, cfg):
+    base = baseline_parameters(template)
+    return DesignSpace(cfg, base).derived({v: float(base[v]) for v in VARIABLES})
+
+
+def reference_design(template):
+    """A design exactly as written in its own XML (no optimizer bounds applied)."""
+    base = baseline_parameters(template)
+    design = {k: float(base[k]) for k in VARIABLES}
+    design.update(lp_mm=base["length_mm"]*base["lp_ratio"], ld_mm=base["length_mm"]*(1-base["lp_ratio"]),
+                  theta_d_deg=float(base["theta_d_deg"]), phi_d_deg=float(base["phi_d_deg"]))
+    return design
+
+
+def run_result(run, label=None):
+    """(label, design, summary, rows, template) of one design in an optimize_rb5_cmaes.py folder.
+
+    With final/ results: the final best, or `label` (baseline, candidate_01, or a design
+    added with add_reference.py, which brings its own template XML).
+    Without them: the best of the search so far (best_workspace.csv once the search has
+    ended, the checkpoint while it is still running), or label 'baseline'."""
+    run = Path(run)
+    final = run/"final"
+    template = (run/"source_design168.xml").read_text(encoding="utf-8-sig")
+    if (final/"comparison.json").is_file():
+        comparison = read_json(final/"comparison.json")
+        results = {r["label"]: r for r in comparison["results"]}
+        label = label or comparison["best_label"]
+        if label not in results:
+            raise SystemExit(f"No final result '{label}'. Available: {sorted(results)}. "
+                             "Other designs can be added with add_reference.py.")
+        res = results[label]
+        if res.get("source_xml"):
+            template = (final/res["source_xml"]).read_text(encoding="utf-8-sig")
+        return label, res["design"], res["summary"], read_workspace(final/f"{label}_workspace.csv"), template
+    if label == "baseline" and (run/"baseline_workspace.csv").is_file():
+        return ("baseline", baseline_design(template, read_json(run/"config_used.json")),
+                read_json(run/"baseline_summary.json"), read_workspace(run/"baseline_workspace.csv"), template)
+    if label not in (None, "search_best"):
+        raise SystemExit(f"'{label}' needs the final evaluation (final/comparison.json), "
+                         f"which {run} does not have.")
+    if (run/"best_workspace.csv").is_file() and (run/"best_design.json").is_file():
+        best = read_json(run/"best_design.json")
+        return "search_best", best["design"], best["summary"], read_workspace(run/"best_workspace.csv"), template
+    if (run/"checkpoint.pkl").is_file():
+        import pickle
+        # Only your own checkpoint: unpickling an untrusted file can run code.
+        state = pickle.loads((run/"checkpoint.pkl").read_bytes())
+        rec = state["records"][state["best_eval_id"]]
+        print(f"Search still in progress: best so far is evaluation {rec['eval_id']} "
+              f"(generation {rec['generation']}).")
+        return "search_best", rec["design"], rec["summary"], [dict(r) for r in state["best_rows"]], template
+    found = sorted(p.name for p in run.iterdir()) if run.is_dir() else "folder does not exist"
+    raise SystemExit(f"{run} holds no results (no final/comparison.json, best_workspace.csv or "
+                     f"checkpoint.pkl). Contents: {found}\nUse the folder printed after "
+                     "'Saved results:' when the optimization finished.")
+
+
 def best_cell(rows):
     ok = [r for r in rows if r["success"]]
     if not ok:
@@ -489,8 +547,7 @@ def main():
     if args.design:
         design = load_design(args.design, template, cfg)
     else:
-        base = baseline_parameters(template)
-        design = DesignSpace(cfg, base).derived({v: float(base[v]) for v in VARIABLES})
+        design = baseline_design(template, cfg)
     arm = Rb5Arm(cfg)
     if args.cell:
         r, x, y = args.cell

@@ -10,6 +10,7 @@ y = gap between palm face and object surface.
   python run_task.py --run runs/rb5_cmaes                     # final best design, its best cell
   python run_task.py --run runs/rb5_cmaes --cell 30 20 45     # r=30 mm, x=20, y=45
   python run_task.py --run runs/rb5_cmaes --label baseline    # same task with design168
+  python run_task.py --run runs/rb5_cmaes --label design001   # a design added with add_reference.py
   python run_task.py --run runs/rb5_cmaes --headless --video task.mp4
 """
 from __future__ import annotations
@@ -22,28 +23,14 @@ from pathlib import Path
 import mujoco
 
 from gripper_core import read_json
-from rb5_eval import CellMonitor, Rb5Arm, best_cell, empty_row, read_workspace, validate_rb5_config
+from rb5_eval import CellMonitor, Rb5Arm, best_cell, empty_row, run_result, validate_rb5_config
 from run_pick_lift import PickLift, VideoRecorder, save_results
-
-
-def load_run(run, label):
-    """(label, design, workspace CSV or None) from a run folder."""
-    final = run/"final"
-    if label is None and (final/"comparison.json").is_file():
-        label = read_json(final/"comparison.json")["best_label"]
-    if label is None:
-        return "search_best", read_json(run/"best_design.json")["design"], run/"best_workspace.csv"
-    path = final/f"{label}.json"
-    if not path.is_file():
-        options = sorted(p.stem for p in final.glob("*.json") if p.stem != "comparison")
-        raise SystemExit(f"No final result '{label}'. Available: {options}")
-    return label, read_json(path)["design"], final/f"{label}_workspace.csv"
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, required=True, help="Output folder of optimize_rb5_cmaes.py")
-    p.add_argument("--label", help="Design in <run>/final, e.g. baseline, candidate_01 (default: best)")
+    p.add_argument("--label", help="Design in <run>/final, e.g. baseline, candidate_01, design001 (default: best)")
     p.add_argument("--cell", type=float, nargs=3, metavar=("R_MM", "X_MM", "Y_MM"),
                    help="Object radius and map cell (default: the design's best successful cell)")
     p.add_argument("--headless", action="store_true", help="No viewer; run as fast as possible")
@@ -53,9 +40,7 @@ def main():
     run = args.run.resolve()
     cfg = read_json(run/"config_used.json")
     validate_rb5_config(cfg)
-    template = (run/"source_design168.xml").read_text(encoding="utf-8-sig")
-    label, design, csv_path = load_run(run, args.label)
-    rows = read_workspace(csv_path) if csv_path and csv_path.is_file() else []
+    label, design, _, rows, template = run_result(run, args.label)
     if args.cell:
         r, x, y = args.cell
     else:
