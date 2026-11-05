@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mujoco model="RB5 XML hand pick and lift">
-  <compiler angle="radian" autolimits="true" meshdir="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes" />
+  <compiler angle="radian" autolimits="true" meshdir="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes" />
   <option timestep="0.001" integrator="implicitfast" cone="elliptic" impratio="10" gravity="0 0 -9.81" iterations="100" tolerance="1e-10" />
   <statistic center="0.4 0 0.3" extent="1.0" />
   <visual>
@@ -38,13 +38,13 @@
       </default>
     </default>
     <default class="hand__root">
-      <joint type="hinge" axis="0 0 1" damping="0.003" armature="5e-06" />
-      <geom density="1100" condim="4" friction="0.5 0.005 0.0001" solref="0.002 1" solimp="0.9 0.95 0.001 0.5 2" />
-      <default class="hand__pin">
-        <geom type="cylinder" size="0.0025 0.0115" contype="0" conaffinity="0" mass="0" rgba="0.75 0.75 0.8 1" />
+      <geom condim="4" friction="0.5 0.005 0.0001" solref="0.002 1" solimp="0.9 0.95 0.001 0.5 2" density="620" />
+      <default class="hand__finger">
+        <joint type="hinge" solreflimit="0.002 1" />
+        <geom type="capsule" size="0.01" rgba="0.85 0.55 0.25 1" />
       </default>
       <default class="hand__wrap">
-        <geom type="cylinder" contype="0" conaffinity="0" group="3" rgba="0.2 0.4 0.9 0.4" />
+        <geom type="cylinder" contype="0" conaffinity="0" group="3" mass="0" rgba="0.2 0.4 0.9 0.4" />
       </default>
       <site size="0.0012" rgba="1 0.5 0 1" group="4" />
     </default>
@@ -61,32 +61,32 @@
     <material name="light" rgba="0.80 0.80 0.80 1" specular="0.5" shininess="0.5" />
     <material name="dark" rgba="0.30 0.30 0.30 1" specular="0.3" shininess="0.3" />
     <material name="black" rgba="0.10 0.10 0.10 1" specular="0.2" shininess="0.2" />
-    <mesh name="link0_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link0_light.obj" />
-    <mesh name="link0_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link0_black.obj" />
-    <mesh name="link1_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link1_light.obj" />
-    <mesh name="link1_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link1_dark.obj" />
-    <mesh name="link1_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link1_black.obj" />
-    <mesh name="link2_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link2_light.obj" />
-    <mesh name="link2_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link2_dark.obj" />
-    <mesh name="link2_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link2_black.obj" />
-    <mesh name="link3_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link3_light.obj" />
-    <mesh name="link3_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link3_dark.obj" />
-    <mesh name="link3_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link3_black.obj" />
-    <mesh name="link4_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link4_light.obj" />
-    <mesh name="link4_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link4_dark.obj" />
-    <mesh name="link4_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link4_black.obj" />
-    <mesh name="link5_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link5_light.obj" />
-    <mesh name="link5_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link5_dark.obj" />
-    <mesh name="link5_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link5_black.obj" />
-    <mesh name="link6_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link6_light.obj" />
-    <mesh name="link6_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link6_dark.obj" />
-    <mesh name="link0_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\collision\link0.stl" />
-    <mesh name="link1_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\collision\link1.stl" />
-    <mesh name="link2_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\collision\link2.stl" />
-    <mesh name="link3_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\collision\link3.stl" />
-    <mesh name="link4_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\collision\link4.stl" />
-    <mesh name="link5_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\collision\link5.stl" />
-    <mesh name="link6_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\rb5_xml_pick\assets\rb5_850e\meshes\collision\link6.stl" />
+    <mesh name="link0_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link0_light.obj" />
+    <mesh name="link0_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link0_black.obj" />
+    <mesh name="link1_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link1_light.obj" />
+    <mesh name="link1_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link1_dark.obj" />
+    <mesh name="link1_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link1_black.obj" />
+    <mesh name="link2_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link2_light.obj" />
+    <mesh name="link2_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link2_dark.obj" />
+    <mesh name="link2_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link2_black.obj" />
+    <mesh name="link3_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link3_light.obj" />
+    <mesh name="link3_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link3_dark.obj" />
+    <mesh name="link3_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link3_black.obj" />
+    <mesh name="link4_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link4_light.obj" />
+    <mesh name="link4_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link4_dark.obj" />
+    <mesh name="link4_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link4_black.obj" />
+    <mesh name="link5_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link5_light.obj" />
+    <mesh name="link5_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link5_dark.obj" />
+    <mesh name="link5_black" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link5_black.obj" />
+    <mesh name="link6_light" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link6_light.obj" />
+    <mesh name="link6_dark" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\visual_obj\link6_dark.obj" />
+    <mesh name="link0_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\collision\link0.stl" />
+    <mesh name="link1_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\collision\link1.stl" />
+    <mesh name="link2_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\collision\link2.stl" />
+    <mesh name="link3_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\collision\link3.stl" />
+    <mesh name="link4_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\collision\link4.stl" />
+    <mesh name="link5_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\collision\link5.stl" />
+    <mesh name="link6_col" file="C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\rb5_xml_pick\assets\rb5_850e\meshes\collision\link6.stl" />
   </asset>
   <worldbody>
     <light name="ceiling_1" pos="0.3 -0.8 2.4" dir="0 0.3 -1" diffuse="0.55 0.55 0.53" specular="0.1 0.1 0.1" castshadow="true" cutoff="70" exponent="2" />
@@ -166,47 +166,43 @@
                   <body name="task_mount" pos="0 -0.0967 0" quat="0.7071068 0.7071068 0 0">
                     <geom name="task_flange" type="cylinder" size=".035 .006" pos="0 0 .006" mass=".04" rgba=".25 .28 .32 1" />
                     <geom name="task_adapter" type="box" size="0.018 0.025 0.044" pos="0 0 0.056" mass=".06" rgba=".36 .40 .45 1" />
-                    <body name="hand__palm" pos="0 0 0.1" quat="0.5 0.5 0.5 -0.5" childclass="hand__root">
-                      <geom name="hand__palm_geom" type="box" pos="0.0145000 0.0000000 0.0000000" size="0.0155 0.0475 0.010" rgba="0.4 0.4 0.45 0.2" />
-                      <geom name="hand__joint1_pin" class="hand__pin" pos="0 0.0375 0" />
-                      <geom name="hand__joint3_pin" class="hand__pin" pos="0 -0.0375 0" />
-                      <geom name="hand__joint1_wrap" class="hand__wrap" pos="0 0.0375 0" size="0.006 0.003" />
-                      <geom name="hand__joint3_wrap" class="hand__wrap" pos="0 -0.0375 0" size="0.006 0.003" />
-                      <site name="hand__joint1_side" pos="0 0.0255 0" />
-                      <site name="hand__joint3_side" pos="0 -0.0255 0" />
-                      <site name="hand__palm_up" pos="0.008 0.0315 0" />
-                      <site name="hand__palm_lo" pos="0.008 -0.0315 0" />
-                      <geom name="hand__pulley_vis" type="cylinder" pos="0.036 0 0" size="0.006 0.003" contype="0" conaffinity="0" rgba="0.9 0.8 0.1 1" />
-                      <site name="hand__pulley" pos="0.042 0 0" />
-                      <body name="hand__upper_link1" pos="0 0.0375 0">
-                        <joint name="hand__joint1" range="-0.349065850399 1.4" stiffness="0.00316227766" springref="-0.349065850399" />
-                        <geom name="hand__upper_green_link" type="capsule" fromto="0 0 0 -0.075 0 0" size="0.010" rgba="0.15 0.15 0.15 1" />
-                        <site name="hand__upper_prox_top" pos="-0.071 -0.004 0" />
-                        <site name="hand__upper_prox_bot" pos="-0.0040000 -0.0060000 0.0000000" />
-                        <geom name="hand__joint2_pin" class="hand__pin" pos="-0.075 0 0" />
-                        <body name="hand__upper_link2" pos="-0.075 0 0">
-                          <joint name="hand__joint2" range="-0 1.5" stiffness="0.00316227766" springref="-0" />
-                          <geom name="hand__upper_red_link" type="capsule" fromto="0 0 0 -0.075 0 0" size="0.010" rgba="0.95 0.15 0.15 1" />
-                          <geom name="hand__joint2_wrap" class="hand__wrap" size="0.004 0.003" />
-                          <site name="hand__joint2_side" pos="0 -0.008000 0" />
-                          <site name="hand__upper_tip" pos="-0.073 -0.004 0" />
+                    <body name="hand____input_palm" pos="0 0 0.1" quat="0.707106781186548 0.707106781186547 -2.16489014058873e-17 2.16489014058873e-17" childclass="hand__root">
+                      <geom name="hand__palm" type="box" pos="0 -0.005 0" size="0.045 0.005 0.05" rgba="0.5 0.5 0.55 1" />
+                      <geom name="hand__R_jp_wrap" class="hand__wrap" pos="0.025 0 0" size="0.006 0.003" />
+                      <geom name="hand__L_jp_wrap" class="hand__wrap" pos="-0.025 0 0" size="0.006 0.003" />
+                      <site name="hand__R_jp_side" pos="0.013 0 0" />
+                      <site name="hand__L_jp_side" pos="-0.013 0 0" />
+                      <site name="hand__R_palm" pos="0.019 -0.008 0" />
+                      <site name="hand__L_palm" pos="-0.019 -0.008 0" />
+                      <site name="hand__pulley" pos="0 -0.042 0" />
+                      <geom name="hand__pulley_vis" type="cylinder" pos="0 -0.036 0" size="0.006 0.003" contype="0" conaffinity="0" group="1" rgba="0.9 0.8 0.1 1" />
+                      <body name="hand__R_prox" pos="0.025 0 0" axisangle="0 0 1 -0.7853981634">
+                        <joint name="hand__R_jp" class="hand__finger" axis="0 0 1" ref="-0.7853981634" range="-0.7853981634 1.919862177" stiffness="0.00170998" springref="-0.7853981634" damping="0.0008079068892" />
+                        <geom name="hand__R_gp" class="hand__finger" fromto="0 0 0 0 0.093333333 0" />
+                        <site name="hand__R_prox_bot" pos="-0.006 0.004 0" />
+                        <site name="hand__R_prox_top" pos="-0.004 0.089333333 0" />
+                        <body name="hand__R_dist" pos="0 0.093333333 0" axisangle="0 0 1 0.6108652382">
+                          <joint name="hand__R_jd" class="hand__finger" axis="0 0 1" ref="0.6108652382" range="0.6108652382 1.919862177" stiffness="0.00170998" springref="-22.78122122" damping="0.0001523043499" />
+                          <geom name="hand__R_gd" class="hand__finger" fromto="0 0 0 0 0.04 0" />
+                          <geom name="hand__R_jd_wrap" class="hand__wrap" size="0.004 0.003" />
+                          <site name="hand__R_jd_side" pos="-0.008 0 0" />
+                          <site name="hand__R_tip" pos="-0.004 0.038 0" />
                         </body>
                       </body>
-                      <body name="hand__lower_link1" pos="0 -0.0375 0">
-                        <joint name="hand__joint3" range="-1.4 0.349065850399" stiffness="0.00316227766" springref="0.349065850399" />
-                        <geom name="hand__lower_green_link" type="capsule" fromto="0 0 0 -0.075 0 0" size="0.010" rgba="0.1 0.8 0.2 1" />
-                        <site name="hand__lower_prox_top" pos="-0.071 0.004 0" />
-                        <site name="hand__lower_prox_bot" pos="-0.0040000 0.0060000 0.0000000" />
-                        <geom name="hand__joint4_pin" class="hand__pin" pos="-0.075 0 0" />
-                        <body name="hand__lower_link2" pos="-0.075 0 0">
-                          <joint name="hand__joint4" range="-1.5 0" stiffness="0.00316227766" springref="0" />
-                          <geom name="hand__lower_red_link" type="capsule" fromto="0 0 0 -0.075 0 0" size="0.010" rgba="0.95 0.15 0.15 1" />
-                          <geom name="hand__joint4_wrap" class="hand__wrap" size="0.004 0.003" />
-                          <site name="hand__joint4_side" pos="0 0.008000 0" />
-                          <site name="hand__lower_tip" pos="-0.073 0.004 0" />
+                      <body name="hand__L_prox" pos="-0.025 0 0" axisangle="0 0 -1 -0.7853981634">
+                        <joint name="hand__L_jp" class="hand__finger" axis="0 0 -1" ref="-0.7853981634" range="-0.7853981634 1.919862177" stiffness="0.00170998" springref="-0.7853981634" damping="0.0008079068892" />
+                        <geom name="hand__L_gp" class="hand__finger" fromto="0 0 0 0 0.093333333 0" />
+                        <site name="hand__L_prox_bot" pos="0.006 0.004 0" />
+                        <site name="hand__L_prox_top" pos="0.004 0.089333333 0" />
+                        <body name="hand__L_dist" pos="0 0.093333333 0" axisangle="0 0 -1 0.6108652382">
+                          <joint name="hand__L_jd" class="hand__finger" axis="0 0 -1" ref="0.6108652382" range="0.6108652382 1.919862177" stiffness="0.00170998" springref="-22.78122122" damping="0.0001523043499" />
+                          <geom name="hand__L_gd" class="hand__finger" fromto="0 0 0 0 0.04 0" />
+                          <geom name="hand__L_jd_wrap" class="hand__wrap" size="0.004 0.003" />
+                          <site name="hand__L_jd_side" pos="0.008 0 0" />
+                          <site name="hand__L_tip" pos="0.004 0.038 0" />
                         </body>
                       </body>
-                      <site name="task_grasp" pos="-0.09 1.83697019872103e-18 0" size=".002" group="4" rgba="0 1 1 0" />
+                      <site name="task_grasp" pos="0 0.08 0" size=".002" group="4" rgba="0 1 1 0" />
                     </body>
                   </body>
                 </body>
@@ -216,32 +212,32 @@
         </body>
       </body>
     </body>
-    <body name="hand__object_body" pos="0.6 0 0.0995" childclass="hand__root">
-      <freejoint name="hand__object_free" />
-      <geom name="hand__object" type="cylinder" size="0.055 0.019" mass="0.3" friction="1.0 0.005 0.0001" rgba="0.2 0.5 1 1" pos="0 0 0" />
+    <body name="hand__obj" pos="0.6 0 0.1205" childclass="hand__root">
+      <freejoint name="hand__obj_free" />
+      <geom name="hand__obj_g" type="cylinder" size="0.04 0.04" mass="0.1" rgba="0.3 0.7 0.3 0.6" pos="0 0 0" />
     </body>
-    <geom name="task_support" type="cylinder" pos="0.6 0 0.04" size="0.04675 0.04" rgba=".55 .59 .64 1" friction="1 .005 .0001" />
+    <geom name="task_support" type="cylinder" pos="0.6 0 0.04" size="0.034 0.04" rgba=".55 .59 .64 1" friction="1 .005 .0001" />
   </worldbody>
   <contact>
     <exclude body1="link0" body2="link1" />
-    <exclude body1="hand__palm" body2="hand__upper_link1" />
-    <exclude body1="hand__palm" body2="hand__lower_link1" />
+    <exclude body1="hand____input_palm" body2="hand__R_prox" />
+    <exclude body1="hand____input_palm" body2="hand__L_prox" />
   </contact>
   <tendon>
     <spatial name="hand__tendon" width="0.0008" rgba="1 0.5 0 1">
-      <site site="hand__upper_tip" />
-      <geom geom="hand__joint2_wrap" sidesite="hand__joint2_side" />
-      <site site="hand__upper_prox_top" />
-      <site site="hand__upper_prox_bot" />
-      <geom geom="hand__joint1_wrap" sidesite="hand__joint1_side" />
-      <site site="hand__palm_up" />
+      <site site="hand__R_tip" />
+      <geom geom="hand__R_jd_wrap" sidesite="hand__R_jd_side" />
+      <site site="hand__R_prox_top" />
+      <site site="hand__R_prox_bot" />
+      <geom geom="hand__R_jp_wrap" sidesite="hand__R_jp_side" />
+      <site site="hand__R_palm" />
       <site site="hand__pulley" />
-      <site site="hand__palm_lo" />
-      <geom geom="hand__joint3_wrap" sidesite="hand__joint3_side" />
-      <site site="hand__lower_prox_bot" />
-      <site site="hand__lower_prox_top" />
-      <geom geom="hand__joint4_wrap" sidesite="hand__joint4_side" />
-      <site site="hand__lower_tip" />
+      <site site="hand__L_palm" />
+      <geom geom="hand__L_jp_wrap" sidesite="hand__L_jp_side" />
+      <site site="hand__L_prox_bot" />
+      <site site="hand__L_prox_top" />
+      <geom geom="hand__L_jd_wrap" sidesite="hand__L_jd_side" />
+      <site site="hand__L_tip" />
     </spatial>
   </tendon>
   <actuator>
@@ -254,6 +250,6 @@
     <motor name="hand__pulley_pull" tendon="hand__tendon" gear="-0.5" ctrlrange="0 40" class="hand__root" ctrllimited="true" />
   </actuator>
   <keyframe>
-    <key name="task_home" qpos="0.60978672308128 -0.543223522111865 2.38074249342898 1.30407364632158 -0.961010062054953 -3.105045076745e-09 -0.349065850399 -0 0.349065850399 0 0.6 0 0.0995 1 0 0 0" ctrl="0.60978672308128 -0.543223522111865 2.38074249342898 1.30407364632158 -0.961010062054953 -3.105045076745e-09 0" />
+    <key name="task_home" qpos="0.575810332710547 -0.521429751788907 2.31608316474402 1.3469392175543 -0.99498609434755 1.07987612401525e-08 -0.7853981634 0.6108652382 -0.7853981634 0.6108652382 0.6 0 0.1205 1 0 0 0" ctrl="0.575810332710547 -0.521429751788907 2.31608316474402 1.3469392175543 -0.99498609434755 1.07987612401525e-08 0" />
   </keyframe>
 </mujoco>
