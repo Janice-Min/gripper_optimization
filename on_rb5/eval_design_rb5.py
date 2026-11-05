@@ -2,9 +2,17 @@
 
 The design is evaluated exactly like the final candidates of an optimize_rb5_cmaes.py
 run: same config_used.json, same final grid (rb5_fine), same rb5_eval.Rb5Arm.run_cells
-(mounting, pick-and-lift, env/tip judging, prefilter). The design XML (same format as
-design168.xml) is used as the hand template, so its own fixed values (phi_d, k_p, k_d,
-preload) are kept. Only tendon tension, object and protocol come from the config.
+(mounting, pick-and-lift, env/tip judging, prefilter).
+
+Two XML formats are accepted:
+  * the RB5 hand format of design168.xml (R_gp, R_jp, ...): used directly as the template.
+  * the stage0 format of design001.xml (upper_green_link, joint1, ...): the hand is built
+    with gripper_core.build_xml from the run's own template, then the XML's distal open
+    angle, stiffness and preload are put back (damping follows the run's damping ratio).
+    Before anything runs on the RB5, the result is checked against the original model:
+    every finger value, the open-pose site positions and the joint angles under a small
+    tendon pull must match.
+Tendon tension, object and protocol always come from the run's config.
 
   python eval_design_rb5.py --run runs/rb5_cmaes_final --xml design001.xml --workers 8
 
@@ -12,9 +20,13 @@ Running the same command again continues an interrupted evaluation, or only redr
 plot when it is finished. --fresh discards earlier results of this label.
 
 Writes to <run>/references/:
-  <label>.json              design, summary (J, env, tip, failures), grid
+  <label>.json              {label, design, summary}, same format as final/candidate_XX.json;
+                            design holds the values actually simulated (stage0: the XML's
+                            own theta_d and phi_d)
+  <label>_meta.json         grid, build_xml input, stage0 patch, mounted hand values
   <label>_workspace.csv     one row per cell, same columns as final/*_workspace.csv
-  <label>_source.xml        copy of the design XML (template used for every cell)
+  <label>_source.xml        copy of the design XML
+  <label>_template.xml      hand template given to build_xml
   <label>_hand.xml          hand at its strongest grasp cell
   <label>_rb5_scene.xml     viewer scene: python run_pick_lift.py --xml <this file>
 and <run>/plots/workspace_<label>.png
@@ -38,24 +50,241 @@ os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 
 import numpy as np
 
+import mujoco
 from gripper_core import DesignSpace, VARIABLES, baseline_parameters, build_xml, read_json, save_rows
 from rb5_eval import Rb5Arm, best_cell, group_tasks, hand_config, summarize, validate_rb5_config
 
 WORKER = {}
+STAGE0_SITES = {  # stage0 site -> RB5 hand site. Finger sites must coincide exactly.
+    "upper_tip": "R_tip", "upper_prox_top": "R_prox_top", "upper_prox_bot": "R_prox_bot",
+    "joint2_side": "R_jd_side", "lower_tip": "L_tip", "lower_prox_top": "L_prox_top",
+    "lower_prox_bot": "L_prox_bot", "joint4_side": "L_jd_side"}
+PALM_SITES = {"joint1_side": "R_jp_side", "joint3_side": "L_jp_side", "palm_up": "R_palm",
+              "palm_lo": "L_palm", "pulley": "pulley"}
 
 
-def init_worker(template, cfg):
+# ---------------------------------------------------------------- stage0 conversion
+def vec(text):
+    return np.array([float(t) for t in text.split()])
+
+
+def num(v):
+    """Full-precision plain number for XML (repr of a numpy float is 'np.float64(..)')."""
+    return repr(float(v))
+
+
+def stage0_values(text):
+    """Finger values of a stage0-format XML (design001.xml), in the RB5 hand's joint
+    convention: open stop = lower range limit, closing positive."""
+    root = ET.fromstring(text)
+    body = {b.get("name"): b for b in root.iter("body")}
+    geom = {g.get("name"): g for g in root.iter("geom")}
+    joint = {j.get("name"): j for j in root.iter("joint")}
+
+    def seg(name):
+        v = vec(geom[name].get("fromto"))
+        return float(np.linalg.norm(v[3:]-v[:3]))
+
+    j1, j2, j3, j4 = (joint[f"joint{i}"] for i in range(1, 5))
+    lo1, lo2 = float(vec(j1.get("range"))[0]), float(vec(j2.get("range"))[0])
+    if not (np.isclose(seg("upper_green_link"), seg("lower_green_link"))
+            and np.isclose(seg("upper_red_link"), seg("lower_red_link"))
+            and np.isclose(-vec(j3.get("range"))[1], lo1) and np.isclose(-vec(j4.get("range"))[1], lo2)
+            and j1.get("stiffness") == j3.get("stiffness") and j2.get("stiffness") == j4.get("stiffness")):
+        raise SystemExit("The stage0 XML is not left/right symmetric. The RB5 hand model is symmetric.")
+    k_p, k_d = float(j1.get("stiffness", 0)), float(j2.get("stiffness", 0))
+    return dict(Lp=seg("upper_green_link"), Ld=seg("upper_red_link"),
+                G=float(vec(body["upper_link1"].get("pos"))[1]-vec(body["lower_link1"].get("pos"))[1]),
+                theta_p=-lo1, q_open_d=lo2, k_p=k_p, k_d=k_d,
+                off_p=lo1-float(j1.get("springref", 0)), off_d=lo2-float(j2.get("springref", 0)))
+
+
+def joint_order(root):
+    """qpos address of every named joint, from document order (= MuJoCo's tree order)."""
+    adr, out = 0, {}
+    for el in root.find("worldbody").iter():
+        if el.tag == "freejoint" or (el.tag == "joint" and el.get("type") == "free"):
+            out[el.get("name")] = adr
+            adr += 7
+        elif el.tag == "joint":
+            if el.get("type", "hinge") not in ("hinge", "slide"):
+                raise ValueError("Unexpected joint type in the hand XML")
+            out[el.get("name")] = adr
+            adr += 1
+    return out
+
+
+def apply_patch(hand_xml, patch):
+    """Put the stage0 design's distal open angle, stiffness, preload and damping into a
+    hand XML made by build_xml. Geometry and everything else stay as build_xml made them."""
+    if not patch:
+        return hand_xml
+    root = ET.fromstring(hand_xml)
+    joint = {j.get("name"): j for j in root.iter("joint")}
+    body = {b.get("name"): b for b in root.iter("body")}
+    qd = float(patch["q_open_d"])
+    for side in ("R", "L"):
+        jp, jd = joint[f"{side}_jp"], joint[f"{side}_jd"]
+        q_open_p = float(vec(jp.get("range"))[0])
+        jp.set("stiffness", num(patch["k_p"]))
+        jp.set("springref", num(q_open_p-patch["off_p"]))
+        axis = vec(body[f"{side}_dist"].get("axisangle"))[:3]
+        body[f"{side}_dist"].set("axisangle", " ".join(f"{v:g}" for v in axis)+f" {num(qd)}")
+        jd.set("ref", num(qd))
+        jd.set("range", f"{num(qd)} {num(vec(jd.get('range'))[1])}")
+        jd.set("stiffness", num(patch["k_d"]))
+        jd.set("springref", num(qd-patch["off_d"]))
+        for j, key in ((jp, "damping_p"), (jd, "damping_d")):
+            if key in patch:
+                j.set("damping", num(patch[key]))
+    key = root.find(".//key[@name='open']")
+    if key is not None:
+        qpos = key.get("qpos").split()
+        order = joint_order(root)
+        for side in ("R", "L"):
+            qpos[order[f"{side}_jd"]] = num(qd)
+        key.set("qpos", " ".join(qpos))
+    return ET.tostring(root, encoding="unicode")
+
+
+def full_inertia(m, d):
+    M = np.zeros((m.nv, m.nv))
+    try:
+        mujoco.mj_fullM(m, d, M)  # Newer MuJoCo.
+    except TypeError:
+        mujoco.mj_fullM(m, M, d.qM)  # Older MuJoCo.
+    return M
+
+
+def open_pose(xml):
+    m = mujoco.MjModel.from_xml_string(xml)
+    d = mujoco.MjData(m)
+    if m.nkey and "open" in [m.key(i).name for i in range(m.nkey)]:
+        mujoco.mj_resetDataKeyframe(m, d, m.key("open").id)
+    mujoco.mj_forward(m, d)
+    return m, d
+
+
+def joint_inertia(xml):
+    m, d = open_pose(xml)
+    M = full_inertia(m, d)
+    return {n: float(M[m.joint(n).dofadr[0], m.joint(n).dofadr[0]]) for n in ("R_jp", "R_jd")}
+
+
+def stage0_conversion(src_text, run_template, cfg):
+    """(design, patch): build_xml(run_template, design) + apply_patch(.., patch) is the
+    stage0 design as an RB5 hand."""
+    s = stage0_values(src_text)
+    base = baseline_parameters(run_template)
+    space = DesignSpace(cfg, base)
+    L = s["Lp"]+s["Ld"]
+    design = space.derived(dict(length_mm=1000*L, lp_ratio=s["Lp"]/L, gap_mm=1000*s["G"],
+                                theta_p_deg=math.degrees(s["theta_p"])))
+    patch = {k: s[k] for k in ("q_open_d", "k_p", "k_d", "off_p", "off_d")}
+    raw = build_xml(run_template, design, hand_config(cfg), radius_mm=40)
+    # Keep the run's damping ratio: damping = 2*zeta*sqrt(k*I) at the open pose.
+    m, _ = open_pose(raw)
+    inertia_raw = joint_inertia(raw)
+    inertia_new = joint_inertia(apply_patch(raw, patch))
+    for tag, name in (("p", "R_jp"), ("d", "R_jd")):
+        j = m.joint(name)
+        k, c = float(m.jnt_stiffness[j.id]), float(m.dof_damping[j.dofadr[0]])
+        if k > 0 and c > 0:
+            zeta = c/(2*math.sqrt(k*inertia_raw[name]))
+            patch[f"damping_{tag}"] = float(2*zeta*math.sqrt(patch[f"k_{tag}"]*inertia_new[name]))
+            patch[f"zeta_{tag}"] = float(zeta)
+    return design, patch
+
+
+def hand_frame_sites(m, d, palm_body=None):
+    """Site positions in the RB5 hand frame (x = jaw width, y = approach) [m]."""
+    if palm_body is None:
+        return {m.site(i).name: d.site_xpos[i][:2].copy() for i in range(m.nsite)}
+    b = m.body(palm_body).id
+    rot, origin = d.xmat[b].reshape(3, 3), d.xpos[b]
+    out = {}
+    for i in range(m.nsite):
+        local = rot.T @ (d.site_xpos[i]-origin)
+        out[m.site(i).name] = np.array([local[1], -local[0]])  # stage0: fingers point along -x.
+    return out
+
+
+def check_conversion(src_text, hand_xml):
+    """Raise unless the converted hand reproduces the stage0 fingers."""
+    s = stage0_values(src_text)
+    h = hand_parameters(hand_xml)
+    want = {"Lp [mm]": 1000*s["Lp"], "Ld [mm]": 1000*s["Ld"], "G [mm]": 1000*s["G"],
+            "theta_p [deg]": math.degrees(s["theta_p"]), "theta_d [deg]": -math.degrees(s["q_open_d"]),
+            "k_p [N m/rad]": s["k_p"], "k_d [N m/rad]": s["k_d"],
+            "preload_p [N m]": s["k_p"]*s["off_p"], "preload_d [N m]": s["k_d"]*s["off_d"]}
+    bad = [f"{k}: XML {v:.6g}, RB5 hand {h[k]:.6g}" for k, v in want.items()
+           if not np.isclose(h[k], v, rtol=1e-4, atol=1e-6)]
+    m0, d0 = open_pose(src_text)
+    m1, d1 = open_pose(hand_xml)
+    a, b = hand_frame_sites(m0, d0, "palm"), hand_frame_sites(m1, d1)
+    worst = max(1000*np.linalg.norm(a[k]-b[v]) for k, v in STAGE0_SITES.items())
+    if worst > 0.5:
+        bad.append(f"open-pose finger sites differ by up to {worst:.2f} mm")
+    palm = {k: 1000*np.linalg.norm(a[k]-b[v]) for k, v in PALM_SITES.items() if k in a and v in b}
+    pull0 = finger_deflection(src_text, ("joint1", "joint2", "joint3", "joint4"))
+    pull1 = finger_deflection(hand_xml, ("R_jp", "R_jd", "L_jp", "L_jd"))
+    diff = max(abs(math.degrees(x-y)) for x, y in zip(pull0, pull1))
+    if diff > 0.5:
+        bad.append(f"joint angles under a 0.3 N tendon pull differ by up to {diff:.2f} deg")
+    if bad:
+        raise SystemExit("The converted hand does not match the stage0 XML:\n  "+"\n  ".join(bad))
+    return worst, max(palm.values(), default=0.0), diff
+
+
+def finger_deflection(xml, joints, tension=0.3, seconds=12.0):
+    """|q - q_open| of the given joints after a slow, contact-free tendon pull."""
+    m, d = open_pose(xml)
+    q_open = [float(d.qpos[m.joint(n).qposadr[0]]) for n in joints]
+    m.opt.gravity[:] = 0
+    m.geom_contype[:] = 0
+    m.geom_conaffinity[:] = 0
+    act = m.actuator("pulley_pull").id
+    d.ctrl[act] = tension/-m.actuator_gear[act, 0]
+    for _ in range(round(seconds/m.opt.timestep)):
+        mujoco.mj_step(m, d)
+    return [abs(float(d.qpos[m.joint(n).qposadr[0]])-q) for n, q in zip(joints, q_open)]
+
+
+# ---------------------------------------------------------------- evaluation
+class PatchedArm(Rb5Arm):
+    """Rb5Arm whose hands carry the stage0 design's own distal angle, stiffness, preload."""
+
+    def __init__(self, cfg, patch):
+        super().__init__(cfg)
+        self.patch = patch
+        self.calls = 0
+
+    def hand_xml(self, *args, **kwargs):
+        self.calls += 1
+        return apply_patch(super().hand_xml(*args, **kwargs), self.patch)
+
+
+def make_arm(cfg, patch):
+    return PatchedArm(cfg, patch) if patch else Rb5Arm(cfg)
+
+
+def init_worker(template, cfg, patch=None):
     WORKER.clear()
-    WORKER.update(template=template, cfg=cfg, arm=None)
+    WORKER.update(template=template, cfg=cfg, patch=patch, arm=None)
 
 
 def run_task(task):
     """Same work as optimize_rb5_cmaes.worker_task: cells of one design at one radius."""
     _, design, r_mm, cells = task
     if WORKER["arm"] is None:
-        WORKER["arm"] = Rb5Arm(WORKER["cfg"])
+        WORKER["arm"] = make_arm(WORKER["cfg"], WORKER["patch"])
+    arm = WORKER["arm"]
+    calls = getattr(arm, "calls", 0)
     start = time.perf_counter()
-    rows = WORKER["arm"].run_cells(WORKER["template"], design, r_mm, cells)
+    rows = arm.run_cells(WORKER["template"], design, r_mm, cells)
+    if WORKER["patch"] and arm.calls == calls:
+        raise RuntimeError("rb5_eval.Rb5Arm.run_cells no longer builds the hand through hand_xml(); "
+                           "the stage0 values would be lost. Send rb5_eval.py.")
     return rows, time.perf_counter()-start
 
 
@@ -151,8 +380,9 @@ def print_parameters(columns):
         print(f"{k:24}{text}{flag}")
 
 
-def signature(template, cfg, grid):
-    text = template+json.dumps(cfg, sort_keys=True)+json.dumps(grid, sort_keys=True)
+def signature(template, cfg, grid, patch):
+    text = (template+json.dumps(cfg, sort_keys=True)+json.dumps(grid, sort_keys=True)
+            + json.dumps(patch, sort_keys=True))
     return hashlib.sha256(text.encode()).hexdigest()
 
 
@@ -193,8 +423,8 @@ def split_tasks(design, grid, done, workers):
     return tasks
 
 
-def evaluate(template, design, cfg, grid, progress, workers):
-    sig = signature(template, cfg, grid)
+def evaluate(template, design, patch, cfg, grid, progress, workers):
+    sig = signature(template, cfg, grid, patch)
     done = read_progress(progress, sig)
     total = sum(len(c) for _, _, _, c in group_tasks([design], grid))
     tasks = split_tasks(design, grid, done, workers)
@@ -212,10 +442,10 @@ def evaluate(template, design, cfg, grid, progress, workers):
         try:
             if workers > 1:
                 pool = ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("spawn"),
-                                           initializer=init_worker, initargs=(template, cfg))
+                                           initializer=init_worker, initargs=(template, cfg, patch))
                 results = (f.result() for f in as_completed([pool.submit(run_task, t) for t in tasks]))
             else:
-                init_worker(template, cfg)
+                init_worker(template, cfg, patch)
                 results = (run_task(t) for t in tasks)
             for rows, sec in results:
                 with progress.open("a", encoding="utf-8") as f:
@@ -239,14 +469,64 @@ def evaluate(template, design, cfg, grid, progress, workers):
     return [done[cell_key(r, x, y)] for _, _, r, cells in group_tasks([design], grid) for x, y in cells]
 
 
-def plot(run, cfg, label, template, design, summary, rows):
+DESIGN_KEYS = ("length_mm", "lp_ratio", "gap_mm", "theta_p_deg", "lp_mm", "ld_mm",
+               "theta_d_deg", "phi_d_deg")
+
+
+def design_record(build_design, mounted):
+    """design block of final/candidate_XX.json, describing the hand actually simulated.
+    Geometry is the build_xml input; theta_d/phi_d come from the mounted hand, because a
+    stage0 patch replaces the run template's distal angle."""
+    out = {k: float(build_design[k]) for k in DESIGN_KEYS[:6]}
+    out["theta_d_deg"] = float(mounted["theta_d [deg]"])+0.0  # +0.0 turns -0.0 into 0.0.
+    out["phi_d_deg"] = float(mounted["phi_d [deg]"])+0.0
+    return out
+
+
+def write_result(files, label, build_design, patch, summary, mounted, meta):
+    dump(files["json"], dict(label=label, design=design_record(build_design, mounted), summary=summary))
+    dump(files["meta"], dict(build_design=build_design, patch=patch, mounted_hand=mounted, **meta))
+
+
+def load_reference(ref, label):
+    """(design for build_xml, patch, template text, json) of a references/ result.
+    Also reads the older single-file format of this script."""
+    result = read_json(ref/f"{label}.json")
+    meta_path = ref/f"{label}_meta.json"
+    meta = read_json(meta_path) if meta_path.is_file() else result
+    build_design = meta.get("build_design", result["design"])
+    template = (ref/meta.get("template_file", f"{label}_source.xml")).read_text(encoding="utf-8-sig")
+    return build_design, meta.get("patch"), template, result, meta
+
+
+def patch_aware_outline(pw):
+    """Make plot_workspace.hand_outline draw entries that carry a stage0 patch correctly."""
+    original = pw.hand_outline
+    if getattr(original, "patch_aware", False):
+        return
+
+    def hand_outline(entry, cfg):
+        if not entry.get("patch"):
+            return original(entry, cfg)
+        build = pw.build_xml
+        pw.build_xml = lambda *a, **k: apply_patch(build(*a, **k), entry["patch"])
+        try:
+            return original(entry, cfg)
+        finally:
+            pw.build_xml = build
+    hand_outline.patch_aware = True
+    pw.hand_outline = hand_outline
+
+
+def plot(run, cfg, label, template, design, patch, summary, rows):
     import matplotlib
     matplotlib.use("Agg")
     import plot_workspace as pw
+    patch_aware_outline(pw)
     out = run/"plots"
     out.mkdir(exist_ok=True)
     path = out/f"workspace_{label}.png"
-    shapes = pw.hand_outline(dict(template=template, design=design), cfg)
+    shapes = pw.hand_outline(dict(template=template, design=design, patch=patch), cfg)
     pw.plot_workspace(path, rows, label, design, summary, shapes)
     return path
 
@@ -255,7 +535,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, required=True, help="Output folder of optimize_rb5_cmaes.py")
     p.add_argument("--xml", type=Path, default=Path("design001.xml"),
-                   help="Design XML in the design168.xml format (default design001.xml)")
+                   help="Design XML, stage0 or RB5 hand format (default design001.xml)")
     p.add_argument("--label", help="Name of the result (default: XML file name without .xml)")
     p.add_argument("--grid", help="Grid name in config_used.json (default: the run's final grid)")
     p.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2)-1))
@@ -265,8 +545,9 @@ def main():
     label = args.label or args.xml.stem
     ref = run/"references"
     files = {k: ref/f"{label}{s}" for k, s in (("json", ".json"), ("csv", "_workspace.csv"),
-             ("src", "_source.xml"), ("hand", "_hand.xml"), ("scene", "_rb5_scene.xml"),
-             ("progress", "_progress.jsonl"))}
+             ("meta", "_meta.json"), ("src", "_source.xml"), ("template", "_template.xml"),
+             ("hand", "_hand.xml"),
+             ("scene", "_rb5_scene.xml"), ("progress", "_progress.jsonl"))}
     if args.workers < 1:
         raise SystemExit("--workers must be >= 1")
     if not (run/"config_used.json").is_file():
@@ -278,35 +559,62 @@ def main():
         for f in files.values():
             f.unlink(missing_ok=True)
     if files["json"].is_file() and files["csv"].is_file():  # Finished earlier: only redraw.
-        result = read_json(files["json"])
-        template = files["src"].read_text(encoding="utf-8-sig")
-        rows = read_rows(files["csv"])
+        build_design, patch, template, result, meta = load_reference(ref, label)
         print(f"{label} was already evaluated (use --fresh to redo). Redrawing the plot.")
-        print("Saved:", plot(run, cfg, label, template, result["design"], result["summary"], rows))
+        if not files["meta"].is_file():  # Older single-file result: rewrite, no simulation.
+            mounted = hand_parameters(apply_patch(build_xml(template, build_design, hand_config(cfg),
+                                                            radius_mm=40), patch))
+            keep = {k: v for k, v in meta.items()
+                    if k not in ("label", "design", "summary", "patch", "mounted_hand", "note")}
+            write_result(files, label, build_design, patch, result["summary"], mounted, keep)
+            print(f"Rewrote {files['json'].name} in the final/candidate_XX.json format "
+                  f"(details in {files['meta'].name}).")
+        print("Saved:", plot(run, cfg, label, template, build_design, patch, result["summary"],
+                             read_rows(files["csv"])))
         return
 
     if not args.xml.is_file():
         raise SystemExit(f"Design XML not found: {args.xml}")
-    template = args.xml.read_text(encoding="utf-8-sig")
-    design, note = load_design(template, cfg)
+    source = args.xml.read_text(encoding="utf-8-sig")
+    hcfg = hand_config(cfg)
+    best = read_json(run/"best_design_fine.json") if (run/"best_design_fine.json").is_file() else None
+    run_template = (run/"source_design168.xml").read_text(encoding="utf-8-sig")
+    tags = {e.get("name") for e in ET.fromstring(source).iter() if e.get("name")}
+    if "R_gp" in tags:
+        template, patch = source, None
+        design, note = load_design(template, cfg)
+    elif "upper_green_link" in tags:
+        print(f"{args.xml.name} is in the stage0 format: building it on the run's hand template ...")
+        template = run_template
+        design, patch = stage0_conversion(source, template, cfg)
+        note = ""
+        sites, palm_mm, pull_deg = check_conversion(source, apply_patch(build_xml(template, design, hcfg,
+                                                                                    radius_mm=40), patch))
+        print(f"Check passed: finger values equal, open-pose finger sites within {sites:.3f} mm, "
+              f"joint angles under a 0.3 N pull within {pull_deg:.3f} deg"
+              + (f" (palm tendon sites moved up to {palm_mm:.1f} mm)" if palm_mm > 0.5 else "") + ".")
+    else:
+        raise SystemExit(f"{args.xml} is neither in the RB5 hand format (R_gp, ...) nor the stage0 "
+                         "format (upper_green_link, ...).")
     if args.grid:
         if args.grid not in cfg["grids"]:
             raise SystemExit(f"Grid '{args.grid}' not in config_used.json: {sorted(cfg['grids'])}")
         grid, grid_name = cfg["grids"][args.grid], args.grid
-    elif (run/"best_design_fine.json").is_file():
-        grid, grid_name = read_json(run/"best_design_fine.json")["grid"], "final grid of the run"
+    elif best is not None:
+        grid, grid_name = best["grid"], "final grid of the run"
     else:
         grid, grid_name = cfg["grids"]["rb5_fine"], "rb5_fine"
 
     # What the RB5 runs will simulate, next to the run's final best design.
-    hcfg = hand_config(cfg)
-    columns = {label: hand_parameters(build_xml(template, design, hcfg, radius_mm=40))}
-    if (run/"best_design_fine.json").is_file() and (run/"source_design168.xml").is_file():
-        best = read_json(run/"best_design_fine.json")
-        run_template = (run/"source_design168.xml").read_text(encoding="utf-8-sig")
+    mounted = apply_patch(build_xml(template, design, hcfg, radius_mm=40), patch)
+    columns = {label: hand_parameters(mounted)}
+    if best is not None:
         columns[best["label"]] = hand_parameters(build_xml(run_template, best["design"], hcfg, radius_mm=40))
     print(f"Hand as mounted on the RB5 ({', '.join(columns)}):")
     print_parameters(columns)
+    if patch and "zeta_p" in patch:
+        print(f"Damping follows the run's damping ratio (zeta_p={patch['zeta_p']:.3g}, "
+              f"zeta_d={patch['zeta_d']:.3g}); tendon tension comes from config_used.json.")
     if note:
         print(f"Note: {label} is {note}.")
     tension = float(cfg["simulation"]["tendon_tension_N"])
@@ -315,28 +623,31 @@ def main():
                          f"{columns[label]['max tendon tension [N]']:.1f} N, but the run uses {tension:.1f} N.")
 
     ref.mkdir(parents=True, exist_ok=True)
-    files["src"].write_text(template, encoding="utf-8")
+    files["src"].write_text(source, encoding="utf-8")
+    files["template"].write_text(template, encoding="utf-8")
     print(f"Grid: {grid_name} = {grid}")
     wall = time.perf_counter()
-    rows = evaluate(template, design, cfg, grid, files["progress"], args.workers)
+    rows = evaluate(template, design, patch, cfg, grid, files["progress"], args.workers)
     summary = summarize(rows, cfg)
     save_rows(files["csv"], rows)
     cell = best_cell(rows)
     try:
-        files["hand"].write_text(build_xml(template, design, cfg, radius_mm=cell["r_mm"], x_mm=cell["x_mm"],
-                                           y_mm=cell["y_mm"]), encoding="utf-8")
-        Rb5Arm(cfg).scene_file(files["scene"], template, design, cell["r_mm"], cell["x_mm"], cell["y_mm"])
+        files["hand"].write_text(apply_patch(build_xml(template, design, cfg, radius_mm=cell["r_mm"],
+                                 x_mm=cell["x_mm"], y_mm=cell["y_mm"]), patch), encoding="utf-8")
+        make_arm(cfg, patch).scene_file(files["scene"], template, design, cell["r_mm"], cell["x_mm"],
+                                        cell["y_mm"])
     except Exception as exc:  # The workspace result is already saved.
         print(f"Warning: could not export the viewer scene: {exc}")
-    dump(files["json"], dict(label=label, design=design, summary=summary, grid=grid,
-                             source_xml=str(args.xml.resolve()), viewer_cell=cell))
+    write_result(files, label, design, patch, summary, columns[label],
+                 dict(grid=grid, template_file=files["template"].name, source_xml=str(args.xml.resolve()),
+                      viewer_cell=cell))
     print(f"\n{label}: J={summary['J']:.4f}, success={summary['success']}/{summary['cells']} "
           f"(env={summary['env']}, tip={summary['tip']}), rb5_pass={summary['rb5_pass']}, "
           f"prefiltered={summary['prefiltered']}, wall={time.perf_counter()-wall:.0f}s")
     print(f"  failures: {summary['failures']}")
     print("Saved:", files["json"])
     print("Saved:", files["csv"])
-    print("Saved:", plot(run, cfg, label, template, design, summary, rows))
+    print("Saved:", plot(run, cfg, label, template, design, patch, summary, rows))
     print(f"View the strongest grasp: python run_pick_lift.py --xml {files['scene']}")
 
 

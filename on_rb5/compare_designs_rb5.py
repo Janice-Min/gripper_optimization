@@ -27,7 +27,7 @@ import numpy as np
 
 from gripper_core import read_json
 from rb5_eval import summarize
-from eval_design_rb5 import cell_key, read_rows
+from eval_design_rb5 import cell_key, patch_aware_outline, read_rows
 
 COLORS = ("#e08214", "#2166ac")  # A, B
 
@@ -43,7 +43,7 @@ def load_result(run, name):
     elif (run/"references"/f"{name}.json").is_file():
         meta = read_json(run/"references"/f"{name}.json")
         csv_path = run/"references"/f"{name}_workspace.csv"
-        template = run/"references"/f"{name}_source.xml"
+        template = run/"references"/meta.get("template_file", f"{name}_source.xml")
     elif (run/"final"/f"{name}.json").is_file():
         meta = read_json(run/"final"/f"{name}.json")
         csv_path = run/"final"/f"{name}_workspace.csv"
@@ -57,7 +57,7 @@ def load_result(run, name):
     for path in (csv_path, template):
         if not path.is_file():
             raise SystemExit(f"Missing {path}")
-    return dict(label=meta["label"], design=meta["design"], summary=meta["summary"],
+    return dict(label=meta["label"], design=meta["design"], summary=meta["summary"], patch=meta.get("patch"),
                 rows=read_rows(csv_path), template=template.read_text(encoding="utf-8-sig"))
 
 
@@ -234,6 +234,7 @@ def main():
         matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import plot_workspace as pw
+    patch_aware_outline(pw)  # design001 (stage0 XML) is drawn with its own distal angle.
 
     run = args.run.resolve()
     cfg = read_json(run/"config_used.json")

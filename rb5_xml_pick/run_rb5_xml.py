@@ -1,4 +1,4 @@
-"""Attach a design001-style tendon hand to an RB5 and physically pick/lift its object.
+"""Attach a rooted or world-rooted two-finger tendon hand to an RB5 and physically pick/lift its object.
 All user-editable defaults / argparse options are at the very bottom of this file.
 SI units: metre, kilogram, second, radian, newton. No object weld or upward force.
 """
@@ -58,11 +58,189 @@ def prefix_xml(root, prefix):
                     e.set(key, prefix + e.get(key))
 
 
+def normalize_input(args):
+    """Normalize rooted and world-rooted two-finger XML without editing the source."""
+    path = args.xml.expanduser().resolve()
+    if not path.is_file():
+        raise ValueError(f'XML not found: {path}')
+    original = mujoco.MjModel.from_xml_path(str(path))
+    root = ET.parse(path).getroot()
+    compiler = root.find('compiler')
+    if root.find('.//include') is not None or compiler is None or compiler.get('angle', 'degree') != 'radian':
+        canonical = args.output/'source_expanded.xml'
+        mujoco.mj_saveLastXML(str(canonical), original)
+        root = ET.parse(canonical).getroot()
+    compiler = root.find('compiler')
+    for asset in root.findall('asset/*'):
+        if asset.get('file'):
+            directory = compiler.get('meshdir', '') if asset.tag == 'mesh' else compiler.get('texturedir', '')
+            asset.set('file', str((path.parent/directory/asset.get('file')).resolve()))
+    world = root.find('worldbody')
+    free_bodies = [int(original.jnt_bodyid[j]) for j in range(original.njnt)
+                   if original.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE]
+    if args.object_body is not None:
+        obj = mujoco.mj_name2id(original, mujoco.mjtObj.mjOBJ_BODY, args.object_body)
+        if obj < 1:
+            raise ValueError(f'Object body {args.object_body!r} not found. Free bodies: '
+                             f'{[original.body(b).name for b in free_bodies]}')
+    elif len(free_bodies) == 1:
+        obj = free_bodies[0]
+        args.object_body = original.body(obj).name
+        if not args.object_body:
+            raise ValueError('The free object body needs a name.')
+    elif not free_bodies:
+        obj = None
+    else:
+        raise ValueError('Multiple free bodies: select --object-body from '
+                         f'{[original.body(b).name for b in free_bodies]}')
+    joints = [j for j in range(original.njnt)
+              if original.jnt_type[j] == mujoco.mjtJoint.mjJNT_HINGE
+              and (obj is None or not descendant(original, int(original.jnt_bodyid[j]), obj))]
+    if not joints:
+        raise ValueError('No finger hinge joints found in XML.')
+    if args.palm_body is not None:
+        palm = mujoco.mj_name2id(original, mujoco.mjtObj.mjOBJ_BODY, args.palm_body)
+        if palm < 0:
+            raise ValueError(f'Palm body {args.palm_body!r} not found. Use --palm-body world for a world-rooted hand.')
+    else:
+        # Lowest common ancestor of all hand joints; can be MuJoCo's world body.
+        chains = []
+        for j in joints:
+            b, chain = int(original.jnt_bodyid[j]), []
+            while b:
+                chain.append(b)
+                b = int(original.body_parentid[b])
+            chains.append(chain+[0])
+        palm = next(b for b in chains[0] if all(b in c for c in chains[1:]))
+        args.palm_body = original.body(palm).name if palm else 'world'
+        if palm and not args.palm_body:
+            raise ValueError('The hand root body needs a name.')
+    world_rooted = palm == 0
+    omitted_bodies = []
+    if world_rooted:
+        synthetic = '__input_palm'
+        if root.find(f'.//body[@name="{synthetic}"]') is not None:
+            raise ValueError(f'Reserved input body name: {synthetic}')
+        wrapper = ET.Element('body', name=synthetic)
+        selected = []
+        for e in list(world):
+            if e.tag in ('geom', 'site'):
+                if e.tag == 'geom':
+                    gid = mujoco.mj_name2id(original, mujoco.mjtObj.mjOBJ_GEOM, e.get('name', ''))
+                    if e.get('type') == 'plane' or (gid >= 0 and original.geom_type[gid] == mujoco.mjtGeom.mjGEOM_PLANE):
+                        continue
+                selected.append(e)
+            elif e.tag == 'body':
+                bid = mujoco.mj_name2id(original, mujoco.mjtObj.mjOBJ_BODY, e.get('name', ''))
+                if bid < 1:
+                    raise ValueError('Top-level hand bodies need names.')
+                if obj is not None and descendant(original, obj, bid):
+                    continue
+                if any(descendant(original, int(original.jnt_bodyid[j]), bid) for j in joints):
+                    selected.append(e)
+                else:
+                    omitted_bodies.append(e.get('name'))
+                    world.remove(e)
+        for e in selected:
+            world.remove(e)
+            wrapper.append(e)
+        world.insert(0, wrapper)
+        for e in root.findall('contact/*'):
+            for attribute in ('body1', 'body2'):
+                if e.get(attribute) == 'world':
+                    e.set(attribute, synthetic)
+        args.palm_body = synthetic
+    keys = root.find('keyframe')
+    if keys is not None:
+        root.remove(keys)
+    # Body regrouping can change joint order. Restore keyframes by joint name,
+    # including 7-component free-joint qpos and 6-component free-joint qvel.
+    normalized = mujoco.MjModel.from_xml_string(ET.tostring(root, encoding='unicode'))
+    if keys is not None:
+        for k, e in enumerate(keys.findall('key')):
+            if not normalized.nmocap:
+                e.attrib.pop('mpos', None)
+                e.attrib.pop('mquat', None)
+            qpos, qvel = normalized.qpos0.copy(), np.zeros(normalized.nv)
+            for j in range(original.njnt):
+                name = original.joint(j).name
+                if not name:
+                    raise ValueError('Every joint needs a name to preserve keyframes during attachment.')
+                nj = mujoco.mj_name2id(normalized, mujoco.mjtObj.mjOBJ_JOINT, name)
+                if nj < 0:
+                    raise ValueError(f'Joint lost while normalizing: {name}')
+                typ = original.jnt_type[j]
+                nq = 7 if typ == mujoco.mjtJoint.mjJNT_FREE else 4 if typ == mujoco.mjtJoint.mjJNT_BALL else 1
+                nv = 6 if typ == mujoco.mjtJoint.mjJNT_FREE else 3 if typ == mujoco.mjtJoint.mjJNT_BALL else 1
+                qa, na = int(original.jnt_qposadr[j]), int(normalized.jnt_qposadr[nj])
+                va, vn = int(original.jnt_dofadr[j]), int(normalized.jnt_dofadr[nj])
+                qpos[na:na+nq] = original.key_qpos[k, qa:qa+nq]
+                qvel[vn:vn+nv] = original.key_qvel[k, va:va+nv]
+            e.set('qpos', values(qpos))
+            e.set('qvel', values(qvel))
+        root.append(keys)
+        normalized = mujoco.MjModel.from_xml_string(ET.tostring(root, encoding='unicode'))
+    if obj is None:
+        # Hand-only exports are supported with an explicitly reported default cylinder.
+        args.object_body = '__input_object'
+        palm_id = normalized.body(args.palm_body).id
+        d = mujoco.MjData(normalized)
+        kid = mujoco.mj_name2id(normalized, mujoco.mjtObj.mjOBJ_KEY, args.open_key)
+        if kid >= 0:
+            mujoco.mj_resetDataKeyframe(normalized, d, kid)
+        mujoco.mj_forward(normalized, d)
+        direction = infer_forward(normalized, d, palm_id) if args.forward_angle is None else np.radians(args.forward_angle)
+        forward = np.array([np.cos(direction), np.sin(direction), 0.])
+        radius = args.radius if args.radius is not None else args.default_radius
+        height = args.object_height if args.object_height is not None else args.default_object_height
+        mass = args.mass if args.mass is not None else args.default_mass
+        rel = forward*args.default_grasp_distance
+        if args.grasp_xy is not None:
+            rel[:2] = args.grasp_xy
+        rotation = d.xmat[palm_id].reshape(3, 3)
+        pos = d.xpos[palm_id]+rotation@rel
+        b = ET.SubElement(world, 'body', name=args.object_body, pos=values(pos), quat=values(quaternion(rotation)))
+        ET.SubElement(b, 'freejoint', name='__input_object_free')
+        ET.SubElement(b, 'geom', name='__input_object_geom', type='cylinder',
+                      size=values([radius, height/2]), mass=str(mass), rgba='.2 .5 1 1',
+                      friction='1 .005 .0001')
+        if keys is not None:
+            for e in keys.findall('key'):
+                e.set('qpos', e.get('qpos')+' '+values(np.r_[pos, quaternion(rotation)]))
+                e.set('qvel', e.get('qvel')+' 0 0 0 0 0 0')
+        normalized = mujoco.MjModel.from_xml_string(ET.tostring(root, encoding='unicode'))
+        print(f'[AUTO] Hand-only XML: added cylinder r={radius:g} m, h={height:g} m, mass={mass:g} kg.', flush=True)
+    print(f'[AUTO] Hand root={args.palm_body}; object={args.object_body}; world-rooted={world_rooted}', flush=True)
+    return root, normalized, dict(world_rooted=world_rooted, object_generated=obj is None,
+                                  detected_palm_body=args.palm_body, detected_object_body=args.object_body,
+                                  omitted_environment_bodies=omitted_bodies)
+
+
+def infer_forward(model, data, palm):
+    """Average outward finger direction from two branch roots to their distal sites/geoms."""
+    rp = data.xmat[palm].reshape(3, 3)
+    branches = [b for b in range(1, model.nbody) if model.body_parentid[b] == palm
+                and any(descendant(model, int(model.jnt_bodyid[j]), b) for j in range(model.njnt)
+                        if model.jnt_type[j] == mujoco.mjtJoint.mjJNT_HINGE)]
+    vectors = []
+    for b in branches:
+        points = [data.site_xpos[i] for i in range(model.nsite) if descendant(model, int(model.site_bodyid[i]), b)]
+        if not points:
+            points = [data.geom_xpos[i] for i in range(model.ngeom) if descendant(model, int(model.geom_bodyid[i]), b)]
+        if points:
+            farthest = max(points, key=lambda p: np.linalg.norm(p-data.xpos[b]))
+            vectors.append(rp.T@(farthest-data.xpos[b]))
+    if len(vectors) != 2 or np.linalg.norm(np.mean(vectors, axis=0)[:2]) < 1e-6:
+        raise ValueError('Cannot infer finger-forward direction. Supply --forward-angle [degrees].')
+    v = np.mean(vectors, axis=0)
+    return float(np.arctan2(v[1], v[0]))
+
+
 def source_model(args):
     path = args.xml.expanduser().resolve()
     if not path.is_file():
         raise ValueError(f'XML not found: {path}')
-    m = mujoco.MjModel.from_xml_path(str(path))
+    root, m, layout = normalize_input(args)
     d = mujoco.MjData(m)
     key_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_KEY, args.open_key)
     if key_id >= 0:
@@ -126,9 +304,9 @@ def source_model(args):
     if args.grasp_xy is not None:
         rel[:2] = args.grasp_xy
     source_rel = rel.copy()
-    # The hand's -x points toward the object in design001. An explicit option
-    # allows the same hierarchy with a different finger-forward direction.
-    a = np.radians(args.forward_angle)
+    # Infer -x for design001, +y for best_design_fine, or use an explicit override.
+    a = infer_forward(m, d, palm) if args.forward_angle is None else np.radians(args.forward_angle)
+    print(f'[AUTO] Finger-forward angle: {np.degrees(a):.3f} deg', flush=True)
     forward = np.array([np.cos(a), np.sin(a), 0.])
     hand_rotation = np.array([[np.cos(a), np.sin(a), 0.],
                               [-np.sin(a), np.cos(a), 0.], [0., 0., 1.]])
@@ -169,20 +347,6 @@ def source_model(args):
         if adjustment > 0:
             print(f'[AUTO] Grasp center shifted {adjustment*1000:.1f} mm along finger-forward '
                   f'to avoid initial overlap: {np.round(rel[:2], 5).tolist()} m.', flush=True)
-    # Canonicalize includes, degrees and implicit orientations through MuJoCo.
-    # For ordinary radian design001 inputs retain original numeric precision.
-    root = ET.parse(path).getroot()
-    compiler = root.find('compiler')
-    if root.find('.//include') is not None or compiler is None or compiler.get('angle', 'degree') != 'radian':
-        canonical = args.output / 'source_expanded.xml'
-        mujoco.mj_saveLastXML(str(canonical), m)
-        root = ET.parse(canonical).getroot()
-    compiler = root.find('compiler')
-    for asset in root.findall('asset/*'):
-        if asset.get('file'):
-            directory = (compiler.get('meshdir', '') if asset.tag == 'mesh'
-                         else compiler.get('texturedir', ''))
-            asset.set('file', str((path.parent / directory / asset.get('file')).resolve()))
     meta = dict(source_xml=str(path), source_mujoco_version=mujoco.__version__,
                 radius_m=float(m.geom_size[og, 0]), height_m=float(2*m.geom_size[og, 1]),
                 mass_kg=float(m.body_mass[obj]), source_grasp_local_m=rel.tolist(),
@@ -192,6 +356,7 @@ def source_model(args):
                 finger_geom_groups=[[m.geom(i).name for i in g] for g in groups],
                 object_geom=m.geom(og).name,
                 motors=[m.actuator(i).name for i in range(m.nu)])
+    meta.update(layout, forward_angle_deg=float(np.degrees(a)))
     return root, m, d, meta, hand_rotation, forward
 
 
@@ -662,15 +827,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--xml', type=Path, default=Path(__file__).resolve().parent/'design001.xml', help='Input gripper XML')
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parent/'results', help='Generated scene, trace and summary folder')
-    parser.add_argument('--palm-body', default='palm', help='Palm body name in input XML')
-    parser.add_argument('--object-body', default='object_body', help='Object body name in input XML')
+    parser.add_argument('--palm-body', default=None, help='Palm body name; None detects common finger ancestor, including worldbody')
+    parser.add_argument('--object-body', default=None, help='Object body name; None detects the free body or creates a default cylinder')
     parser.add_argument('--open-key', default='open', help='Initial open-hand keyframe')
-    parser.add_argument('--forward-angle', type=float, default=180., help='Finger-forward angle in palm xy [deg]; design001 = -x = 180')
+    parser.add_argument('--forward-angle', type=float, default=None, help='Finger-forward angle [deg]; None infers direction from finger geometry')
     parser.add_argument('--auto-grasp', action=argparse.BooleanOptionalAction, default=True, help='Automatically shift XML grasp position forward to avoid overlap; explicit --grasp-xy disables this')
     parser.add_argument('--auto-grasp-max', type=float, default=.08, help='Maximum automatic forward shift [m]')
     parser.add_argument('--auto-grasp-step', type=float, default=.0025, help='Automatic grasp search step [m]')
     parser.add_argument('--approach-clearance', type=float, default=.001, help='Automatic open-hand geometric clearance [m]')
     parser.add_argument('--grasp-xy', type=float, nargs=2, default=None, metavar=('X', 'Y'), help='Object center in palm coordinates [m]; None reads XML')
+    parser.add_argument('--default-radius', type=float, default=.035, help='Cylinder radius [m] only when the XML has no object')
+    parser.add_argument('--default-object-height', type=float, default=.08, help='Cylinder height [m] only when the XML has no object')
+    parser.add_argument('--default-mass', type=float, default=.1, help='Cylinder mass [kg] only when the XML has no object')
+    parser.add_argument('--default-grasp-distance', type=float, default=.04, help='Palm-to-cylinder center distance [m] only when the XML has no object')
     parser.add_argument('--radius', type=float, default=None, help='Cylinder radius [m]; None reads XML')
     parser.add_argument('--object-height', type=float, default=None, help='Cylinder full height [m]; None reads XML')
     parser.add_argument('--mass', type=float, default=None, help='Object mass [kg]; None reads XML')
@@ -719,7 +888,7 @@ if __name__ == '__main__':
     for name in ('lift', 'approach_distance', 'home_height', 'settle_time', 'move_time', 'approach_time',
                  'preclose_time', 'ramp_time', 'grasp_hold', 'lift_time', 'hold_time', 'timestep', 'ik_interval',
                  'sample_interval', 'contact_threshold', 'support_force_threshold', 'verdict_window',
-                 'speed', 'viewer_fps', 'video_fps', 'viewer_shutdown_timeout', 'camera_distance', 'open_release_time', 'open_torque_limit', 'auto_grasp_max', 'auto_grasp_step'):
+                 'speed', 'viewer_fps', 'video_fps', 'viewer_shutdown_timeout', 'camera_distance', 'open_release_time', 'open_torque_limit', 'auto_grasp_max', 'auto_grasp_step', 'default_radius', 'default_object_height', 'default_mass', 'default_grasp_distance'):
         if not np.isfinite(getattr(args, name)) or getattr(args, name) <= 0:
             parser.error(f'--{name.replace("_", "-")} must be finite and > 0')
     for name in ('radius', 'object_height', 'mass'):
