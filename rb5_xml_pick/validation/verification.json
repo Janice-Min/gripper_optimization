@@ -1,0 +1,81 @@
+{
+  "python": "3.12.14",
+  "mujoco": "3.17.0",
+  "viewer_launched": true,
+  "viewer_process_exit_code": 0,
+  "argparse_all_at_bottom": true,
+  "cases": [
+    {
+      "case": "design001",
+      "expected_physical_success": true,
+      "observed_physical_success": true,
+      "check_passed": true,
+      "description": "Original dimensions, automatic 15 mm forward grasp adjustment, 20 N",
+      "object_lift_m": 0.14739840440914764,
+      "reason": "success"
+    },
+    {
+      "case": "viewer",
+      "expected_physical_success": true,
+      "observed_physical_success": true,
+      "check_passed": true,
+      "description": "Actual launch_passive GUI on Xvfb; full simulation and clean process exit 0",
+      "object_lift_m": 0.14739840440914764,
+      "reason": "success"
+    },
+    {
+      "case": "variant_r45",
+      "expected_physical_success": true,
+      "observed_physical_success": true,
+      "check_passed": true,
+      "description": "Radius 45 mm, height 50 mm, mass 0.2 kg, proximal stiffness 0.005",
+      "object_lift_m": 0.1367011509342322,
+      "reason": "success"
+    },
+    {
+      "case": "no_key",
+      "expected_physical_success": true,
+      "observed_physical_success": true,
+      "check_passed": true,
+      "description": "No open keyframe: springref fallback",
+      "object_lift_m": 0.14739840440914764,
+      "reason": "success"
+    },
+    {
+      "case": "zero_tension",
+      "expected_physical_success": false,
+      "observed_physical_success": false,
+      "check_passed": true,
+      "description": "Negative control: zero tension must fail rather than attach the object",
+      "object_lift_m": null,
+      "reason": "No bilateral finger contact. Lift cancelled; adjust grasp position, size or tension."
+    },
+    {
+      "case": "initial_overlap",
+      "expected_physical_success": false,
+      "observed_physical_success": false,
+      "check_passed": true,
+      "description": "Negative control: original overlapping placement with auto-grasp disabled",
+      "object_lift_m": null,
+      "reason": "Open-hand approach overlaps the cylinder by 0.95 mm at hand__upper_green_link. Adjust --grasp-xy or --radius; the XML geometry is not automatically changed."
+    },
+    {
+      "case": "variant_short",
+      "expected_physical_success": false,
+      "observed_physical_success": false,
+      "check_passed": true,
+      "description": "Shorter-link design loads/runs, but this specific geometry loses the object",
+      "object_lift_m": -1.1745931137965848e-05,
+      "reason": "insufficient lift / lost contact / support contact"
+    },
+    {
+      "case": "missing_xml",
+      "expected_physical_success": false,
+      "observed_physical_success": false,
+      "check_passed": true,
+      "description": "Missing input produces explanatory FAIL summary",
+      "object_lift_m": null,
+      "reason": "XML not found: /workspace/scratch/44300e9d6df8/test_inputs/not_found.xml"
+    }
+  ]
+}

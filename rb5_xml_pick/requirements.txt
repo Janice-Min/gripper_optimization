@@ -1,0 +1,3 @@
+# Validated with Python 3.12 and MuJoCo 3.17.0.
+mujoco==3.17.0
+numpy>=1.26,<3
