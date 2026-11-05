@@ -254,21 +254,66 @@ class Rb5Arm:
                              "<compiler angle='radian'>.")
         return model
 
-    def run_cells(self, template, design, r_mm, cells):
-        """All (x, y) cells for one design and one radius. Returns result rows."""
-        s, o = self.cfg["simulation"], self.cfg["objective"]
+    def prepare(self, template, design, r_mm):
+        """Compile the RB5 scene for one design and radius. Returns (hand_xml, model, q_home);
+        raises RuntimeError if the home IK fails (an arm problem, independent of the hand)."""
         hand_xml = self.hand_xml(template, design, r_mm)
         model = self.compile(hand_xml)
-        data = mujoco.MjData(model)
+        return hand_xml, model, build_scene.home_arm_q(model)
+
+    @staticmethod
+    def reset_cell(model, data, q_home, r_mm, x_mm, y_mm):
+        """Move the 'grasp' site to the cell and reset to home (equivalent to the keyframe)."""
+        model.site_pos[model.site("grasp").id] = [x_mm/1000, (y_mm+r_mm)/1000, 0.0]
+        mujoco.mj_resetData(model, data)
+        data.qpos[[model.joint(n).qposadr[0] for n in ARM_JOINTS]] = q_home
+        data.ctrl[[model.actuator(n).id for n in ARM_JOINTS]] = q_home
+        mujoco.mj_forward(model, data)
+
+    def finish_row(self, row, model, data, sim, monitor, result, exc=None):
+        """Fill a result row after a PickLift run (result) or its RuntimeError (exc)."""
+        s, o = self.cfg["simulation"], self.cfg["objective"]
+        rules = contact_rules(self.cfg)
+        if exc is not None:
+            row.update(reason=exception_reason(exc), error=str(exc)[:200])
+        row["pre_grasp_shift_mm"] = monitor.max_shift_mm
+        row["max_tracking_error_mm"] = 1000*sim.max_tracking_error
+        row["max_unintended_penetration_mm"] = 1000*sim.max_unintended_penetration
+        row["unintended_pair"] = "-".join(sim.worst_collision or [])
+        rot = data.xmat[model.body("obj").id].reshape(3, 3)
+        row["end_tilt_deg"] = float(np.degrees(np.arccos(np.clip(rot[2, 2], -1, 1))))
+        close_f = monitor.window_mean("grasp hold", s["force_average_window_s"])
+        if close_f is not None:
+            row["close_type"] = classify_contact(close_f, s["contact_threshold_N"], *rules)
+        if result is None:
+            return row
+        weight = float(model.body_mass[model.body("obj").id])*s["gravity_m_s2"]
+        row["rb5_pass"] = bool(result["success"])
+        row["min_lift_mm"] = 1000*result["last_second_min_lift_m"]
+        hold_f = monitor.window_mean("lift hold", s["force_average_window_s"])
+        if hold_f is not None:
+            kind = classify_contact(hold_f, s["contact_threshold_N"], *rules)
+            margin = o["friction_mu"]*float(hold_f.sum())/weight-o["safety_factor"]
+            row.update(contact_type=kind, m_F=float(margin), total_normal_N=float(hold_f.sum()),
+                       hold_drift_mm=monitor.hold_drift_mm,
+                       hold_rotation_deg=monitor.hold_rotation_deg,
+                       **dict(zip(FORCE_KEYS, map(float, hold_f))))
+        if not result["success"]:
+            row["reason"] = failed_run_reason(result, self.lift)
+        else:
+            row["reason"] = judge(row, self.cfg, self.opts)
+            row["success"] = row["reason"] == "success"
+        return row
+
+    def run_cells(self, template, design, r_mm, cells):
+        """All (x, y) cells for one design and one radius. Returns result rows."""
+        s = self.cfg["simulation"]
         try:
-            q_home = build_scene.home_arm_q(model)
+            hand_xml, model, q_home = self.prepare(template, design, r_mm)
         except RuntimeError as exc:  # Arm-only problem; the hand design cannot cause it.
             return [dict(empty_row(r_mm, x, y), reason="home_ik_failed", error=str(exc)[:200])
                     for x, y in cells]
-        qadr = np.array([model.joint(n).qposadr[0] for n in ARM_JOINTS])
-        armact = np.array([model.actuator(n).id for n in ARM_JOINTS])
-        site = model.site("grasp").id
-        weight = float(model.body_mass[model.body("obj").id])*s["gravity_m_s2"]
+        data = mujoco.MjData(model)
         prefilter = (self.opts["prefilter_approach"] and self.opts["max_pre_grasp_shift_mm"] is not None)
         hand = CellEvaluator(hand_xml, self.hcfg) if prefilter or s.get("approach_mm", 0) > 0 else None
         rows = []
@@ -288,45 +333,17 @@ class Rb5Arm:
                     row.update(reason="approach_overlap", prefiltered=True,
                                seconds=time.perf_counter()-start)
                     continue
-            model.site_pos[site] = [x_mm/1000, (y_mm+r_mm)/1000, 0.0]
-            mujoco.mj_resetData(model, data)
-            data.qpos[qadr] = q_home
-            data.ctrl[armact] = q_home
-            mujoco.mj_forward(model, data)
+            self.reset_cell(model, data, q_home, r_mm, x_mm, y_mm)
             sim = PickLift(model, data)
             monitor = CellMonitor(model, self.cfg, self.opts)
             sim.callbacks.append(monitor)
+            result, error = None, None
             try:
                 with contextlib.redirect_stdout(io.StringIO()):
                     result = sim.run(self.tension, self.lift)
             except RuntimeError as exc:
-                result = None
-                row.update(reason=exception_reason(exc), error=str(exc)[:200])
-            row["pre_grasp_shift_mm"] = monitor.max_shift_mm
-            row["max_tracking_error_mm"] = 1000*sim.max_tracking_error
-            row["max_unintended_penetration_mm"] = 1000*sim.max_unintended_penetration
-            row["unintended_pair"] = "-".join(sim.worst_collision or [])
-            rot = data.xmat[model.body("obj").id].reshape(3, 3)
-            row["end_tilt_deg"] = float(np.degrees(np.arccos(np.clip(rot[2, 2], -1, 1))))
-            close_f = monitor.window_mean("grasp hold", s["force_average_window_s"])
-            if close_f is not None:
-                row["close_type"] = classify_contact(close_f, s["contact_threshold_N"], *contact_rules(self.cfg))
-            if result is not None:
-                row["rb5_pass"] = bool(result["success"])
-                row["min_lift_mm"] = 1000*result["last_second_min_lift_m"]
-                hold_f = monitor.window_mean("lift hold", s["force_average_window_s"])
-                if hold_f is not None:
-                    kind = classify_contact(hold_f, s["contact_threshold_N"], *contact_rules(self.cfg))
-                    margin = o["friction_mu"]*float(hold_f.sum())/weight-o["safety_factor"]
-                    row.update(contact_type=kind, m_F=float(margin), total_normal_N=float(hold_f.sum()),
-                               hold_drift_mm=monitor.hold_drift_mm,
-                               hold_rotation_deg=monitor.hold_rotation_deg,
-                               **dict(zip(FORCE_KEYS, map(float, hold_f))))
-                if not result["success"]:
-                    row["reason"] = failed_run_reason(result, self.lift)
-                else:
-                    row["reason"] = judge(row, self.cfg, self.opts)
-                    row["success"] = row["reason"] == "success"
+                error = exc
+            self.finish_row(row, model, data, sim, monitor, result, error)
             row["seconds"] = time.perf_counter()-start
         return rows
 
@@ -416,6 +433,17 @@ def rescore(path, cfg):
     out = Path(path).with_name(Path(path).stem+"_rescored.csv")
     save_rows(out, new)
     return summarize(old, cfg), summarize(new, cfg), changed, out
+
+
+def read_workspace(path):
+    """Rows of a workspace CSV (RB5 or hand-only) with the fields plots and tasks need typed."""
+    with Path(path).open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    for r in rows:
+        r.update(r_mm=float(r["r_mm"]), x_mm=float(r["x_mm"]), y_mm=float(r["y_mm"]),
+                 success=r["success"] == "True", m_F=float(r.get("m_F") or 0.0),
+                 prefiltered=r.get("prefiltered") == "True")
+    return rows
 
 
 def best_cell(rows):
