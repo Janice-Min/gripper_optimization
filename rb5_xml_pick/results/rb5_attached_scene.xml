@@ -167,39 +167,39 @@
                     <geom name="task_flange" type="cylinder" size=".035 .006" pos="0 0 .006" mass=".04" rgba=".25 .28 .32 1" />
                     <geom name="task_adapter" type="box" size="0.018 0.025 0.044" pos="0 0 0.056" mass=".06" rgba=".36 .40 .45 1" />
                     <body name="hand____input_palm" pos="0 0 0.1" quat="0.707106781186548 0.707106781186547 -2.16489014058873e-17 2.16489014058873e-17" childclass="hand__root">
-                      <geom name="hand__palm" type="box" pos="0 -0.005 0" size="0.045 0.005 0.05" rgba="0.5 0.5 0.55 1" />
-                      <geom name="hand__R_jp_wrap" class="hand__wrap" pos="0.025 0 0" size="0.006 0.003" />
-                      <geom name="hand__L_jp_wrap" class="hand__wrap" pos="-0.025 0 0" size="0.006 0.003" />
-                      <site name="hand__R_jp_side" pos="0.013 0 0" />
-                      <site name="hand__L_jp_side" pos="-0.013 0 0" />
-                      <site name="hand__R_palm" pos="0.019 -0.008 0" />
-                      <site name="hand__L_palm" pos="-0.019 -0.008 0" />
+                      <geom name="hand__palm" type="box" pos="0 -0.005 0" size="0.04778601886 0.005 0.05" rgba="0.5 0.5 0.55 1" />
+                      <geom name="hand__R_jp_wrap" class="hand__wrap" pos="0.02778601886 0 0" size="0.006 0.003" />
+                      <geom name="hand__L_jp_wrap" class="hand__wrap" pos="-0.02778601886 0 0" size="0.006 0.003" />
+                      <site name="hand__R_jp_side" pos="0.01578601886 0 0" />
+                      <site name="hand__L_jp_side" pos="-0.01578601886 0 0" />
+                      <site name="hand__R_palm" pos="0.02178601886 -0.008 0" />
+                      <site name="hand__L_palm" pos="-0.02178601886 -0.008 0" />
                       <site name="hand__pulley" pos="0 -0.042 0" />
                       <geom name="hand__pulley_vis" type="cylinder" pos="0 -0.036 0" size="0.006 0.003" contype="0" conaffinity="0" group="1" rgba="0.9 0.8 0.1 1" />
-                      <body name="hand__R_prox" pos="0.025 0 0" axisangle="0 0 1 -0.7853981634">
-                        <joint name="hand__R_jp" class="hand__finger" axis="0 0 1" ref="-0.7853981634" range="-0.7853981634 1.919862177" stiffness="0.00170998" springref="-0.7853981634" damping="0.0008079068892" />
-                        <geom name="hand__R_gp" class="hand__finger" fromto="0 0 0 0 0.093333333 0" />
+                      <body name="hand__R_prox" pos="0.02778601886 0 0" axisangle="0 0 1 -0.7836199134">
+                        <joint name="hand__R_jp" class="hand__finger" axis="0 0 1" ref="-0.7836199134" range="-0.7836199134 1.919862177" stiffness="0.00170998" springref="-0.7836199134" damping="0.0008172041643" />
+                        <geom name="hand__R_gp" class="hand__finger" fromto="0 0 0 0 0.09407897731 0" />
                         <site name="hand__R_prox_bot" pos="-0.006 0.004 0" />
-                        <site name="hand__R_prox_top" pos="-0.004 0.089333333 0" />
-                        <body name="hand__R_dist" pos="0 0.093333333 0" axisangle="0 0 1 0.6108652382">
-                          <joint name="hand__R_jd" class="hand__finger" axis="0 0 1" ref="0.6108652382" range="0.6108652382 1.919862177" stiffness="0.00170998" springref="-22.78122122" damping="0.0001523043499" />
-                          <geom name="hand__R_gd" class="hand__finger" fromto="0 0 0 0 0.04 0" />
+                        <site name="hand__R_prox_top" pos="-0.004 0.09007897731 0" />
+                        <body name="hand__R_dist" pos="0 0.09407897731 0" axisangle="0 0 1 0.6090869882">
+                          <joint name="hand__R_jd" class="hand__finger" axis="0 0 1" ref="0.6090869882" range="0.6090869882 1.919862177" stiffness="0.00170998" springref="-22.78299947" damping="0.0001540268983" />
+                          <geom name="hand__R_gd" class="hand__finger" fromto="0 0 0 0 0.0403632286 0" />
                           <geom name="hand__R_jd_wrap" class="hand__wrap" size="0.004 0.003" />
                           <site name="hand__R_jd_side" pos="-0.008 0 0" />
-                          <site name="hand__R_tip" pos="-0.004 0.038 0" />
+                          <site name="hand__R_tip" pos="-0.004 0.0383632286 0" />
                         </body>
                       </body>
-                      <body name="hand__L_prox" pos="-0.025 0 0" axisangle="0 0 -1 -0.7853981634">
-                        <joint name="hand__L_jp" class="hand__finger" axis="0 0 -1" ref="-0.7853981634" range="-0.7853981634 1.919862177" stiffness="0.00170998" springref="-0.7853981634" damping="0.0008079068892" />
-                        <geom name="hand__L_gp" class="hand__finger" fromto="0 0 0 0 0.093333333 0" />
+                      <body name="hand__L_prox" pos="-0.02778601886 0 0" axisangle="0 0 -1 -0.7836199134">
+                        <joint name="hand__L_jp" class="hand__finger" axis="0 0 -1" ref="-0.7836199134" range="-0.7836199134 1.919862177" stiffness="0.00170998" springref="-0.7836199134" damping="0.0008172041643" />
+                        <geom name="hand__L_gp" class="hand__finger" fromto="0 0 0 0 0.09407897731 0" />
                         <site name="hand__L_prox_bot" pos="0.006 0.004 0" />
-                        <site name="hand__L_prox_top" pos="0.004 0.089333333 0" />
-                        <body name="hand__L_dist" pos="0 0.093333333 0" axisangle="0 0 -1 0.6108652382">
-                          <joint name="hand__L_jd" class="hand__finger" axis="0 0 -1" ref="0.6108652382" range="0.6108652382 1.919862177" stiffness="0.00170998" springref="-22.78122122" damping="0.0001523043499" />
-                          <geom name="hand__L_gd" class="hand__finger" fromto="0 0 0 0 0.04 0" />
+                        <site name="hand__L_prox_top" pos="0.004 0.09007897731 0" />
+                        <body name="hand__L_dist" pos="0 0.09407897731 0" axisangle="0 0 -1 0.6090869882">
+                          <joint name="hand__L_jd" class="hand__finger" axis="0 0 -1" ref="0.6090869882" range="0.6090869882 1.919862177" stiffness="0.00170998" springref="-22.78299947" damping="0.0001540268983" />
+                          <geom name="hand__L_gd" class="hand__finger" fromto="0 0 0 0 0.0403632286 0" />
                           <geom name="hand__L_jd_wrap" class="hand__wrap" size="0.004 0.003" />
                           <site name="hand__L_jd_side" pos="0.008 0 0" />
-                          <site name="hand__L_tip" pos="0.004 0.038 0" />
+                          <site name="hand__L_tip" pos="0.004 0.0383632286 0" />
                         </body>
                       </body>
                       <site name="task_grasp" pos="0 0.08 0" size=".002" group="4" rgba="0 1 1 0" />
@@ -250,6 +250,6 @@
     <motor name="hand__pulley_pull" tendon="hand__tendon" gear="-0.5" ctrlrange="0 40" class="hand__root" ctrllimited="true" />
   </actuator>
   <keyframe>
-    <key name="task_home" qpos="0.575810332710547 -0.521429751788907 2.31608316474402 1.3469392175543 -0.99498609434755 1.07987612401525e-08 -0.7853981634 0.6108652382 -0.7853981634 0.6108652382 0.6 0 0.1205 1 0 0 0" ctrl="0.575810332710547 -0.521429751788907 2.31608316474402 1.3469392175543 -0.99498609434755 1.07987612401525e-08 0" />
+    <key name="task_home" qpos="0.575810332710547 -0.521429751788907 2.31608316474402 1.3469392175543 -0.99498609434755 1.07987614853044e-08 -0.7836199134 0.6090869882 -0.7836199134 0.6090869882 0.6 0 0.1205 1 0 0 0" ctrl="0.575810332710547 -0.521429751788907 2.31608316474402 1.3469392175543 -0.99498609434755 1.07987614853044e-08 0" />
   </keyframe>
 </mujoco>

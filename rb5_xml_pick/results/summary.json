@@ -1,20 +1,20 @@
 {
   "success": true,
   "initial_object_z_m": 0.11987044707734491,
-  "object_lift_m": 0.14887864168962534,
-  "minimum_lift_in_window_m": 0.14887864168962534,
+  "object_lift_m": 0.14886887562063378,
+  "minimum_lift_in_window_m": 0.14886887562063378,
   "bilateral_contact_in_window": true,
   "off_support_in_window": true,
   "support_force_N": 0.0,
   "final_link_forces_N": {
-    "hand__R_gp": 1.4195772692808608,
-    "hand__R_gd": 1.2370929525835297,
-    "hand__L_gp": 1.4227691428949834,
-    "hand__L_gd": 1.2360596504941024
+    "hand__R_gp": 1.470174609361124,
+    "hand__R_gd": 1.1999949203452185,
+    "hand__L_gp": 1.4691358624076742,
+    "hand__L_gd": 1.1981955895885255
   },
   "four_link_contact": true,
   "reason": "success",
-  "source_xml": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\rb5_xml_pick\\design168.xml",
+  "source_xml": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\rb5_xml_pick\\best_design_cmaes.xml",
   "source_mujoco_version": "3.3.7",
   "radius_m": 0.04,
   "height_m": 0.08,
@@ -32,10 +32,10 @@
   "auto_grasp_shift_m": 0.0,
   "open_key_used": "open",
   "hand_joints": {
-    "R_jp": -0.7853981634,
-    "R_jd": 0.6108652382,
-    "L_jp": -0.7853981634,
-    "L_jd": 0.6108652382
+    "R_jp": -0.7836199134,
+    "R_jd": 0.6090869882,
+    "L_jp": -0.7836199134,
+    "L_jd": 0.6090869882
   },
   "finger_geom_groups": [
     [
@@ -86,14 +86,14 @@
     ]
   ],
   "initial_hand_qpos": {
-    "R_jp": -0.7853981634,
-    "R_jd": 0.6108652382,
-    "L_jp": -0.7853981634,
-    "L_jd": 0.6108652382
+    "R_jp": -0.7836199134,
+    "R_jd": 0.6090869882,
+    "L_jp": -0.7836199134,
+    "L_jd": 0.6090869882
   },
   "stage": "lift hold",
   "simulation_time_s": 14.099999999997625,
   "max_unintended_penetration_m": 0.0,
-  "max_tracking_error_m": 0.011930066403603761,
+  "max_tracking_error_m": 0.011926859197810287,
   "mujoco_warning_count": 0
 }
