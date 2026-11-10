@@ -31,7 +31,8 @@ pass ratio is an empirical check of w_tip, the hold_mixed group of the "mixed fa
 
   python disturb_force.py --run runs/rb5_cmaes_final --workers 8
   python disturb_force.py --run runs/rb5_cmaes_final --rescore --slip-mm 10 --rot-deg 0
-  python disturb_force.py --run runs/rb5_cmaes_final --labels design001 --limit 2 --dirs -z +y
+  python disturb_force.py --run runs/rb5_cmaes_final --labels design001 --limit 2 --dirs nz py
+(--dirs takes px nx py ny pz nz; +x/+y/+z also work, but argparse reads -x as an option)
 
 Writes <run>/disturbance/<label>/
   traces/*.npz      per cell and direction ('px_trace', ...; column names in 'columns'):
@@ -62,8 +63,8 @@ import mujoco
 from gripper_core import JOINTS, LINKS, read_json, save_rows, write_json
 from rb5_eval import Rb5Arm, validate_rb5_config
 from eval_design_rb5 import read_rows, to_json
-from disturb_collect import (DEFAULT_LABELS, OUT_DIR, ROOT, label_dir, run_tasks, scene_signature,
-                             set_state)
+from disturb_collect import (DEFAULT_LABELS, OUT_DIR, ROOT, label_dir, resolve_labels, run_tasks,
+                             save_table, scene_signature, set_state)
 from run_pick_lift import ARM_JOINTS, PickLift
 
 DIRECTIONS = {"+x": (1, 0, 0), "-x": (-1, 0, 0), "+y": (0, 1, 0), "-y": (0, -1, 0),
@@ -266,14 +267,15 @@ def analyze(run, label, cfg, crit, levels):
         row.update({f"F_{d}_mg": per[d]["F_max_mg"] for d in per})
         row.update({f"pass_{lv:g}mg": per[weakest]["F_max_N"] >= lv*mg-1e-9 for lv in levels})
         cell_rows.append(row)
-    if not cell_rows:
+    if cells and not cell_rows:
         raise SystemExit(f"No traces in {out/'traces'}. Run without --rescore first.")
-    save_rows(out/"force_dirs.csv", dir_rows)
-    save_rows(out/"force_cells.csv", cell_rows)
+    save_table(out/"force_dirs.csv", dir_rows)
+    save_table(out/"force_cells.csv", cell_rows)
     meta["criteria"], meta["levels_mg"] = crit, list(levels)
     write_json(out/"force_meta.json", meta)
     sm = summarize(label, read_json(out/"meta.json"), cell_rows, dir_rows, cfg, levels, s)
     sm["criteria"] = crit
+    write_json(out/"force_summary.json", json.loads(json.dumps(sm, default=to_json)))
     return sm
 
 
@@ -369,8 +371,13 @@ def simulate(run, label, cfg, s, workers, limit):
     if limit:
         cells = cells[:limit]
     (out/"traces").mkdir(exist_ok=True)
-    for old in (out/"traces").glob("*.npz"):
+    for old in [*(out/"traces").glob("*.npz"), *out.glob("force_*")]:
         old.unlink()
+    if not cells:  # Nothing was lifted: the design's summary is all zeros.
+        write_json(out/"force_meta.json", dict(label=label, settings=dict(s, mg_N=None, cap_N=None),
+                                               mujoco=mujoco.__version__))
+        print(f"\n[{label}] no lifted cell, nothing to disturb", flush=True)
+        return
     # mg from the scene: object mass x the config's gravity.
     st = np.load(out/cells[0]["state_file"])
     model, _ = model_for(str(out/"hands"/str(st["hand_file"])), cfg)
@@ -398,14 +405,17 @@ def simulate(run, label, cfg, s, workers, limit):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, default=ROOT/"runs"/"rb5_cmaes_final")
-    p.add_argument("--labels", nargs="+", default=list(DEFAULT_LABELS))
+    p.add_argument("--labels", nargs="+", default=list(DEFAULT_LABELS),
+                   help="'all' (default: every design collected by disturb_collect.py) or names")
     p.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2)-1))
     p.add_argument("--rescore", action="store_true", help="Only re-judge saved traces (no simulation)")
     p.add_argument("--limit", type=int, help="Only the first N saved cells per design (smoke test)")
     g = p.add_argument_group("ramp (simulation)")
     g.add_argument("--rate", type=float, default=1.0, help="Force rate [N/s] (default 1)")
     g.add_argument("--max-mg", type=float, default=5.0, help="Ramp end in units of m*g (default 5)")
-    g.add_argument("--dirs", nargs="+", default=list(DIRECTIONS), choices=list(DIRECTIONS))
+    g.add_argument("--dirs", nargs="+", default=list(DIRECTIONS), metavar="DIR",
+                   choices=[*DIRECTIONS, *map(key, DIRECTIONS)],
+                   help="px nx py ny pz nz (= +x -x +y -y +z -z); default all six")
     g.add_argument("--stop-mm", type=float, help="Stop a direction once the object moved this far "
                    "(default simulation.lift_slip_mm)")
     g.add_argument("--stop-lost-s", type=float, default=0.1, help="... or lost bilateral contact this long")
@@ -414,6 +424,8 @@ def main():
     c.add_argument("--rot-deg", type=float, help="default simulation.hold_rotation_deg; 0 disables")
     c.add_argument("--grace-s", type=float, help="default simulation.lost_contact_grace_s")
     c.add_argument("--levels", type=float, nargs="+", default=list(DEFAULT_LEVELS), help="Pass levels [m*g]")
+    p.add_argument("--no-summary", action="store_true",
+                   help="Do not update the shared summary.json/csv (batch_disturbance.py writes it at the end)")
     args = p.parse_args()
     run = args.run.resolve()
     cfg = read_json(run/"config_used.json")
@@ -422,21 +434,26 @@ def main():
     crit = dict(slip_mm=args.slip_mm if args.slip_mm is not None else sc["hold_displacement_mm"],
                 rot_deg=args.rot_deg if args.rot_deg is not None else sc["hold_rotation_deg"],
                 grace_s=args.grace_s if args.grace_s is not None else sc.get("lost_contact_grace_s", 0.02))
+    collected = sorted(d.name for d in (run/OUT_DIR).glob("*") if (d/"cells.csv").is_file())
+    labels = resolve_labels(args.labels, collected)
+    print(f"Designs: {labels}")
     if not args.rescore:
-        s = dict(rate_N_s=args.rate, cap_mg=args.max_mg, dirs=list(dict.fromkeys(args.dirs)),
+        names = {key(d): d for d in DIRECTIONS}
+        s = dict(rate_N_s=args.rate, cap_mg=args.max_mg, dirs=list(dict.fromkeys(names.get(d, d) for d in args.dirs)),
                  stop_mm=args.stop_mm if args.stop_mm is not None else sc["lift_slip_mm"],
                  stop_lost_s=args.stop_lost_s, sample_s=sc["sample_interval_s"])
         if args.rate <= 0 or args.max_mg <= 0 or s["stop_mm"] < crit["slip_mm"] or s["stop_lost_s"] < crit["grace_s"]:
             raise SystemExit("Need rate>0, max-mg>0, stop-mm >= slip-mm and stop-lost-s >= grace-s")
-        for label in args.labels:
+        for label in labels:
             simulate(run, label, cfg, s, args.workers, args.limit)
-    summaries = [analyze(run, label, cfg, crit, sorted(args.levels)) for label in args.labels]
+    summaries = [analyze(run, label, cfg, crit, sorted(args.levels)) for label in labels]
     print(f"\nCriteria: slip >= {crit['slip_mm']} mm, rotation >= {crit['rot_deg']} deg (0 = off), "
           f"lost contact >= {crit['grace_s']} s")
     for sm in summaries:
         print_summary(sm)
-    print("\nSaved:", write_summary(run, summaries))
-    for label in args.labels:
+    if not args.no_summary:
+        print("\nSaved:", write_summary(run, summaries))
+    for label in labels:
         print("Saved:", label_dir(run, label)/"force_cells.csv")
 
 

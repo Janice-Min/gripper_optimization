@@ -46,8 +46,15 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from gripper_core import read_json
-from disturb_collect import OUT_DIR, ROOT, available_labels, save_table
-from disturb_force import write_summary
+try:
+    from disturb_collect import OUT_DIR, ROOT, available_labels, save_table
+    from disturb_force import write_summary
+    import disturb_force as _df
+    if not hasattr(_df, "save_table"):  # Needs the version with --no-summary / force_summary.json.
+        raise ImportError("disturb_force")
+except ImportError as exc:
+    raise SystemExit(f"disturb_collect.py / disturb_force.py in this folder are older versions ({exc}). "
+                     "Replace both with the versions sent together with batch_disturbance.py.")
 
 STEPS = ("workspace", "collect", "force")
 DESIGN_KEYS = ("length_mm", "lp_ratio", "gap_mm", "theta_p_deg", "theta_d_deg", "phi_d_deg")
@@ -64,24 +71,34 @@ def step_done(run, label, step):
     return (out/"force_summary.json").is_file()
 
 
-def commands(run, label, xml, args):
-    py = [sys.executable, "-u"]
+def commands(run, label, xml, args, inner):
+    """inner = processes per design: 1 for a big batch, more when there are fewer designs than workers."""
+    py, w = [sys.executable, "-u"], str(inner)
     grid = ["--grid", args.grid] if args.grid else []
     return {"workspace": [*py, str(ROOT/"eval_design_rb5.py"), "--run", str(run), "--xml", str(xml),
-                          "--label", label, "--workers", "1", *grid],
+                          "--label", label, "--workers", w, *grid],
             "collect": [*py, str(ROOT/"disturb_collect.py"), "--run", str(run), "--labels", label,
-                        "--workers", "1"],
+                        "--workers", w],
             "force": [*py, str(ROOT/"disturb_force.py"), "--run", str(run), "--labels", label,
-                      "--workers", "1", "--no-summary", *shlex.split(args.force_args)]}
+                      "--workers", w, "--no-summary", *shlex.split(args.force_args)]}
+
+
+def log_tail(path, n=8):
+    """Last non-empty lines of a design's log: the error message of a failed step."""
+    try:
+        lines = [l.rstrip() for l in path.read_text(encoding="utf-8", errors="replace").splitlines() if l.strip()]
+    except OSError:
+        return []
+    return lines[-n:]
 
 
 STOP = threading.Event()
 
 
-def process(run, label, xml, args, log_dir):
+def process(run, label, xml, args, log_dir, inner=1):
     """The three steps of one design, in order; returns a status dict."""
-    start, ran, redo = time.perf_counter(), [], False
-    cmds = commands(run, label, xml, args)
+    start, ran, redo, warn = time.perf_counter(), [], False, []
+    cmds = commands(run, label, xml, args, inner)
     for step in STEPS:
         if not redo and step_done(run, label, step):
             continue
@@ -93,10 +110,26 @@ def process(run, label, xml, args, log_dir):
             log.flush()
             rc = subprocess.run(cmds[step], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
                                 env=dict(os.environ, PYTHONIOENCODING="utf-8")).returncode
-        if rc or not step_done(run, label, step):
-            return dict(label=label, ok=False, step=step, ran=ran, seconds=time.perf_counter()-start)
+        if not step_done(run, label, step):
+            return dict(label=label, ok=False, step=step, ran=ran, seconds=time.perf_counter()-start,
+                        tail=log_tail(log_dir/f"{label}.log"))
+        if rc:  # Results were saved, something afterwards failed (e.g. the plot of eval_design_rb5).
+            warn.append(f"{step} exited with code {rc} after saving its results")
         ran.append(step)
-    return dict(label=label, ok=True, step="", ran=ran, seconds=time.perf_counter()-start)
+    return dict(label=label, ok=True, step="", ran=ran, seconds=time.perf_counter()-start, warn=warn)
+
+
+def brief(run, label, level):
+    """One-line result of a finished design for the console."""
+    path = run/OUT_DIR/label/"force_summary.json"
+    if not path.is_file():
+        return ""
+    sm = read_json(path)
+    L = next((L for L in sm["levels"] if abs(L["level_mg"]-level) < 1e-9), None)
+    text = f"map success {sm['orig_success']}, re-run {sm['success']} (env {sm['env']}, tip {sm['tip']})"
+    if L:
+        text += f", pass {level:g} mg: {L['passed']}, J_robust {L['J_robust']:.2f}"
+    return text
 
 
 def design_info(run, label):
@@ -196,9 +229,12 @@ def main():
         log_dir = run/OUT_DIR/"_logs"
         log_dir.mkdir(parents=True, exist_ok=True)
         wall, finished, failed = time.perf_counter(), 0, []
+        inner = max(1, args.workers//len(todo)) if todo else 1
+        if inner > 1:
+            print(f"Fewer designs than workers: {inner} processes per design.", flush=True)
         pool = ThreadPoolExecutor(max_workers=max(1, args.workers))
         try:
-            futures = [pool.submit(process, run, label, xml, args, log_dir) for label, xml in todo]
+            futures = [pool.submit(process, run, label, xml, args, log_dir, inner) for label, xml in todo]
             for f in as_completed(futures):
                 r = f.result()
                 finished += 1
@@ -206,12 +242,16 @@ def main():
                 eta = elapsed/finished*(len(todo)-finished)
                 if r["ok"]:
                     print(f"  [{finished}/{len(todo)}] {r['label']}: done ({'+'.join(r['ran']) or 'nothing'}, "
-                          f"{r['seconds']/60:.1f} min) | elapsed {elapsed/60:.0f} min, ~{eta/60:.0f} min left",
-                          flush=True)
+                          f"{r['seconds']/60:.1f} min) {brief(run, r['label'], args.rank_level)} | "
+                          f"elapsed {elapsed/60:.0f} min, ~{eta/60:.0f} min left", flush=True)
+                    for w in r["warn"]:
+                        print(f"      warning: {w} (see _logs/{r['label']}.log)", flush=True)
                 else:
                     failed.append(r)
                     print(f"  [{finished}/{len(todo)}] {r['label']}: FAILED in {r['step']} "
-                          f"(see _logs/{r['label']}.log)", flush=True)
+                          f"(_logs/{r['label']}.log ends with:)", flush=True)
+                    for line in r.get("tail", []):
+                        print(f"      {line}", flush=True)
         except KeyboardInterrupt:
             STOP.set()
             pool.shutdown(wait=False, cancel_futures=True)

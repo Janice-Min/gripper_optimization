@@ -1,6 +1,7 @@
 """Disturbance experiment, step 1: re-run the successful cells and save the grasp state.
 
-For every design (default: candidate_02 and design001 of runs/rb5_cmaes_final) this
+For every design with a per-cell workspace CSV in the run (default --labels all:
+final/ = baseline (design168), candidate_01..03, and references/ = design001) this
   * takes that design's OWN success cells from its workspace CSV (not the common cells),
     plus the cells that lifted the object but failed only the contact rule
     (reason hold_mixed by default, see --extra-reasons),
@@ -57,7 +58,7 @@ from run_pick_lift import ARM_JOINTS, PickLift
 ROOT = Path(__file__).resolve().parent
 OUT_DIR = "disturbance"
 STATE_SPEC = mujoco.mjtState.mjSTATE_INTEGRATION
-DEFAULT_LABELS = ("candidate_02", "design001")
+DEFAULT_LABELS = ("all",)
 
 
 # ---------------------------------------------------------------- shared helpers
@@ -81,6 +82,36 @@ def load_label(run, label):
         return design, patch, template, read_rows(ref/f"{label}_workspace.csv")
     _, design, _, _, template = run_result(run, label)
     return design, None, template, read_rows(run/"final"/f"{label}_workspace.csv")
+
+
+def available_labels(run):
+    """Designs of the run that have a per-cell workspace CSV: final/ results, then references/.
+    (history.csv holds only per-design summaries of the coarse search grid, no cells.)"""
+    run = Path(run)
+    labels = []
+    if (run/"final"/"comparison.json").is_file():
+        labels += [r["label"] for r in read_json(run/"final"/"comparison.json")["results"]
+                   if (run/"final"/f"{r['label']}_workspace.csv").is_file()]
+    labels += sorted(p.stem for p in (run/"references").glob("*.json")
+                     if not p.stem.endswith("_meta") and (run/"references"/f"{p.stem}_workspace.csv").is_file())
+    return list(dict.fromkeys(labels))
+
+
+def resolve_labels(labels, available):
+    """Expand 'all' and refuse unknown names."""
+    out = list(dict.fromkeys(l for name in labels for l in (available if name == "all" else [name])))
+    unknown = [l for l in out if l not in available]
+    if unknown:
+        raise SystemExit(f"Unknown design(s) {unknown}. Available: {available}")
+    return out
+
+
+def save_table(path, rows):
+    """save_rows, but a design without any selected cell gets an empty file instead of a crash."""
+    if rows:
+        save_rows(path, rows)
+    else:
+        Path(path).write_text("", encoding="utf-8-sig")
 
 
 def scene_signature(arm, hand_xml):
@@ -239,7 +270,7 @@ def collect(run, label, cfg, extra_reasons, workers, limit=None):
               workers, report)
     key = {(c["r_mm"], c["x_mm"], c["y_mm"]): i for i, c in enumerate(cells)}
     rows.sort(key=lambda r: key[(r["r_mm"], r["x_mm"], r["y_mm"])])
-    save_rows(out/"cells.csv", rows)
+    save_table(out/"cells.csv", rows)
 
     bad = [r for r in rows if not r["reproduced"]]
     orig_ok = [r for r in rows if r["orig_success"]]
@@ -269,7 +300,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, default=ROOT/"runs"/"rb5_cmaes_final")
     p.add_argument("--labels", nargs="+", default=list(DEFAULT_LABELS),
-                   help="Designs: final/ labels (candidate_02, baseline, ...) or references/ labels (design001)")
+                   help="'all' (default) or names: final/ labels (baseline, candidate_02, ...), "
+                        "references/ labels (design001)")
     p.add_argument("--extra-reasons", nargs="*", default=["hold_mixed"],
                    help="Failed cells to include besides the successes (default hold_mixed; none: no value)")
     p.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2)-1))
@@ -282,7 +314,9 @@ def main():
     if env.get("mujoco") and env["mujoco"] != mujoco.__version__:
         print(f"Warning: the run used MuJoCo {env['mujoco']}, this is {mujoco.__version__}. "
               "Expect more non-reproduced cells.")
-    for label in args.labels:
+    labels = resolve_labels(args.labels, available_labels(run))
+    print(f"Designs: {labels}")
+    for label in labels:
         collect(run, label, cfg, tuple(args.extra_reasons), args.workers, args.limit)
 
 

@@ -1,0 +1,5 @@
+
+===== 2026-11-10 22:44:45 workspace: C:\Users\User\AppData\Local\Programs\Python\Python311\python.exe -u C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\eval_design_rb5.py --run C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final --xml C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\xml\design003.xml --label design003 --workers 1
+design003.xml is in the stage0 format: building it on the run's hand template ...
+The converted hand does not match the stage0 XML:
+  joint angles under a 0.3 N tendon pull differ by up to 2.28 deg
