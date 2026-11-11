@@ -20,9 +20,15 @@ the steps after it run again too.
 At the end (and with --only-table, without simulating) it writes
   <run>/disturbance/all_designs.csv   one row per design: design values, stiffness and
                                       preload, J and success of the map, re-run success,
-                                      and per level: passed cells, conditional robustness,
-                                      J_robust; F_min medians of env / tip / hold_mixed
+                                      graspable, success before / after the zero-force
+                                      rule, J_stable, robust_area (env / tip), per level: passed
+                                      cells, conditional robustness, J_robust; F_min medians
+                                      of env / tip / hold_mixed; median F of every
+                                      direction for env and for tip; zero-control failures
+  <run>/disturbance/graspable_designs.csv   step 1: designs with >= 1 success cell that also
+                                      holds through the zero-force control
   <run>/disturbance/summary.json/csv  as disturb_force.py writes them, for all designs
+Plots: python plot_disturbance.py --run <run>
 Designs already in final/ (baseline, candidate_01..03) are included once they have been
 run through disturb_collect.py and disturb_force.py.
 
@@ -126,7 +132,8 @@ def brief(run, label, level):
         return ""
     sm = read_json(path)
     L = next((L for L in sm["levels"] if abs(L["level_mg"]-level) < 1e-9), None)
-    text = f"map success {sm['orig_success']}, re-run {sm['success']} (env {sm['env']}, tip {sm['tip']})"
+    text = (f"map success {sm['orig_success']}, re-run {sm.get('success_rerun', sm['success'])}, "
+            f"holding without load {sm['success']} (env {sm['env']}, tip {sm['tip']})")
     if L:
         text += f", pass {level:g} mg: {L['passed']}, J_robust {L['J_robust']:.2f}"
     return text
@@ -161,8 +168,15 @@ def write_table(run, rank_level):
         return
     rows = []
     for sm in summaries:
+        removed = sm.get("zero_fail_removed") or {}
         row = dict(label=sm["label"], **design_info(run, sm["label"]), reproduced_success=sm["reproduced_success"],
-                   success=sm["success"], env=sm["env"], tip=sm["tip"], J_rerun=sm["J_rerun"])
+                   success_rerun=sm.get("success_rerun", sm["success"]), zero_fail_removed_env=removed.get("env", 0),
+                   zero_fail_removed_tip=removed.get("tip", 0),
+                   graspable=sm["success"] > 0, success=sm["success"], env=sm["env"], tip=sm["tip"],
+                   J_rerun=sm["J_rerun"], J_stable=sm.get("J_stable", sm["J_rerun"]), zero_rule=sm.get("zero_rule"),
+                   metric=sm.get("metric", "ramp"), robust_area=sm.get("robust_area"),
+                   F_min_median_mg=sm.get("F_min_median_mg"),
+                   robust_area_env=sm.get("robust_area_env"), robust_area_tip=sm.get("robust_area_tip"))
         for L in sm["levels"]:
             lv = f"{L['level_mg']:g}mg"
             row.update({f"pass_{lv}": L["passed"], f"cond_{lv}": L["conditional_robustness"],
@@ -171,22 +185,35 @@ def write_table(run, rank_level):
             info = sm["groups"].get(g, {})
             row[f"n_{g}"] = info.get("n", 0)
             row[f"F_min_median_{g}_mg"] = info.get("F_min_mg_median")
+        for g in ("env", "tip"):  # Median F of every direction, per grasp type.
+            per = sm.get("direction_stats", {}).get(g, {})
+            row.update({f"F_{d}_median_{g}_mg": per.get(d, {}).get("median") for d in sm["directions"]})
+        zero = sm.get("zero_control_fail") or {}
+        row.update(zero_fail_env=zero.get("env", 0), zero_fail_tip=zero.get("tip", 0),
+                   creep_limited_weakest=sm.get("creep_limited_weakest"))
         row["criteria"] = " ".join(f"{k}={v}" for k, v in sm.get("criteria", {}).items())
         rows.append(row)
     keys = list(dict.fromkeys(k for r in rows for k in r))  # Designs may differ in levels.
     rows = [{k: r.get(k) for k in keys} for r in rows]
     save_table(run/OUT_DIR/"all_designs.csv", rows)
+    # Step 1 of the experiment: designs that grasp, lift and (zero-force rule) keep holding at least one cell.
+    grasp = [dict(label=r["label"], success=r["success"], env=r["env"], tip=r["tip"], J=r.get("J"),
+                  J_stable=r["J_stable"], success_rerun=r["success_rerun"]) for r in rows if r["graspable"]]
+    save_table(run/OUT_DIR/"graspable_designs.csv", sorted(grasp, key=lambda r: r["label"]))
     write_summary(run, summaries)
-    print(f"\n{len(rows)} designs -> {run/OUT_DIR/'all_designs.csv'}")
-    col = f"J_robust_{rank_level:g}mg"
-    ranked = sorted((r for r in rows if r.get(col) is not None), key=lambda r: -r[col])
-    if ranked:
-        print(f"Top 10 by {col} (J = map objective, cond = conditional robustness at {rank_level:g} mg):")
+    print(f"\n{len(rows)} designs -> {run/OUT_DIR/'all_designs.csv'}; {len(grasp)} graspable "
+          f"-> {run/OUT_DIR/'graspable_designs.csv'}")
+    for col, text in (("robust_area", "robust_area [mg] (sum over success cells of the weakest direction's F)"),
+                      (f"J_robust_{rank_level:g}mg", f"J_robust at {rank_level:g} mg")):
+        ranked = sorted((r for r in rows if r.get(col) is not None), key=lambda r: -r[col])
+        if not ranked:
+            continue
+        print(f"Top 10 by {text}:")
         for r in ranked[:10]:
             cond = r.get(f"cond_{rank_level:g}mg")
-            print(f"  {r['label']:<24} {col}={r[col]:7.2f}  pass={r[f'pass_{rank_level:g}mg']:>3}  "
+            print(f"  {r['label']:<24} {col}={r[col]:7.2f}  pass@{rank_level:g}mg={r.get(f'pass_{rank_level:g}mg')!s:>3}  "
                   f"cond={'-' if cond is None else f'{cond:.2f}'}  J={r['J'] if r['J'] is None else round(r['J'], 2)}"
-                  f"  success={r['success']}")
+                  f"  success={r['success']} (env {r['env']}, tip {r['tip']})")
 
 
 def main():

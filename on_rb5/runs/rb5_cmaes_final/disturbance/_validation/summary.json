@@ -1,0 +1,171 @@
+{
+  "cells": 17,
+  "directions": 102,
+  "cap_mg": 10.0,
+  "variants": {
+    "dt_half": {
+      "n": 99,
+      "median_ratio": 1.0,
+      "median_abs_rel_diff": 0.006535947712418293,
+      "p90_abs_rel_diff": 0.0702297702297703,
+      "spearman_directions": 0.9989857071482242,
+      "spearman_cells_weakest": 0.9901840490797547,
+      "groups": {
+        "env": {
+          "n": 27,
+          "median_ratio": 1.0060422960725075,
+          "median_abs_rel_diff": 0.01059001512859303
+        },
+        "hold_mixed": {
+          "n": 24,
+          "median_ratio": 1.0037023500108297,
+          "median_abs_rel_diff": 0.01728763040238448
+        },
+        "tip": {
+          "n": 48,
+          "median_ratio": 1.0,
+          "median_abs_rel_diff": 0.0005428881650379542
+        }
+      }
+    },
+    "hold": {
+      "n": 99,
+      "median_ratio": 0.859375,
+      "median_abs_rel_diff": 0.140625,
+      "p90_abs_rel_diff": 0.38281250000000017,
+      "spearman_directions": 0.9964902300847469,
+      "spearman_cells_weakest": 0.9871246490578469,
+      "groups": {
+        "env": {
+          "n": 27,
+          "median_ratio": 0.8203125000000001,
+          "median_abs_rel_diff": 0.17968749999999997
+        },
+        "hold_mixed": {
+          "n": 24,
+          "median_ratio": 0.87890625,
+          "median_abs_rel_diff": 0.12109374999999997
+        },
+        "tip": {
+          "n": 48,
+          "median_ratio": 0.859375,
+          "median_abs_rel_diff": 0.14062499999999997
+        }
+      }
+    },
+    "rate_0.5": {
+      "n": 100,
+      "median_ratio": 0.9504406514948682,
+      "median_abs_rel_diff": 0.05911784436493739,
+      "p90_abs_rel_diff": 0.22028301886792478,
+      "spearman_directions": 0.9949922742424923,
+      "spearman_cells_weakest": 0.9822196818575595,
+      "groups": {
+        "env": {
+          "n": 28,
+          "median_ratio": 0.9342209407507914,
+          "median_abs_rel_diff": 0.06723593570608502
+        },
+        "hold_mixed": {
+          "n": 24,
+          "median_ratio": 0.9803764375078983,
+          "median_abs_rel_diff": 0.04147597254004579
+        },
+        "tip": {
+          "n": 48,
+          "median_ratio": 0.9427251043530114,
+          "median_abs_rel_diff": 0.06442566269688826
+        }
+      }
+    },
+    "rate_2": {
+      "n": 99,
+      "median_ratio": 1.0548780487804876,
+      "median_abs_rel_diff": 0.06959706959706952,
+      "p90_abs_rel_diff": 0.251685393258427,
+      "spearman_directions": 0.9964283063678195,
+      "spearman_cells_weakest": 0.977914110429448,
+      "groups": {
+        "env": {
+          "n": 27,
+          "median_ratio": 1.0978723404255317,
+          "median_abs_rel_diff": 0.0978723404255318
+        },
+        "hold_mixed": {
+          "n": 24,
+          "median_ratio": 1.0221707242868145,
+          "median_abs_rel_diff": 0.03283812997783718
+        },
+        "tip": {
+          "n": 48,
+          "median_ratio": 1.084406070120356,
+          "median_abs_rel_diff": 0.08440607012035586
+        }
+      }
+    }
+  },
+  "zero_control": {
+    "env": {
+      "n": 5,
+      "failed": 0,
+      "causes": {
+        "held": 5
+      },
+      "median_max_disp_mm": 1.0501502140446795,
+      "median_max_rot_deg": 1.0863165120831642,
+      "duration_s": 9.810000000008614
+    },
+    "tip": {
+      "n": 8,
+      "failed": 4,
+      "causes": {
+        "lost": 1,
+        "held": 4,
+        "rotation": 3
+      },
+      "median_max_disp_mm": 2.281917431662049,
+      "median_max_rot_deg": 4.546886184808693,
+      "duration_s": 9.810000000008614
+    },
+    "hold_mixed": {
+      "n": 4,
+      "failed": 0,
+      "causes": {
+        "held": 4
+      },
+      "median_max_disp_mm": 1.1625538652029437,
+      "median_max_rot_deg": 0.42162134757321956,
+      "duration_s": 9.810000000008614
+    }
+  },
+  "labels": [
+    "candidate_02",
+    "design001"
+  ],
+  "criteria": {
+    "slip_mm": 5.0,
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "settings": {
+    "rate_N_s": 1.0,
+    "cap_mg": 10.0,
+    "stop_mm": 30.0,
+    "stop_lost_s": 0.1,
+    "sample_s": 0.005,
+    "zero_control": true,
+    "refine": true,
+    "rise_s": 0.5,
+    "hold_s": 1.0,
+    "tol_mg": 0.02
+  },
+  "dirs": [
+    "+x",
+    "-x",
+    "+y",
+    "-y",
+    "+z",
+    "-z"
+  ]
+}

@@ -10,8 +10,8 @@ Two XML formats are accepted:
     with gripper_core.build_xml from the run's own template, then the XML's distal open
     angle, stiffness and preload are put back (damping follows the run's damping ratio).
     Before anything runs on the RB5, the result is checked against the original model:
-    every finger value, the open-pose site positions and the joint angles under a small
-    tendon pull must match.
+    every finger value, the open-pose site positions and the tendon moment arms over the
+    finger range must match.
 Tendon tension, object and protocol always come from the run's config.
 
   python eval_design_rb5.py --run runs/rb5_cmaes_final --xml design001.xml --workers 8
@@ -226,28 +226,73 @@ def check_conversion(src_text, hand_xml):
     if worst > 0.5:
         bad.append(f"open-pose finger sites differ by up to {worst:.2f} mm")
     palm = {k: 1000*np.linalg.norm(a[k]-b[v]) for k, v in PALM_SITES.items() if k in a and v in b}
-    pull0 = finger_deflection(src_text, ("joint1", "joint2", "joint3", "joint4"))
-    pull1 = finger_deflection(hand_xml, ("R_jp", "R_jd", "L_jp", "L_jd"))
-    diff = max(abs(math.degrees(x-y)) for x, y in zip(pull0, pull1))
-    if diff > 0.5:
-        bad.append(f"joint angles under a 0.3 N tendon pull differ by up to {diff:.2f} deg")
+    arm_mm = moment_arm_difference(src_text, hand_xml)
+    if arm_mm > MAX_ARM_DIFF_MM:
+        bad.append(f"tendon moment arms over the finger range differ by up to {arm_mm:.3f} mm")
     if bad:
         raise SystemExit("The converted hand does not match the stage0 XML:\n  "+"\n  ".join(bad))
-    return worst, max(palm.values(), default=0.0), diff
+    return worst, max(palm.values(), default=0.0), arm_mm
 
 
-def finger_deflection(xml, joints, tension=0.3, seconds=12.0):
-    """|q - q_open| of the given joints after a slow, contact-free tendon pull."""
+STAGE0_JOINTS = ("joint1", "joint2", "joint3", "joint4")
+RB5_JOINTS = ("R_jp", "R_jd", "L_jp", "L_jd")
+MAX_ARM_DIFF_MM = 0.05
+
+
+def closing_coordinates(m, d, joints):
+    """(qpos address, q_open, closing sign, closing span) per joint; d at the open pose.
+    The open stop is the range limit nearer q_open, closing runs towards the other one."""
+    out = []
+    for n in joints:
+        j = m.joint(n)
+        lo, hi = (float(v) for v in m.jnt_range[j.id])
+        q0 = float(d.qpos[j.qposadr[0]])
+        sign = 1.0 if abs(q0-lo) <= abs(q0-hi) else -1.0
+        out.append((j.qposadr[0], q0, sign, (hi-q0) if sign > 0 else (q0-lo)))
+    return out
+
+
+def tendon_moment_arms(xml, joints, poses, eps=1e-6):
+    """Moment arm of the tendon at each finger joint [m] (= -dL/d(closing angle)) for each
+    pose (proximal closing, distal closing) [rad], both fingers in the same pose."""
     m, d = open_pose(xml)
-    q_open = [float(d.qpos[m.joint(n).qposadr[0]]) for n in joints]
-    m.opt.gravity[:] = 0
-    m.geom_contype[:] = 0
-    m.geom_conaffinity[:] = 0
-    act = m.actuator("pulley_pull").id
-    d.ctrl[act] = tension/-m.actuator_gear[act, 0]
-    for _ in range(round(seconds/m.opt.timestep)):
-        mujoco.mj_step(m, d)
-    return [abs(float(d.qpos[m.joint(n).qposadr[0]])-q) for n, q in zip(joints, q_open)]
+    coords = closing_coordinates(m, d, joints)
+    t = m.tendon("tendon").id
+    out = []
+    for dp, dd in poses:
+        closing = [dp, dd, dp, dd]
+
+        def length(k=None):
+            for i, (adr, q0, sign, _) in enumerate(coords):
+                d.qpos[adr] = q0+sign*(closing[i]+(eps if i == k else 0.0))
+            mujoco.mj_fwdPosition(m, d)
+            return float(d.ten_length[t])
+        base = length()
+        out.append([-(length(k)-base)/eps for k in range(len(coords))])
+    return np.array(out)
+
+
+def moment_arm_difference(src_text, hand_xml, n=5):
+    """Largest |moment arm difference| [mm] between the stage0 XML and the RB5 hand on an
+    n x n grid of finger poses up to 90 % of the closing range both models share.
+
+    This replaced a contact-free tendon pull compared in joint angles, which is ill-posed
+    for these designs: a preloaded joint resting on its open stop sinks into the soft limit
+    by an amount set by solreflimit (stage0 0.02, RB5 template 0.002), soft fingers run
+    into closing limits that differ between the models (stage0 1.4/1.5 rad, RB5 1.92 rad),
+    and a preloaded joint near its break-away tension is bistable, so the end pose depends
+    on the inertial kick of the other joint (finger density 1100 vs 620). 168 of the 204
+    designs in ../xml failed that test with matching geometry. With stiffness and preload
+    already compared above, equal moment arms mean equal static finger behaviour."""
+    m0, d0 = open_pose(src_text)
+    m1, d1 = open_pose(hand_xml)
+    c0 = closing_coordinates(m0, d0, STAGE0_JOINTS)
+    c1 = closing_coordinates(m1, d1, RB5_JOINTS)
+    span_p, span_d = 0.9*min(c0[0][3], c1[0][3]), 0.9*min(c0[1][3], c1[1][3])
+    poses = [(a*span_p, b*span_d) for a in np.linspace(0, 1, n) for b in np.linspace(0, 1, n)]
+    a0 = tendon_moment_arms(src_text, STAGE0_JOINTS, poses)
+    a1 = tendon_moment_arms(hand_xml, RB5_JOINTS, poses)
+    return 1000*float(np.abs(a0-a1).max())
 
 
 # ---------------------------------------------------------------- evaluation
@@ -588,10 +633,10 @@ def main():
         template = run_template
         design, patch = stage0_conversion(source, template, cfg)
         note = ""
-        sites, palm_mm, pull_deg = check_conversion(source, apply_patch(build_xml(template, design, hcfg,
+        sites, palm_mm, arm_mm = check_conversion(source, apply_patch(build_xml(template, design, hcfg,
                                                                                     radius_mm=40), patch))
         print(f"Check passed: finger values equal, open-pose finger sites within {sites:.3f} mm, "
-              f"joint angles under a 0.3 N pull within {pull_deg:.3f} deg"
+              f"tendon moment arms within {arm_mm:.2g} mm"
               + (f" (palm tendon sites moved up to {palm_mm:.1f} mm)" if palm_mm > 0.5 else "") + ".")
     else:
         raise SystemExit(f"{args.xml} is neither in the RB5 hand format (R_gp, ...) nor the stage0 "

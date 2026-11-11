@@ -33,6 +33,16 @@ y는 palm 면과 물체 표면 사이 거리이고, 손이 대칭이라 x ≥ 0�
 | `compare_designs_rb5.py` | 두 설계의 map·증감·요약 비교 그림과 CSV를 `<run>/plots/`에 저장 (기본: design001 vs 최종 best) |
 | `run_task.py` | run 폴더의 설계로 특정 cell의 pick-and-lift를 viewer로 재생 |
 
+### 외란 실험 A (설계는 [`on_rb5/EXPERIMENT_A.md`](on_rb5/EXPERIMENT_A.md))
+
+| 파일 | 설명 |
+|---|---|
+| `disturb_collect.py` | 1단계: 설계의 성공 cell(env, tip)과 hold_mixed cell을 다시 돌려 'lift hold' 끝의 전체 상태(`mj_getState`)를 저장 |
+| `disturb_force.py` | 2단계: 저장한 상태에서 6방향으로 외력을 천천히 올려(기본 1 N/s, 상한 10 mg) 방향별 F_max 측정. 외력 0 대조(creep; 외력 없이도 실패하는 성공 cell은 실패로 간주, `--zero-fail keep`으로 해제), 접촉 형태 변화 기록, `--refine` 일정 힘 hold test(bisection), `--rescore`로 판정 기준만 바꿔 재판정 |
+| `disturb_validate.py` | 0단계: 일부 cell에서 ramp 속도·timestep·hold test·외력 0 대조를 비교해 방법 검증 |
+| `batch_disturbance.py` | `../xml`의 설계 전부를 workspace → 상태 저장 → 외란 순서로 실행. `all_designs.csv`, `graspable_designs.csv` 생성 |
+| `plot_disturbance.py` | workspace J vs robust_area(Pareto), 방향별 env/tip F 분포, 생존곡선, 설계별 F_min map |
+
 ### 설정·입력
 
 | 파일 | 설명 |
@@ -79,6 +89,10 @@ python optimize_rb5_cmaes.py --workers 8 --out runs/rb5_cmaes_final
 python eval_design_rb5.py --run runs/rb5_cmaes_final --xml design001.xml --workers 8
 python compare_designs_rb5.py --run runs/rb5_cmaes_final
 python run_task.py --run runs/rb5_cmaes_final --label candidate_02
+# 외란 실험 A
+python disturb_validate.py --run runs/rb5_cmaes_final --labels candidate_02 design001 --workers 8
+python batch_disturbance.py --xml-dir ..\xml --workers 8
+python plot_disturbance.py --run runs/rb5_cmaes_final --map candidate_02
 ```
 
 ---
