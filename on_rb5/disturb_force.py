@@ -478,6 +478,7 @@ def analyze(run, label, cfg, crit, levels, metric="ramp", zero_rule="fail"):
         row.update({f"F_{d}_mg": per[d]["F_mg"] for d in per})
         if refined:
             row.update({f"F_ramp_{d}_mg": per[d]["F_max_mg"] for d in per})
+            row["F_min_hold_mg"] = min(per[d]["F_hold_mg"] for d in per)
         row.update({f"pass_{lv:g}mg": per[weakest]["F_mg"] >= lv-1e-9 for lv in levels})
         cell_rows.append(row)
     if cells and not cell_rows:
@@ -582,6 +583,12 @@ def summarize(label, collect_meta, cells, dirs, cfg, levels, s):
     pe, pt = out["groups"]["env"]["pass_rate"], out["groups"]["tip"]["pass_rate"]
     out["tip_over_env_pass_ratio"] = {k: (pt[k]/pe[k] if pe[k] and pt[k] is not None else None) for k in pe}
     out["direction_stats"] = direction_stats(dirs, [g for g in groups if g != "tip_margin_negative"], s["dirs"])
+    held = [c for c in ok if c.get("F_min_hold_mg") is not None]
+    if held:  # --refine: the same numbers from the hold test (absolute holding force).
+        out["hold"] = dict(n=len(held), F_min_median_mg=float(np.median([c["F_min_hold_mg"] for c in held])),
+                           passed={f"{lv:g}mg": sum(c["F_min_hold_mg"] >= lv-1e-9 for c in held) for lv in levels},
+                           passed_env={f"{lv:g}mg": sum(c["F_min_hold_mg"] >= lv-1e-9 for c in held
+                                                        if c["group"] == "env") for lv in levels})
     return out
 
 
@@ -597,6 +604,10 @@ def print_summary(sm):
     print(f"  zero-force control failed (re-run success cells): {sm['zero_control_fail'] or 0}, "
           f"weakest direction creep-limited: "
           f"{sm['creep_limited_weakest']}, contact type changed before F_max: {sm['type_changed_cells'] or 0}")
+    if sm.get("hold"):
+        h = sm["hold"]
+        print(f"  hold test (--refine): median F_min {h['F_min_median_mg']:.2f} mg, cells holding >= level in every "
+              f"direction: " + " ".join(f"{k}:{v}" for k, v in h["passed"].items()))
     print(f"  {'level':>6} {'pass':>5} {'env':>4} {'tip':>4} {'cond.robust':>11} {'robust WS':>10} {'J_robust':>9}  "
           + " ".join(f"{d:>4}" for d in sm["directions"]))
     for L in sm["levels"]:

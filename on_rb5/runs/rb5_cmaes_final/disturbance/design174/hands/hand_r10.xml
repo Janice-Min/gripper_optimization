@@ -1,0 +1,90 @@
+<mujoco model="tendon_gripper">
+  
+  <compiler angle="radian" autolimits="true" />
+  <option timestep="0.001" integrator="implicitfast" cone="elliptic" impratio="10" gravity="0 0 0" />
+  <statistic center="0 0.05298446471 0" extent="0.3" />
+  <default>
+    <geom condim="4" friction="0.5 0.005 0.0001" solref="0.002 1" solimp="0.9 0.95 0.001 0.5 2" density="620" />
+    <default class="finger">
+      <joint type="hinge" solreflimit="0.002 1" />
+      <geom type="capsule" size="0.01" rgba="0.85 0.55 0.25 1" />
+    </default>
+    <default class="wrap">
+      <geom type="cylinder" contype="0" conaffinity="0" group="3" mass="0" rgba="0.2 0.4 0.9 0.4" />
+    </default>
+    <site size="0.0012" rgba="1 0.5 0 1" group="4" />
+  </default>
+  <worldbody>
+    <light pos="0 0 1" dir="0 0 -1" />
+    <camera name="top" pos="0 0.05 0.5" xyaxes="1 0 0 0 1 0" />
+    <geom name="palm" type="box" pos="0 -0.005 0" size="0.06353940219 0.005 0.05" rgba="0.5 0.5 0.55 1" />
+    <geom name="R_jp_wrap" class="wrap" pos="0.04353940219 0 0" size="0.006 0.003" />
+    <geom name="L_jp_wrap" class="wrap" pos="-0.04353940219 0 0" size="0.006 0.003" />
+    <site name="R_jp_side" pos="0.03153940219 0 0" />
+    <site name="L_jp_side" pos="-0.03153940219 0 0" />
+    <site name="R_palm" pos="0.03753940219 -0.008 0" />
+    <site name="L_palm" pos="-0.03753940219 -0.008 0" />
+    <site name="pulley" pos="0 -0.042 0" />
+    <geom name="pulley_vis" type="cylinder" pos="0 -0.036 0" size="0.006 0.003" contype="0" conaffinity="0" group="1" rgba="0.9 0.8 0.1 1" />
+    <body name="R_prox" pos="0.04353940219 0 0" axisangle="0 0 1 -0.286857401053">
+      <joint name="R_jp" class="finger" axis="0 0 1" ref="-0.286857401053" range="-0.286857401053 1.919862177" stiffness="0.00050259155" springref="-87.2407357741" damping="0.00031707933898752696" />
+      <geom name="R_gp" class="finger" fromto="0 0 0 0 0.0654082492 0" />
+      <site name="R_prox_bot" pos="-0.006 0.004 0" />
+      <site name="R_prox_top" pos="-0.004 0.0614082492 0" />
+      <body name="R_dist" pos="0 0.0654082492 0" axisangle="0 0 1 -0.439471325364">
+        <joint name="R_jd" class="finger" axis="0 0 1" ref="-0.439471325364" range="-0.439471325364 1.919862177" stiffness="0.01637712777" springref="-1.38373273049" damping="0.00047957919362505907" />
+        <geom name="R_gd" class="finger" fromto="0 0 0 0 0.04056068022 0" />
+        <geom name="R_jd_wrap" class="wrap" size="0.004 0.003" />
+        <site name="R_jd_side" pos="-0.008 0 0" />
+        <site name="R_tip" pos="-0.004 0.03856068022 0" />
+      </body>
+    </body>
+    <body name="L_prox" pos="-0.04353940219 0 0" axisangle="0 0 -1 -0.286857401053">
+      <joint name="L_jp" class="finger" axis="0 0 -1" ref="-0.286857401053" range="-0.286857401053 1.919862177" stiffness="0.00050259155" springref="-87.2407357741" damping="0.00031707933898752696" />
+      <geom name="L_gp" class="finger" fromto="0 0 0 0 0.0654082492 0" />
+      <site name="L_prox_bot" pos="0.006 0.004 0" />
+      <site name="L_prox_top" pos="0.004 0.0614082492 0" />
+      <body name="L_dist" pos="0 0.0654082492 0" axisangle="0 0 -1 -0.439471325364">
+        <joint name="L_jd" class="finger" axis="0 0 -1" ref="-0.439471325364" range="-0.439471325364 1.919862177" stiffness="0.01637712777" springref="-1.38373273049" damping="0.00047957919362505907" />
+        <geom name="L_gd" class="finger" fromto="0 0 0 0 0.04056068022 0" />
+        <geom name="L_jd_wrap" class="wrap" size="0.004 0.003" />
+        <site name="L_jd_side" pos="0.008 0 0" />
+        <site name="L_tip" pos="0.004 0.03856068022 0" />
+      </body>
+    </body>
+    <body name="obj" pos="0 0.05 -0.02">
+      <freejoint name="obj_free" />
+      <geom name="obj_g" type="cylinder" size="0.01 0.04" mass="0.1" rgba="0.3 0.7 0.3 0.6" />
+    </body>
+    <body name="table" mocap="true" pos="0 0.1 -0.06">
+      <geom name="table_g" type="box" size="0.4 0.4 0.01" pos="0 0 -0.01" condim="3" friction="1 0.005 0.0001" solref="0.02 1" solimp="0.9 0.95 0.001 0.5 2" rgba="0.36 0.39 0.42 0.5" />
+    </body>
+  </worldbody>
+  <contact>
+    <exclude body1="world" body2="R_prox" />
+    <exclude body1="world" body2="L_prox" />
+  </contact>
+  <tendon>
+    <spatial name="tendon" width="0.0008" rgba="1 0.5 0 1">
+      <site site="R_tip" />
+      <geom geom="R_jd_wrap" sidesite="R_jd_side" />
+      <site site="R_prox_top" />
+      <site site="R_prox_bot" />
+      <geom geom="R_jp_wrap" sidesite="R_jp_side" />
+      <site site="R_palm" />
+      <site site="pulley" />
+      <site site="L_palm" />
+      <geom geom="L_jp_wrap" sidesite="L_jp_side" />
+      <site site="L_prox_bot" />
+      <site site="L_prox_top" />
+      <geom geom="L_jd_wrap" sidesite="L_jd_side" />
+      <site site="L_tip" />
+    </spatial>
+  </tendon>
+  <actuator>
+    <motor name="pulley_pull" tendon="tendon" gear="-0.5" ctrlrange="0 40" />
+  </actuator>
+  <keyframe>
+    <key name="open" qpos="-0.286857401053 -0.439471325364 -0.286857401053 -0.439471325364 0 0.05 -0.02 1 0 0 0" ctrl="0" />
+  </keyframe>
+</mujoco>

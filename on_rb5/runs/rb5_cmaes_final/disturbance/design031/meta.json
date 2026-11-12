@@ -1,0 +1,42 @@
+{
+  "label": "design031",
+  "design": {
+    "length_mm": 140.0,
+    "lp_ratio": 0.45999999999999996,
+    "gap_mm": 90.0,
+    "theta_p_deg": 44.999999999974314,
+    "lp_mm": 64.39999999999999,
+    "ld_mm": 75.60000000000001,
+    "theta_d_deg": -34.99999999994183,
+    "phi_d_deg": 10.000000000032486
+  },
+  "patch": {
+    "q_open_d": -0.523598775598,
+    "k_p": 0.009563525,
+    "k_d": 0.0005,
+    "off_p": 2.091279104723,
+    "off_d": 100.000000000402,
+    "damping_p": 0.0019618558870623574,
+    "zeta_p": 0.7000000000001771,
+    "damping_d": 0.00018960369940429497,
+    "zeta_d": 0.7000000000005776
+  },
+  "run": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\on_rb5\\runs\\rb5_cmaes_final",
+  "mujoco": "3.3.7",
+  "python": "3.11.9",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "extra_reasons": [
+    "hold_mixed"
+  ],
+  "limit": null,
+  "cells_in_map": 792,
+  "selected": {
+    "tip": 73
+  },
+  "orig_success": 73,
+  "reproduced_success": 73,
+  "rerun_success": 73,
+  "states_saved": 73,
+  "not_reproduced": [],
+  "wall_s": 76.77723700000206
+}

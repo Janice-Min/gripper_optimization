@@ -66,6 +66,10 @@ python disturb_validate.py --run runs/rb5_cmaes_final --labels candidate_02 desi
 python batch_disturbance.py --xml-dir ..\xml --workers 8
 # 정리 그림
 python plot_disturbance.py --run runs/rb5_cmaes_final --map candidate_02
+# 상위 설계 정밀 평가: 두 순위(robust_area, J_robust@1mg) 상위 N의 합집합에 hold test 추가
+python disturb_force.py --run runs/rb5_cmaes_final --labels <설계들> --refine --workers 8
+python batch_disturbance.py --run runs/rb5_cmaes_final --only-table
+python plot_disturbance.py --run runs/rb5_cmaes_final --top-union 10 --map <관심 설계>
 # 판정 기준만 바꿔 다시 판정 (시뮬레이션 없음), 예: 미끄러져도 30 mm 안이면 버틴 것으로
 python disturb_force.py --run runs/rb5_cmaes_final --rescore --slip-mm 30
 python batch_disturbance.py --run runs/rb5_cmaes_final --only-table
@@ -87,7 +91,8 @@ runs/rb5_cmaes_final/
 │       ├── force_dirs.csv                 cell × 방향 한 줄
 │       ├── force_cells.csv                cell 한 줄 (F_min, 약한 방향, 외력 0 대조)
 │       └── force_summary.json
-└── plots/disturbance/                     pareto, directions, survival, fmin_map_<label>
+└── plots/disturbance/                     pareto, directions, survival, fmin_map_<label>,
+                                           direction_heatmap (설계 × 방향, env|tip), selected_designs.csv
 ```
 
 ## 6. 같이 고친 것: stage0 XML 변환 검사
@@ -139,7 +144,7 @@ env 파지의 약한 방향은 거의 항상 ±x(jaw 방향)다. 실 하나가 �
 | 회전 판정 | 전체 회전 ≥ 5° (workspace 'lift hold'와 같은 기준) | 원기둥 축 기울기만(축 둘레 spin은 허용): robust_area +1~6 %, pass@1 mg 7 → 10 (design003) | `--rescore --rot-mode tilt` |
 | tip → env 전환 | 5 mm 넘게 미끄러지면 전환 중이라도 실패 | "결국 놓치지 않았다" 기준 | `--rescore --slip-mm 30` |
 | 설계 순위 지표 | robust_area (workspace 크기 × 강건성) | F_min_median (크기와 분리한 품질), J_robust@k mg (요구 하중 k가 정해져 있을 때) | `all_designs.csv`의 열, `batch_disturbance.py --only-table --rank-level k` |
-| 절대값 | 1 N/s ramp | 상위 설계만 hold test | `disturb_force.py --labels ... --refine --metric hold` |
+| 절대값 | 1 N/s ramp | 상위 설계만 hold test (순위는 ramp 유지, hold 값은 `F_hold_*`, `pass_hold_*` 열과 heatmap에) | `disturb_force.py --labels ... --refine` |
 | 외력 0 대조에서 실패한 cell | **실패로 간주 (결정됨)**, env·tip 모두 | 표시만 하고 성공으로 유지 | `--rescore --zero-fail keep` |
 | 상한 | 10 mg (이전 5 mg; design001·002의 env cell 일부 방향은 10 mg에서도 censored) | – | `--max-mg` |
 

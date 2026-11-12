@@ -1,0 +1,137 @@
+<mujoco model="tendon_gripper">
+  <!--
+  generate_mjcf.py로 생성. 설계 변수 (m, deg, Nm/rad, Nm):
+    L_p       = 0.093333333
+    L_d       = 0.04
+    G         = 0.05
+    th_open_p = 45.0
+    th_open_d = -35.0
+    k_p       = 0.00170998
+    k_d       = 0.00170998
+    tau0_p    = 0.0
+    tau0_d    = 0.04
+  유도값:
+    springref_p = -45.000 deg, springref_d = -1305.268 deg
+    damping c_p = 0.000807907, c_d = 0.000152304 Nms/rad (zeta = 0.7, I_p = 0.0001947, I_d = 6.921e-06 kg m^2)
+    x 범위 상한 = 0.1079 m, y 범위 상한 = 0.1500 m
+  object: r = 0.04, q = (x, y) = (0.0, 0.04) m, 0.1 kg
+
+  이 파일은 닫히는 단계 설정이다 (중력 0, ctrl 0, object damping 0).
+  tendon: 실 하나 + 가운데 pulley (gripper_stage0.xml 경로). wrap 반지름 r_p = 0.006, r_d = 0.004 m
+  시뮬레이션 코드가 단계마다 바꾸는 값: ctrl ramp(pulley_pull = 0 -> 2 x F_pulley, 실 장력 0 -> F_pulley),
+  object damping(닫는 동안), 중력(유지 테스트에서 0 0 -9.81).
+  -->
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.001" integrator="implicitfast" cone="elliptic" impratio="10" gravity="0 0 0"/>
+  <statistic center="0 0.05 0" extent="0.2374736315"/>
+
+  <default>
+    <geom condim="4" friction="0.5 0.005 0.0001" solref="0.002 1" solimp="0.9 0.95 0.001 0.5 2"
+          density="620"/>
+    <default class="finger">
+      <joint type="hinge" solreflimit="0.002 1"/>
+      <geom type="capsule" size="0.01" rgba="0.85 0.55 0.25 1"/>
+    </default>
+    <!-- tendon wrap용 원통: 충돌 없음, 질량 없음 -->
+    <default class="wrap">
+      <geom type="cylinder" contype="0" conaffinity="0" group="3" mass="0" rgba="0.2 0.4 0.9 0.4"/>
+    </default>
+    <site size="0.0012" rgba="1 0.5 0 1" group="4"/>
+  </default>
+
+  <worldbody>
+    <light pos="0 0 1" dir="0 0 -1"/>
+    <camera name="top" pos="0 0.05 0.5" xyaxes="1 0 0 0 1 0"/>
+    <geom name="palm" type="box" pos="0 -0.005 0" size="0.045 0.005 0.05" rgba="0.5 0.5 0.55 1"/>
+    <!-- palm 쪽 tendon 경로: proximal 관절 wrap, palm site, 가운데 pulley -->
+    <geom name="R_jp_wrap" class="wrap" pos="0.025 0 0" size="0.006 0.003"/>
+    <geom name="L_jp_wrap" class="wrap" pos="-0.025 0 0" size="0.006 0.003"/>
+    <site name="R_jp_side" pos="0.013 0 0"/>
+    <site name="L_jp_side" pos="-0.013 0 0"/>
+    <site name="R_palm" pos="0.019 -0.008 0"/>
+    <site name="L_palm" pos="-0.019 -0.008 0"/>
+    <site name="pulley" pos="0 -0.042 0"/>
+    <geom name="pulley_vis" type="cylinder" pos="0 -0.036 0" size="0.006 0.003"
+          contype="0" conaffinity="0" group="1" rgba="0.9 0.8 0.1 1"/>
+
+    <body name="R_prox" pos="0.025 0 0" axisangle="0 0 1 -0.7853981634">
+      <joint name="R_jp" class="finger" axis="0 0 1" ref="-0.7853981634"
+             range="-0.7853981634 1.919862177"
+             stiffness="0.00170998" springref="-0.7853981634" damping="0.0008079068892"/>
+      <geom name="R_gp" class="finger" fromto="0 0 0 0 0.093333333 0"/>
+      <site name="R_prox_bot" pos="-0.006 0.004 0"/>
+      <site name="R_prox_top" pos="-0.004 0.089333333 0"/>
+      <body name="R_dist" pos="0 0.093333333 0" axisangle="0 0 1 0.6108652382">
+        <joint name="R_jd" class="finger" axis="0 0 1" ref="0.6108652382"
+               range="0.6108652382 1.919862177"
+               stiffness="0.00170998" springref="-22.78122122" damping="0.0001523043499"/>
+        <geom name="R_gd" class="finger" fromto="0 0 0 0 0.04 0"/>
+        <geom name="R_jd_wrap" class="wrap" size="0.004 0.003"/>
+        <site name="R_jd_side" pos="-0.008 0 0"/>
+        <site name="R_tip" pos="-0.004 0.038 0"/>
+      </body>
+    </body>
+
+    <body name="L_prox" pos="-0.025 0 0" axisangle="0 0 -1 -0.7853981634">
+      <joint name="L_jp" class="finger" axis="0 0 -1" ref="-0.7853981634"
+             range="-0.7853981634 1.919862177"
+             stiffness="0.00170998" springref="-0.7853981634" damping="0.0008079068892"/>
+      <geom name="L_gp" class="finger" fromto="0 0 0 0 0.093333333 0"/>
+      <site name="L_prox_bot" pos="0.006 0.004 0"/>
+      <site name="L_prox_top" pos="0.004 0.089333333 0"/>
+      <body name="L_dist" pos="0 0.093333333 0" axisangle="0 0 -1 0.6108652382">
+        <joint name="L_jd" class="finger" axis="0 0 -1" ref="0.6108652382"
+               range="0.6108652382 1.919862177"
+               stiffness="0.00170998" springref="-22.78122122" damping="0.0001523043499"/>
+        <geom name="L_gd" class="finger" fromto="0 0 0 0 0.04 0"/>
+        <geom name="L_jd_wrap" class="wrap" size="0.004 0.003"/>
+        <site name="L_jd_side" pos="0.008 0 0"/>
+        <site name="L_tip" pos="0.004 0.038 0"/>
+      </body>
+    </body>
+
+    <body name="obj" pos="0 0.08 0">
+      <freejoint name="obj_free"/>
+      <geom name="obj_g" type="cylinder" size="0.04 0.04" mass="0.1"
+            rgba="0.3 0.7 0.3 0.6"/>
+    </body>
+  </worldbody>
+
+  <contact>
+    <!-- proximal 뿌리 capsule이 palm 안에 묻혀 있으므로 palm(world) - proximal 충돌 제외.
+         proximal - distal(부모-자식)은 MuJoCo가 자동으로 제외한다. -->
+    <exclude body1="world" body2="R_prox"/>
+    <exclude body1="world" body2="L_prox"/>
+    <!-- 좌우 finger끼리 충돌함 (finger_collision = true) -->
+  </contact>
+
+  <tendon>
+    <!-- 실 하나: R 손끝 -> R 관절들 -> palm -> pulley -> palm -> L 관절들 -> L 손끝 (gripper_stage0.xml과 같은 순서).
+         실 전체에 같은 장력이 걸리므로 양쪽 손가락이 함께 닫히고, 한쪽이 막히면 남은 쪽이 계속 감긴다. -->
+    <spatial name="tendon" width="0.0008" rgba="1 0.5 0 1">
+      <site site="R_tip"/>
+      <geom geom="R_jd_wrap" sidesite="R_jd_side"/>
+      <site site="R_prox_top"/>
+      <site site="R_prox_bot"/>
+      <geom geom="R_jp_wrap" sidesite="R_jp_side"/>
+      <site site="R_palm"/>
+      <site site="pulley"/>
+      <site site="L_palm"/>
+      <geom geom="L_jp_wrap" sidesite="L_jp_side"/>
+      <site site="L_prox_bot"/>
+      <site site="L_prox_top"/>
+      <geom geom="L_jd_wrap" sidesite="L_jd_side"/>
+      <site site="L_tip"/>
+    </spatial>
+  </tendon>
+
+  <actuator>
+    <!-- ctrl = pulley를 당기는 힘 [N]. gear -0.5 -> 실 장력 = ctrl / 2 (gripper_stage0.xml과 같은 규약) -->
+    <motor name="pulley_pull" tendon="tendon" gear="-0.5" ctrlrange="0 40"/>
+  </actuator>
+
+  <!-- qpos 순서: R_jp, R_jd, L_jp, L_jd, obj(x y z qw qx qy qz). 기본 자세와 같다 (예전 스크립트 호환용) -->
+  <keyframe>
+    <key name="open" qpos="-0.7853981634 0.6108652382 -0.7853981634 0.6108652382  0 0.08 0  1 0 0 0"/>
+  </keyframe>
+</mujoco>

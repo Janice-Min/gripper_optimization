@@ -1,0 +1,62 @@
+{
+  "build_design": {
+    "length_mm": 150.00000000000003,
+    "lp_ratio": 0.45999999999999996,
+    "gap_mm": 60.0,
+    "theta_p_deg": 16.999999999997936,
+    "lp_mm": 69.00000000000001,
+    "ld_mm": 81.00000000000001,
+    "theta_d_deg": -6.99999999996545,
+    "phi_d_deg": 10.000000000032486
+  },
+  "patch": {
+    "q_open_d": -0.523598775598,
+    "k_p": 0.00104563955,
+    "k_d": 0.02,
+    "off_p": 19.127050043161,
+    "off_d": 1.000000000002,
+    "damping_p": 0.0007148619429536856,
+    "zeta_p": 0.7000000000002751,
+    "damping_d": 0.0013179534180405657,
+    "zeta_d": 0.6999999999995072
+  },
+  "mounted_hand": {
+    "Lp [mm]": 69.0,
+    "Ld [mm]": 81.0,
+    "G [mm]": 60.0,
+    "k_p [N m/rad]": 0.00104563955,
+    "preload_p [N m]": 0.01999999999995835,
+    "damping_p": 0.0007148619429536856,
+    "k_d [N m/rad]": 0.02,
+    "preload_d [N m]": 0.02000000000004,
+    "damping_d": 0.0013179534180405657,
+    "theta_p [deg]": 16.999999999997936,
+    "theta_d [deg]": 29.99999999998288,
+    "phi_d [deg]": 46.999999999980815,
+    "max tendon tension [N]": 20.0
+  },
+  "grid": {
+    "r_mm": [
+      10,
+      80,
+      10
+    ],
+    "x_mm": [
+      0,
+      80,
+      10
+    ],
+    "y_mm": [
+      5,
+      105,
+      10
+    ]
+  },
+  "template_file": "design072_template.xml",
+  "source_xml": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\xml\\design072.xml",
+  "viewer_cell": {
+    "r_mm": 40.0,
+    "x_mm": 0.0,
+    "y_mm": 35.0
+  }
+}

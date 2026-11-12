@@ -41,7 +41,7 @@ y는 palm 면과 물체 표면 사이 거리이고, 손이 대칭이라 x ≥ 0�
 | `disturb_force.py` | 2단계: 저장한 상태에서 6방향으로 외력을 천천히 올려(기본 1 N/s, 상한 10 mg) 방향별 F_max 측정. 외력 0 대조(creep; 외력 없이도 실패하는 성공 cell은 실패로 간주, `--zero-fail keep`으로 해제), 접촉 형태 변화 기록, `--refine` 일정 힘 hold test(bisection), `--rescore`로 판정 기준만 바꿔 재판정 |
 | `disturb_validate.py` | 0단계: 일부 cell에서 ramp 속도·timestep·hold test·외력 0 대조를 비교해 방법 검증 |
 | `batch_disturbance.py` | `../xml`의 설계 전부를 workspace → 상태 저장 → 외란 순서로 실행. `all_designs.csv`, `graspable_designs.csv` 생성 |
-| `plot_disturbance.py` | workspace J vs robust_area(Pareto), 방향별 env/tip F 분포, 생존곡선, 설계별 F_min map |
+| `plot_disturbance.py` | workspace J_stable vs 파지 품질(Pareto), 방향별 env/tip F 분포와 설계 × 방향 heatmap, 생존곡선, 설계별 F_min map, 선택 설계 비교표 `selected_designs.csv`. `--top-union N`으로 두 순위 상위 N의 합집합 선택 |
 
 ### 설정·입력
 

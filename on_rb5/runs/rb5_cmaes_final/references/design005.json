@@ -1,0 +1,36 @@
+{
+  "label": "design005",
+  "design": {
+    "length_mm": 125.0,
+    "lp_ratio": 0.3,
+    "gap_mm": 75.0,
+    "theta_p_deg": 27.499999999974754,
+    "lp_mm": 37.5,
+    "ld_mm": 87.5,
+    "theta_d_deg": 6.250000000020306,
+    "phi_d_deg": 33.74999999999506
+  },
+  "summary": {
+    "J": 6.008329245531165,
+    "J_per_cell": 0.007586274299913087,
+    "cells": 792,
+    "success": 30,
+    "env": 0,
+    "tip": 30,
+    "workspace_term": 6.0,
+    "force_margin_sum": 8.32924553116509,
+    "force_term": 0.008329245531165092,
+    "rb5_pass": 31,
+    "prefiltered": 423,
+    "cell_seconds": 268.70624390023295,
+    "failures": {
+      "close_no_bilateral": 58,
+      "hold_displacement": 1,
+      "lift_height": 168,
+      "approach_overlap": 423,
+      "unintended_collision": 75,
+      "approach_push": 2,
+      "ik_failed": 35
+    }
+  }
+}

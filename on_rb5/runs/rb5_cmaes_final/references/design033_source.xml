@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="symmetric_tendon_gripper_stage0">
+  <compiler angle="radian" autolimits="true" />
+  <option timestep="0.001" gravity="0 0 -9.81" integrator="implicitfast" cone="elliptic" impratio="10" />
+  <visual>
+    <scale contactwidth="0.003" contactheight="0.001" forcewidth="0.0015" />
+    <map force="0.003" />
+  </visual>
+  <default>
+    <joint type="hinge" axis="0 0 1" damping="0.003" armature="5e-06" />
+    <geom density="1100" condim="4" friction="0.5 0.005 0.0001" solref="0.002 1" solimp="0.9 0.95 0.001 0.5 2" />
+    <default class="pin">
+      <geom type="cylinder" size="0.0025 0.0115" contype="0" conaffinity="0" mass="0" rgba="0.75 0.75 0.8 1" />
+    </default>
+    <default class="wrap">
+      <geom type="cylinder" contype="0" conaffinity="0" group="3" rgba="0.2 0.4 0.9 0.4" />
+    </default>
+    <site size="0.0012" rgba="1 0.5 0 1" group="4" />
+  </default>
+  <worldbody>
+    <light pos="0 0 1" />
+    <camera name="top" pos="-0.06 0 0.47" xyaxes="1 0 0 0 1 0" />
+    <geom name="floor" type="plane" size="1 1 0.1" friction="0.3 0.005 0.0001" rgba="0.85 0.85 0.85 1" />
+    <body name="palm" pos="0.0000000 0.0000000 0.1600000">
+      <geom name="palm_geom" type="box" pos="0.0145000 0.0000000 0.0000000" size="0.0155 0.04 0.010" rgba="0.4 0.4 0.45 0.2" />
+      <geom name="joint1_pin" class="pin" pos="0 0.03 0" />
+      <geom name="joint3_pin" class="pin" pos="0 -0.03 0" />
+      <geom name="joint1_wrap" class="wrap" pos="0 0.03 0" size="0.006 0.003" />
+      <geom name="joint3_wrap" class="wrap" pos="0 -0.03 0" size="0.006 0.003" />
+      <site name="joint1_side" pos="0 0.018 0" />
+      <site name="joint3_side" pos="0 -0.018 0" />
+      <site name="palm_up" pos="0.008 0.024 0" />
+      <site name="palm_lo" pos="0.008 -0.024 0" />
+      <geom name="pulley_vis" type="cylinder" pos="0.036 0 0" size="0.006 0.003" contype="0" conaffinity="0" rgba="0.9 0.8 0.1 1" />
+      <site name="pulley" pos="0.042 0 0" />
+      <body name="upper_link1" pos="0 0.03 0">
+        <joint name="joint1" range="-0.785398163397 1.4" stiffness="0.009563525" springref="-2.87667726812" />
+        <geom name="upper_green_link" type="capsule" fromto="0 0 0 -0.0644 0 0" size="0.010" rgba="0.15 0.15 0.15 1" />
+        <site name="upper_prox_top" pos="-0.0604 -0.004 0" />
+        <site name="upper_prox_bot" pos="-0.0040000 -0.0060000 0.0000000" />
+        <geom name="joint2_pin" class="pin" pos="-0.0644 0 0" />
+        <body name="upper_link2" pos="-0.0644 0 0">
+          <joint name="joint2" range="-0.523598775598 1.5" stiffness="0.0005" springref="-40.5235987756" />
+          <geom name="upper_red_link" type="capsule" fromto="0 0 0 -0.0756 0 0" size="0.010" rgba="0.95 0.15 0.15 1" />
+          <geom name="joint2_wrap" class="wrap" size="0.004 0.003" />
+          <site name="joint2_side" pos="0 -0.008000 0" />
+          <site name="upper_tip" pos="-0.0736 -0.004 0" />
+        </body>
+      </body>
+      <body name="lower_link1" pos="0 -0.03 0">
+        <joint name="joint3" range="-1.4 0.785398163397" stiffness="0.009563525" springref="2.87667726812" />
+        <geom name="lower_green_link" type="capsule" fromto="0 0 0 -0.0644 0 0" size="0.010" rgba="0.1 0.8 0.2 1" />
+        <site name="lower_prox_top" pos="-0.0604 0.004 0" />
+        <site name="lower_prox_bot" pos="-0.0040000 0.0060000 0.0000000" />
+        <geom name="joint4_pin" class="pin" pos="-0.0644 0 0" />
+        <body name="lower_link2" pos="-0.0644 0 0">
+          <joint name="joint4" range="-1.5 0.523598775598" stiffness="0.0005" springref="40.5235987756" />
+          <geom name="lower_red_link" type="capsule" fromto="0 0 0 -0.0756 0 0" size="0.010" rgba="0.95 0.15 0.15 1" />
+          <geom name="joint4_wrap" class="wrap" size="0.004 0.003" />
+          <site name="joint4_side" pos="0 0.008000 0" />
+          <site name="lower_tip" pos="-0.0736 0.004 0" />
+        </body>
+      </body>
+    </body>
+    <body name="object_body" pos="-0.0750000 0.0000000 0.1600000">
+      <freejoint name="object_free" />
+      <geom name="object" type="cylinder" size="0.055 0.019" mass="0.3" friction="1.0 0.005 0.0001" rgba="0.2 0.5 1 1" />
+    </body>
+  </worldbody>
+  <contact>
+    <exclude body1="palm" body2="upper_link1" />
+    <exclude body1="palm" body2="lower_link1" />
+  </contact>
+  <tendon>
+    <spatial name="tendon" width="0.0008" rgba="1 0.5 0 1">
+      <site site="upper_tip" />
+      <geom geom="joint2_wrap" sidesite="joint2_side" />
+      <site site="upper_prox_top" />
+      <site site="upper_prox_bot" />
+      <geom geom="joint1_wrap" sidesite="joint1_side" />
+      <site site="palm_up" />
+      <site site="pulley" />
+      <site site="palm_lo" />
+      <geom geom="joint3_wrap" sidesite="joint3_side" />
+      <site site="lower_prox_bot" />
+      <site site="lower_prox_top" />
+      <geom geom="joint4_wrap" sidesite="joint4_side" />
+      <site site="lower_tip" />
+    </spatial>
+  </tendon>
+  <actuator>
+    <motor name="pulley_pull" tendon="tendon" gear="-0.5" ctrlrange="0 20" />
+  </actuator>
+  <keyframe>
+    <key name="open" qpos="-0.785398163397 -0.523598775598 0.785398163397 0.523598775598 -0.075 0 0.16 1 0 0 0" />
+  </keyframe>
+</mujoco>

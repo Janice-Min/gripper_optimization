@@ -6,11 +6,19 @@
                    also the robust one, or is there a trade-off?
   directions.png   F of every direction, env vs tip, for the selected designs
   survival.png     number of success cells whose weakest direction holds >= F, env / tip
+  direction_heatmap.png  median F of every direction, env and tip side by side, one row per
+                   selected design (hold-test values for designs run with --refine)
+  selected_designs.csv   the selected designs: design values, stiffness, preload, workspace
+                   J / J_stable, success cells, pass@1 mg, robust_area, F_min medians, and
+                   the median F of every direction for env and tip (ramp and hold)
   fmin_map_<label>.png  (--map) weakest-direction F of every cell of one design's map
 
   python plot_disturbance.py --run runs/rb5_cmaes_final
   python plot_disturbance.py --run runs/rb5_cmaes_final --labels design001 candidate_02 --map candidate_02
+  python plot_disturbance.py --run runs/rb5_cmaes_final --top-union 10   # top 10 of both rankings
 Default selection: design001, candidate_02 (if analyzed) and the top 3 by robust_area.
+--top-union N: the union of the top N by robust_area and the top N by J_robust at 1 m g.
+directions.png shows at most 6 designs; the heatmap and the CSV take any number.
 Writes <run>/plots/disturbance/.
 """
 from __future__ import annotations
@@ -25,7 +33,7 @@ from gripper_core import read_json
 from eval_design_rb5 import read_rows
 from disturb_collect import OUT_DIR, ROOT, load_label
 from disturb_force import DIRECTIONS
-from batch_disturbance import design_info
+from batch_disturbance import DESIGN_KEYS, HAND_KEYS, design_info
 
 # Reference palette (dataviz skill): categorical slots in fixed order, sequential blue.
 SERIES = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948")
@@ -245,11 +253,116 @@ def plot_map(path, run, label, vmax=None):
     return path
 
 
+def level(sm, lv, key):
+    L = next((L for L in sm["levels"] if abs(L["level_mg"]-lv) < 1e-9), None)
+    return L[key] if L else None
+
+
+def top_union(sms, n):
+    by_area = sorted(sms, key=lambda l: -sms[l]["robust_area"])[:n]
+    by_jr = sorted(sms, key=lambda l: -(level(sms[l], 1.0, "J_robust") or 0.0))[:n]
+    return list(dict.fromkeys(by_area+by_jr))
+
+
+def direction_value(sm, g, d, value):
+    st = sm.get("direction_stats", {}).get(g, {}).get(d)
+    if not st or not st.get("n"):
+        return None
+    return st.get("hold_median") if value == "hold" else st.get("median")
+
+
+def plot_heatmap(path, sms, labels, value="auto", vmax=None):
+    """Median F per direction, env | tip, one row per design."""
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LinearSegmentedColormap
+    labels = [l for l in labels if l in sms]
+    if not labels:
+        return None
+    if value == "auto":
+        value = "hold" if all(sms[l].get("hold") for l in labels) else "ramp"
+    dirs = list(DIRECTIONS)
+    grid = np.full((len(labels), 2*len(dirs)), np.nan)
+    for i, l in enumerate(labels):
+        for k, g in enumerate(("env", "tip")):
+            for j, d in enumerate(dirs):
+                v = direction_value(sms[l], g, d, value)
+                if v is not None:
+                    grid[i, k*len(dirs)+j] = v
+    finite = grid[np.isfinite(grid)]
+    # Censored env directions (up to the 10 m g cap) would wash out the range that matters.
+    vmax = vmax or (min(3.0, max(0.5, math.ceil(np.percentile(finite, 90)*2)/2)) if finite.size else 1.0)
+    cmap = LinearSegmentedColormap.from_list("seq_blue", SEQUENTIAL)
+    fig, ax = plt.subplots(figsize=(9.2, 0.38*len(labels)+1.8))
+    ax.grid(False)
+    for i in range(len(labels)):
+        for j in range(grid.shape[1]):
+            v = grid[i, j]
+            x = j+(0.35 if j >= len(dirs) else 0)  # Gap between the env and the tip block.
+            if not np.isfinite(v):
+                ax.add_patch(plt.Rectangle((x+0.04, i+0.04), 0.92, 0.92, color=EMPTY_CELL, lw=0))
+                continue
+            u = min(v, vmax)/vmax
+            ax.add_patch(plt.Rectangle((x+0.04, i+0.04), 0.92, 0.92, color=cmap(u), lw=0))
+            ax.text(x+0.5, i+0.5, f"{v:.2f}", ha="center", va="center", fontsize=7,
+                    color=SURFACE if u > 0.55 else INK)
+    ax.set_xlim(0, grid.shape[1]+0.35)
+    ax.set_ylim(len(labels), 0)
+    ax.set_xticks([j+0.5+(0.35 if j >= len(dirs) else 0) for j in range(grid.shape[1])], dirs*2)
+    ax.set_yticks([i+0.5 for i in range(len(labels))],
+                  [f"{l}  ({sms[l]['env']} env, {sms[l]['tip']} tip)" for l in labels])
+    ax.tick_params(length=0)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    ax.text(len(dirs)/2, -0.35, "env cells", ha="center", va="bottom", color=INK_2)
+    ax.text(len(dirs)+0.35+len(dirs)/2, -0.35, "tip cells", ha="center", va="bottom", color=INK_2)
+    sm_ = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(0, vmax))
+    cb = fig.colorbar(sm_, ax=ax, shrink=0.8, pad=0.02)
+    cb.set_label(f"median F [m g] ({'hold test' if value == 'hold' else 'ramp'}; capped at {vmax:g})")
+    ax.set_title(f"Median F per direction ({value}); gray = no such cells", loc="left", pad=36)
+    fig.tight_layout()
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
+    return path
+
+
+def write_selected(path, run, sms, labels):
+    """One row per selected design: design values and the experiment's numbers."""
+    rows = []
+    for l in labels:
+        if l not in sms:
+            continue
+        sm, info = sms[l], design_info(run, l)
+        row = dict(label=l, **{k: info.get(k) for k in DESIGN_KEYS}, **{k: info.get(k) for k in HAND_KEYS.values()},
+                   J=info.get("J"), J_stable=sm.get("J_stable"), success=sm["success"], env=sm["env"], tip=sm["tip"],
+                   removed_zero_fail=sum((sm.get("zero_fail_removed") or {}).values()),
+                   pass_1mg=level(sm, 1.0, "passed"), cond_1mg=level(sm, 1.0, "conditional_robustness"),
+                   J_robust_1mg=level(sm, 1.0, "J_robust"), robust_area=sm["robust_area"],
+                   F_min_median_mg=sm.get("F_min_median_mg"))
+        hold = sm.get("hold") or {}
+        row.update(F_min_hold_median_mg=hold.get("F_min_median_mg"), pass_hold_1mg=(hold.get("passed") or {}).get("1mg"))
+        for g in ("env", "tip"):
+            for d in DIRECTIONS:
+                row[f"F_{d}_{g}_mg"] = direction_value(sm, g, d, "ramp")
+                row[f"F_{d}_{g}_hold_mg"] = direction_value(sm, g, d, "hold")
+        rows.append(row)
+    if not rows:
+        return None
+    import csv
+    with Path(path).open("w", newline="", encoding="utf-8-sig") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    return path
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, default=ROOT/"runs"/"rb5_cmaes_final")
     p.add_argument("--labels", nargs="+", help="Designs for directions/survival (default: see above)")
     p.add_argument("--top", type=int, default=3, help="Top designs by robust_area added by default")
+    p.add_argument("--top-union", type=int, help="Select the union of the top N by robust_area and by J_robust@1mg")
+    p.add_argument("--value", choices=("auto", "ramp", "hold"), default="auto",
+                   help="Heatmap values: hold test if every selected design has one (auto), ramp, or hold")
     p.add_argument("--map", nargs="*", default=[], help="Labels to draw an F_min map for")
     p.add_argument("--pareto-y", choices=sorted(PARETO_Y), default="median",
                    help="Robustness axis of pareto.png: median F_min of the success cells (default, "
@@ -265,15 +378,27 @@ def main():
     if not sms:
         raise SystemExit(f"No force_summary.json under {run/OUT_DIR}. Run disturb_force.py first.")
     ranked = sorted(sms, key=lambda l: -sms[l]["robust_area"])
-    labels = args.labels or list(dict.fromkeys([l for l in ("design001", "candidate_02") if l in sms]
-                                               + ranked[:args.top]))
+    if args.top_union:
+        labels = top_union(sms, args.top_union)
+    else:
+        labels = args.labels or list(dict.fromkeys([l for l in ("design001", "candidate_02") if l in sms]
+                                                   + ranked[:args.top]))
+    missing = [l for l in labels if l not in sms]
+    if missing:
+        print(f"No force_summary.json for {missing}; left out.")
+        labels = [l for l in labels if l in sms]
+    print(f"Selected {len(labels)} designs: {' '.join(labels)}")
     out = run/"plots"/"disturbance"
     out.mkdir(parents=True, exist_ok=True)
     cap = max(sm["cap_mg"] for sm in sms.values())
     top_f = max([float(r["F_mg"]) for l in labels for r in dir_rows(run, l)] or [1.0])
     top_min = max([float(r["F_min_mg"]) for l in labels for r in cell_rows(run, l)] or [1.0])
+    if len(labels) > 6:
+        print(f"directions.png: first 6 of the {len(labels)} designs (all of them are in direction_heatmap.png)")
     for path in (plot_pareto(out/"pareto.png", sms, set(labels), args.pareto_y),
-                 plot_directions(out/"directions.png", run, labels, min(cap, top_f*1.08)),
+                 plot_directions(out/"directions.png", run, labels[:6], min(cap, top_f*1.08)),
+                 plot_heatmap(out/"direction_heatmap.png", sms, labels, args.value),
+                 write_selected(out/"selected_designs.csv", run, sms, labels),
                  plot_survival(out/"survival.png", run, labels, min(cap, top_min*1.1)),
                  *(plot_map(out/f"fmin_map_{l}.png", run, l, args.vmax) for l in args.map)):
         if path:

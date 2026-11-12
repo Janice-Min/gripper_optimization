@@ -1,0 +1,45 @@
+{
+  "label": "design124",
+  "settings": {
+    "rate_N_s": 1.0,
+    "cap_mg": 10.0,
+    "dirs": [
+      "+x",
+      "-x",
+      "+y",
+      "-y",
+      "+z",
+      "-z"
+    ],
+    "stop_mm": 30.0,
+    "stop_lost_s": 0.1,
+    "sample_s": 0.005,
+    "zero_control": true,
+    "refine": false,
+    "rise_s": 0.5,
+    "hold_s": 1.0,
+    "tol_mg": 0.02,
+    "mg_N": 0.9810000000000001,
+    "cap_N": 9.81,
+    "tol_N": 0.019620000000000002
+  },
+  "mujoco": "3.3.7",
+  "criteria": {
+    "slip_mm": 5.0,
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "levels_mg": [
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0
+  ],
+  "metric": "ramp",
+  "zero_rule": "fail"
+}

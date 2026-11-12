@@ -139,6 +139,20 @@ def brief(run, label, level):
     return text
 
 
+def final_hand(run, label):
+    """Mounted-hand values (stiffness, preload, ...) of a final/ design (baseline, candidate_XX),
+    which keep the run template's stiffness and preload. {} if it cannot be rebuilt."""
+    try:
+        from eval_design_rb5 import hand_parameters
+        from gripper_core import build_xml
+        from rb5_eval import hand_config, run_result
+        _, design, _, _, template = run_result(run, label)
+        return hand_parameters(build_xml(template, design, hand_config(read_json(run/"config_used.json")),
+                                         radius_mm=40))
+    except (Exception, SystemExit):
+        return {}
+
+
 def design_info(run, label):
     """Design values, hand stiffness/preload and map summary of a references/ or final/ design."""
     for path in (run/"references"/f"{label}.json", run/"final"/f"{label}.json"):
@@ -149,7 +163,7 @@ def design_info(run, label):
         return {}
     out = {k: res.get("design", {}).get(k) for k in DESIGN_KEYS}
     meta = run/"references"/f"{label}_meta.json"
-    hand = read_json(meta).get("mounted_hand", {}) if meta.is_file() else {}
+    hand = read_json(meta).get("mounted_hand", {}) if meta.is_file() else final_hand(run, label)
     out.update({short: hand.get(k) for k, short in HAND_KEYS.items()})
     sm = res.get("summary", {})
     out.update(J=sm.get("J"), map_success=sm.get("success"), map_env=sm.get("env"), map_tip=sm.get("tip"),
@@ -188,6 +202,13 @@ def write_table(run, rank_level):
         for g in ("env", "tip"):  # Median F of every direction, per grasp type.
             per = sm.get("direction_stats", {}).get(g, {})
             row.update({f"F_{d}_median_{g}_mg": per.get(d, {}).get("median") for d in sm["directions"]})
+            if any("hold_median" in v for v in per.values()):  # Designs run with --refine.
+                row.update({f"F_{d}_hold_median_{g}_mg": per.get(d, {}).get("hold_median")
+                            for d in sm["directions"]})
+        hold = sm.get("hold")
+        if hold:
+            row.update(F_min_hold_median_mg=hold["F_min_median_mg"],
+                       **{f"pass_hold_{k}": v for k, v in hold["passed"].items()})
         zero = sm.get("zero_control_fail") or {}
         row.update(zero_fail_env=zero.get("env", 0), zero_fail_tip=zero.get("tip", 0),
                    creep_limited_weakest=sm.get("creep_limited_weakest"))

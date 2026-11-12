@@ -1,0 +1,88 @@
+
+===== 2026-11-11 14:00:31 workspace: C:\Users\User\AppData\Local\Programs\Python\Python311\python.exe -u C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\eval_design_rb5.py --run C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final --xml C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\xml\design156.xml --label design156 --workers 1
+design156.xml is in the stage0 format: building it on the run's hand template ...
+Check passed: finger values equal, open-pose finger sites within 0.000 mm, tendon moment arms within 1.7e-07 mm.
+Hand as mounted on the RB5 (design156, candidate_02):
+                               design156    candidate_02
+Lp [mm]                           78.983          94.079  <-- differs
+Ld [mm]                           34.303          40.363  <-- differs
+G [mm]                            62.653          55.572  <-- differs
+k_p [N m/rad]                   0.010279         0.00171  <-- differs
+preload_p [N m]                 0.040141               0  <-- differs
+damping_p                      0.0016115       0.0008172  <-- differs
+k_d [N m/rad]                  0.0010956         0.00171  <-- differs
+preload_d [N m]                 0.048864            0.04  <-- differs
+damping_d                     0.00010103      0.00015403  <-- differs
+theta_p [deg]                     28.392          44.898  <-- differs
+theta_d [deg]                     7.7467         -34.898  <-- differs
+phi_d [deg]                       36.139              10  <-- differs
+max tendon tension [N]                20              20
+Damping follows the run's damping ratio (zeta_p=0.7, zeta_d=0.7); tendon tension comes from config_used.json.
+Grid: final grid of the run = {'r_mm': [10, 80, 10], 'x_mm': [0, 80, 10], 'y_mm': [5, 105, 10]}
+Simulating 792 cells in 8 tasks with 1 workers ...
+  r=10 mm: 99 cells, 0 success, 37 s | 99/792 done, ~4 min left
+  r=20 mm: 99 cells, 1 success, 41 s | 198/792 done, ~4 min left
+  r=30 mm: 99 cells, 18 success, 39 s | 297/792 done, ~3 min left
+  r=40 mm: 99 cells, 11 success, 30 s | 396/792 done, ~2 min left
+  r=50 mm: 99 cells, 5 success, 22 s | 495/792 done, ~2 min left
+  r=60 mm: 99 cells, 3 success, 15 s | 594/792 done, ~1 min left
+  r=70 mm: 99 cells, 0 success, 10 s | 693/792 done, ~0 min left
+  r=80 mm: 99 cells, 0 success, 6 s | 792/792 done, ~0 min left
+
+design156: J=21.2266, success=38/792 (env=17, tip=21), rb5_pass=45, prefiltered=471, wall=200s
+  failures: {'close_no_bilateral': 132, 'approach_overlap': 471, 'lift_height': 31, 'hold_mixed': 7, 'unintended_collision': 76, 'approach_push': 2, 'ik_failed': 35}
+Saved: C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final\references\design156.json
+Saved: C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final\references\design156_workspace.csv
+Saved: C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final\plots\workspace_design156.png
+View the strongest grasp: python run_pick_lift.py --xml C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final\references\design156_rb5_scene.xml
+
+===== 2026-11-11 14:03:52 collect: C:\Users\User\AppData\Local\Programs\Python\Python311\python.exe -u C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\disturb_collect.py --run C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final --labels design156 --workers 1
+Designs: ['design156']
+
+[design156] 45 cells selected from 792: {'tip': 21, 'hold_mixed': 7, 'env': 17}, m_F<0 successes: 0
+  r=20 mm: 8 cells, 8 reproduced, 8 s (8/45)
+  r=30 mm: 9 cells, 9 reproduced, 10 s (17/45)
+  r=30 mm: 9 cells, 9 reproduced, 10 s (26/45)
+  r=40 mm: 11 cells, 11 reproduced, 12 s (37/45)
+  r=50 mm: 5 cells, 5 reproduced, 6 s (42/45)
+  r=60 mm: 3 cells, 3 reproduced, 3 s (45/45)
+[design156] original successes reproduced: 38/38; re-run successes 38; states saved 45 (rb5_pass); 47 s
+Saved: C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final\disturbance\design156\cells.csv
+
+===== 2026-11-11 14:04:40 force: C:\Users\User\AppData\Local\Programs\Python\Python311\python.exe -u C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\disturb_force.py --run C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final --labels design156 --workers 1 --no-summary
+Designs: ['design156']
+
+[design156] 45 cells x 6 directions, ramp 1.0 N/s to 10 mg = 9.810 N (9.8 s per direction) + zero-force control
+  r=20 mm: 8 cells, 21 s, ended {'drop': 41, 'cap': 7} (8/45, 21 s)
+  r=30 mm: 15 cells, 37 s, ended {'drop': 77, 'cap': 13} (23/45, 58 s)
+  r=30 mm: 3 cells, 5 s, ended {'drop': 17, 'cap': 1} (26/45, 63 s)
+  r=40 mm: 11 cells, 25 s, ended {'drop': 59, 'cap': 7} (37/45, 87 s)
+  r=50 mm: 5 cells, 9 s, ended {'drop': 29, 'cap': 1} (42/45, 96 s)
+  r=60 mm: 3 cells, 5 s, ended {'drop': 18} (45/45, 101 s)
+
+Criteria: slip >= 5.0 mm, total rotation >= 5.0 deg (0 = off), lost contact >= 0.02 s
+
+[design156] success 30 (env 15, tip 15) = re-run success 38 of 38 original minus 8 failing the zero-force control {'env': 2, 'tip': 6}; map 792 cells, J_stable=18.02 (J_rerun 21.23), F = ramp
+  robust_area 15.21 mg (env 9.55, tip 5.66), median F_min 0.44 mg; failure causes (success cells x directions): {'rotation': 120, 'lost': 14, 'slip': 46}
+  zero-force control failed (re-run success cells): {'env': 2, 'tip': 6}, weakest direction creep-limited: 0, contact type changed before F_max: {'tip': 1, 'env': 1}
+   level  pass  env  tip cond.robust  robust WS  J_robust    +x   -x   +y   -y   +z   -z
+  0.25mg    23   15    8        0.77   23/792       16.62    29   29   24   27   30   30
+   0.5mg    13   10    3        0.43   13/792       10.61    27   20   21   24   30   27
+  0.75mg     4    2    2        0.13    4/792        2.41    19    8   16   17   30   16
+     1mg     2    1    1        0.07    2/792        1.20    13    7    9   12   30    8
+   1.5mg     1    1    0        0.03    1/792        1.00     7    4    1    1   30    1
+     2mg     0    0    0        0.00    0/792        0.00     4    2    0    1   30    1
+     3mg     0    0    0        0.00    0/792        0.00     1    1    0    1   11    0
+     5mg     0    0    0        0.00    0/792        0.00     0    0    0    0    0    0
+  median F per direction [m*g] (q25-q75), * = some censored at the cap:
+    env         n=15  +x 0.94 (0.73-1.46)  -x 0.72 (0.56-1.26)  +y 1.08 (0.89-1.35)  -y 0.67 (0.55-1.08)  +z 2.97 (2.85-3.08)  -z 0.66 (0.58-0.85)
+    tip         n=15  +x 0.84 (0.65-1.34)  -x 0.52 (0.33-0.62)  +y 0.39 (0.20-0.75)  -y 0.99 (0.71-1.19)  +z 2.93 (2.76-3.18)  -z 0.88 (0.72-1.15)
+    hold_mixed  n=7   +x 1.03 (0.96-1.44)  -x 0.58 (0.45-0.65)  +y 1.08 (0.91-1.29)  -y 0.65 (0.61-1.09)  +z 3.50 (3.19-3.65)  -z 0.76 (0.63-0.95)
+    zero_fail   n=8   +x 0.91 (0.84-0.97)  -x 0.65 (0.57-0.72)  +y 0.89 (0.77-1.02)  -y 0.67 (0.42-0.77)  +z 2.68 (2.32-2.94)  -z 0.56 (0.54-0.66)
+  groups (F_min = weakest direction, in m*g):
+    env                  n=15  median 0.55  min 0.31  weakest {'+x': 1, '-x': 7, '-y': 2, '+y': 2, '-z': 3}  pass 0.25mg:1.00 0.5mg:0.67 0.75mg:0.13 1mg:0.07 1.5mg:0.07 2mg:0.00 3mg:0.00 5mg:0.00
+    tip                  n=15  median 0.31  min 0.16  weakest {'-x': 3, '-z': 1, '+y': 9, '+x': 2}  pass 0.25mg:0.53 0.5mg:0.20 0.75mg:0.13 1mg:0.07 1.5mg:0.00 2mg:0.00 3mg:0.00 5mg:0.00
+    hold_mixed           n=7   median 0.57  min 0.27  weakest {'-x': 4, '-y': 1, '-z': 1, '+y': 1}  pass 0.25mg:1.00 0.5mg:0.71 0.75mg:0.00 1mg:0.00 1.5mg:0.00 2mg:0.00 3mg:0.00 5mg:0.00
+    zero_fail            n=8   median 0.48  min 0.40  weakest {'-z': 3, '-y': 3, '+y': 1, '-x': 1}  pass 0.25mg:1.00 0.5mg:0.50 0.75mg:0.00 1mg:0.00 1.5mg:0.00 2mg:0.00 3mg:0.00 5mg:0.00
+  tip/env pass-rate ratio (compare with w_tip): 0.25mg:0.53 0.5mg:0.30 0.75mg:1.00 1mg:1.00 1.5mg:0.00
+Saved: C:\Users\User\Desktop\BEAR lab\GWO_experiment\gripper_optimization\on_rb5\runs\rb5_cmaes_final\disturbance\design156\force_cells.csv
