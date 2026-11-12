@@ -419,7 +419,9 @@
           "rotation": 6,
           "cap": 1,
           "slip": 1
-        }
+        },
+        "ramp_median": 7.217125304491391,
+        "hold_median": 6.53697100375892
       },
       "-x": {
         "n": 8,
@@ -435,7 +437,9 @@
           "rotation": 6,
           "cap": 1,
           "slip": 1
-        }
+        },
+        "ramp_median": 6.72018345707418,
+        "hold_median": 5.907145431160805
       },
       "+y": {
         "n": 8,
@@ -449,7 +453,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 8
-        }
+        },
+        "ramp_median": 1.850152963527481,
+        "hold_median": 1.5538393539755349
       },
       "-y": {
         "n": 8,
@@ -463,7 +469,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 8
-        }
+        },
+        "ramp_median": 5.3746177758888605,
+        "hold_median": 5.743706846091359
       },
       "+z": {
         "n": 8,
@@ -478,7 +486,9 @@
         "causes": {
           "slip": 7,
           "lost": 1
-        }
+        },
+        "ramp_median": 5.680428124835124,
+        "hold_median": 5.401667323681192
       },
       "-z": {
         "n": 8,
@@ -493,7 +503,9 @@
         "causes": {
           "slip": 7,
           "rotation": 1
-        }
+        },
+        "ramp_median": 3.804791107333277,
+        "hold_median": 3.4457425458715596
       }
     },
     "tip": {
@@ -510,7 +522,9 @@
         "causes": {
           "rotation": 2,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.7849133342777916,
+        "hold_median": 0.6745349133537206
       },
       "-x": {
         "n": 3,
@@ -525,7 +539,9 @@
         "causes": {
           "rotation": 2,
           "slip": 1
-        }
+        },
+        "ramp_median": 0.7237512523367255,
+        "hold_median": 0.607837984199796
       },
       "+y": {
         "n": 3,
@@ -539,7 +555,9 @@
         "type_changed": 3,
         "causes": {
           "rotation": 3
-        }
+        },
+        "ramp_median": 0.7288480874352256,
+        "hold_median": 0.5978832186544342
       },
       "-y": {
         "n": 3,
@@ -553,7 +571,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 3
-        }
+        },
+        "ramp_median": 0.4892966251489948,
+        "hold_median": 0.3440366972477064
       },
       "+z": {
         "n": 3,
@@ -567,7 +587,9 @@
         "type_changed": 3,
         "causes": {
           "lost": 3
-        }
+        },
+        "ramp_median": 2.737002999775271,
+        "hold_median": 2.61939745795107
       },
       "-z": {
         "n": 3,
@@ -582,7 +604,9 @@
         "causes": {
           "lost": 1,
           "rotation": 2
-        }
+        },
+        "ramp_median": 0.5606524076665942,
+        "hold_median": 0.4730504587155963
       }
     },
     "zero_fail": {
@@ -600,7 +624,9 @@
           "lost": 1,
           "slip": 2,
           "rotation": 1
-        }
+        },
+        "ramp_median": 0.7212028651670092,
+        "hold_median": 0.6129149146279307
       },
       "-x": {
         "n": 4,
@@ -615,7 +641,9 @@
         "causes": {
           "rotation": 2,
           "slip": 2
-        }
+        },
+        "ramp_median": 0.728848117814759,
+        "hold_median": 0.6411864487767585
       },
       "+y": {
         "n": 4,
@@ -630,7 +658,9 @@
         "causes": {
           "rotation": 3,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.8409785811203578,
+        "hold_median": 0.7140055587410805
       },
       "-y": {
         "n": 4,
@@ -646,7 +676,9 @@
           "lost": 1,
           "rotation": 2,
           "slip": 1
-        }
+        },
+        "ramp_median": 0.35423037352061293,
+        "hold_median": 0.17838939857288483
       },
       "+z": {
         "n": 4,
@@ -661,7 +693,9 @@
         "causes": {
           "rotation": 3,
           "lost": 1
-        }
+        },
+        "ramp_median": 2.635066176287139,
+        "hold_median": 2.491279625382263
       },
       "-z": {
         "n": 4,
@@ -676,7 +710,9 @@
         "causes": {
           "rotation": 3,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.39500509987791255,
+        "hold_median": 0.2550410932721713
       }
     },
     "hold_mixed": {
@@ -693,7 +729,9 @@
         "causes": {
           "slip": 1,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.6880733762676927,
+        "hold_median": 0.5203853688837919
       },
       "-x": {
         "n": 2,
@@ -708,7 +746,9 @@
         "causes": {
           "rotation": 1,
           "slip": 1
-        }
+        },
+        "ramp_median": 2.0718654118303617,
+        "hold_median": 2.0618061528414877
       },
       "+y": {
         "n": 2,
@@ -723,7 +763,9 @@
         "causes": {
           "rotation": 1,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.8919469624848905,
+        "hold_median": 0.6188131132135575
       },
       "-y": {
         "n": 2,
@@ -738,7 +780,9 @@
         "causes": {
           "rotation": 1,
           "lost": 1
-        }
+        },
+        "ramp_median": 1.179918434155704,
+        "hold_median": 1.0241462793068294
       },
       "+z": {
         "n": 2,
@@ -752,7 +796,9 @@
         "type_changed": 1,
         "causes": {
           "lost": 2
-        }
+        },
+        "ramp_median": 2.7930683073769043,
+        "hold_median": 2.7643761746623343
       },
       "-z": {
         "n": 2,
@@ -767,8 +813,34 @@
         "causes": {
           "rotation": 1,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.47400611985349506,
+        "hold_median": 0.3607607033639143
       }
+    }
+  },
+  "hold": {
+    "n": 11,
+    "F_min_median_mg": 1.501925251656473,
+    "passed": {
+      "0.25mg": 10,
+      "0.5mg": 9,
+      "0.75mg": 8,
+      "1mg": 8,
+      "1.5mg": 8,
+      "2mg": 2,
+      "3mg": 1,
+      "5mg": 0
+    },
+    "passed_env": {
+      "0.25mg": 8,
+      "0.5mg": 8,
+      "0.75mg": 8,
+      "1mg": 8,
+      "1.5mg": 8,
+      "2mg": 2,
+      "3mg": 1,
+      "5mg": 0
     }
   },
   "criteria": {

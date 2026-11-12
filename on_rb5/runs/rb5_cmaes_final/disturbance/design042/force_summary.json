@@ -379,7 +379,9 @@
         "causes": {
           "rotation": 11,
           "slip": 1
-        }
+        },
+        "ramp_median": 1.6819571622407157,
+        "hold_median": 1.396155867737003
       },
       "-x": {
         "n": 12,
@@ -394,7 +396,9 @@
         "causes": {
           "rotation": 11,
           "slip": 1
-        }
+        },
+        "ramp_median": 1.5086646473735843,
+        "hold_median": 1.2387212506371048
       },
       "+y": {
         "n": 12,
@@ -409,7 +413,9 @@
         "causes": {
           "rotation": 9,
           "slip": 3
-        }
+        },
+        "ramp_median": 1.6997960850854654,
+        "hold_median": 1.5499321084989806
       },
       "-y": {
         "n": 12,
@@ -423,7 +429,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 12
-        }
+        },
+        "ramp_median": 2.347094750185625,
+        "hold_median": 2.092504161091998
       },
       "+z": {
         "n": 12,
@@ -438,7 +446,9 @@
         "causes": {
           "slip": 3,
           "rotation": 9
-        }
+        },
+        "ramp_median": 4.164118285572856,
+        "hold_median": 3.950138072598114
       },
       "-z": {
         "n": 12,
@@ -454,7 +464,9 @@
           "slip": 2,
           "rotation": 9,
           "lost": 1
-        }
+        },
+        "ramp_median": 1.9266054900049798,
+        "hold_median": 1.7892695591233434
       }
     },
     "tip": {
@@ -471,7 +483,9 @@
         "causes": {
           "rotation": 11,
           "slip": 9
-        }
+        },
+        "ramp_median": 0.5632008252158441,
+        "hold_median": 0.44691919915902134
       },
       "-x": {
         "n": 20,
@@ -487,7 +501,9 @@
           "rotation": 10,
           "lost": 1,
           "slip": 9
-        }
+        },
+        "ramp_median": 0.3465851208728631,
+        "hold_median": 0.250660996432212
       },
       "+y": {
         "n": 20,
@@ -502,7 +518,9 @@
         "causes": {
           "rotation": 18,
           "slip": 2
-        }
+        },
+        "ramp_median": 0.6906218241964761,
+        "hold_median": 0.5705076134046889
       },
       "-y": {
         "n": 20,
@@ -517,7 +535,9 @@
         "causes": {
           "rotation": 17,
           "slip": 3
-        }
+        },
+        "ramp_median": 0.9097859157091737,
+        "hold_median": 0.7640780294342506
       },
       "+z": {
         "n": 20,
@@ -533,7 +553,9 @@
           "slip": 11,
           "rotation": 6,
           "lost": 3
-        }
+        },
+        "ramp_median": 3.0198776515373513,
+        "hold_median": 2.872945336391437
       },
       "-z": {
         "n": 20,
@@ -549,7 +571,9 @@
           "rotation": 4,
           "lost": 4,
           "slip": 12
-        }
+        },
+        "ramp_median": 1.0219164093943058,
+        "hold_median": 0.8782094164118246
       }
     },
     "zero_fail": {
@@ -566,7 +590,9 @@
         "causes": {
           "rotation": 7,
           "slip": 8
-        }
+        },
+        "ramp_median": 0.20897043650546446,
+        "hold_median": 0.1513124362895005
       },
       "-x": {
         "n": 15,
@@ -581,7 +607,9 @@
         "causes": {
           "rotation": 7,
           "slip": 8
-        }
+        },
+        "ramp_median": 0.23445464237749758,
+        "hold_median": 0.2516564729867482
       },
       "+y": {
         "n": 15,
@@ -596,7 +624,9 @@
         "causes": {
           "rotation": 11,
           "slip": 4
-        }
+        },
+        "ramp_median": 0.6778797364502264,
+        "hold_median": 0.5560732033639143
       },
       "-y": {
         "n": 15,
@@ -611,7 +641,9 @@
         "causes": {
           "slip": 4,
           "rotation": 11
-        }
+        },
+        "ramp_median": 0.6574923352971597,
+        "hold_median": 0.5124713302752293
       },
       "+z": {
         "n": 15,
@@ -625,7 +657,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 15
-        }
+        },
+        "ramp_median": 2.6299693411886387,
+        "hold_median": 2.4655963302752295
       },
       "-z": {
         "n": 15,
@@ -639,8 +673,34 @@
         "type_changed": 0,
         "causes": {
           "rotation": 15
-        }
+        },
+        "ramp_median": 0.570846077863594,
+        "hold_median": 0.4309418004587155
       }
+    }
+  },
+  "hold": {
+    "n": 32,
+    "F_min_median_mg": 0.5756343176605503,
+    "passed": {
+      "0.25mg": 20,
+      "0.5mg": 17,
+      "0.75mg": 14,
+      "1mg": 9,
+      "1.5mg": 4,
+      "2mg": 3,
+      "3mg": 0,
+      "5mg": 0
+    },
+    "passed_env": {
+      "0.25mg": 12,
+      "0.5mg": 12,
+      "0.75mg": 11,
+      "1mg": 8,
+      "1.5mg": 4,
+      "2mg": 3,
+      "3mg": 0,
+      "5mg": 0
     }
   },
   "criteria": {

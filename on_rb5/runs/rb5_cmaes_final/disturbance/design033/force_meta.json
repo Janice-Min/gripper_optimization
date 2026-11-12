@@ -15,7 +15,7 @@
     "stop_lost_s": 0.1,
     "sample_s": 0.005,
     "zero_control": true,
-    "refine": false,
+    "refine": true,
     "rise_s": 0.5,
     "hold_s": 1.0,
     "tol_mg": 0.02,
