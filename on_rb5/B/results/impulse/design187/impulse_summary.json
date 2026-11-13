@@ -1,0 +1,216 @@
+{
+  "label": "design187",
+  "cells_in_map": 792,
+  "tested": 19,
+  "zero_fail_removed": {},
+  "success": 19,
+  "env": 0,
+  "tip": 19,
+  "A_success": 19,
+  "A_J_stable": 3.818353954642379,
+  "A_robust_area": 9.872578942690664,
+  "A_F_min_median_mg": 0.20897043650546446,
+  "pulse_ms": 50.0,
+  "shape": "rect",
+  "after_s": 10.0,
+  "mags": [
+    0.5,
+    1.0,
+    2.0,
+    3.0
+  ],
+  "dirs": [
+    "+x",
+    "-x",
+    "+y",
+    "-y",
+    "+z",
+    "-z"
+  ],
+  "impact_area": 4.5,
+  "level_min_median_mg": 0.0,
+  "weakest_dirs": {
+    "+x": 18,
+    "+y": 1
+  },
+  "causes": {
+    "rotation": 146,
+    "slip": 121,
+    "lost": 11
+  },
+  "phases": {
+    "pulse": 243,
+    "delayed": 8,
+    "transient": 27
+  },
+  "non_monotonic_cells": 0,
+  "type_changed": {},
+  "levels": [
+    {
+      "mag_mg": 0.5,
+      "passed": 6,
+      "env": 0,
+      "tip": 6,
+      "cond": 0.3157894736842105,
+      "J_impulse": 1.2117075586083088,
+      "per_direction": {
+        "+x": 6,
+        "-x": 6,
+        "+y": 19,
+        "-y": 18,
+        "+z": 19,
+        "-z": 15
+      },
+      "held_above_A": 2,
+      "below_A": 31,
+      "failed_within_A": 2,
+      "within_A": 83
+    },
+    {
+      "mag_mg": 1.0,
+      "passed": 3,
+      "env": 0,
+      "tip": 3,
+      "cond": 0.15789473684210525,
+      "J_impulse": 0.6076493745253407,
+      "per_direction": {
+        "+x": 3,
+        "-x": 3,
+        "+y": 9,
+        "-y": 10,
+        "+z": 19,
+        "-z": 12
+      },
+      "held_above_A": 9,
+      "below_A": 67,
+      "failed_within_A": 0,
+      "within_A": 47
+    },
+    {
+      "mag_mg": 2.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 1,
+        "-x": 1,
+        "+y": 0,
+        "-y": 0,
+        "+z": 19,
+        "-z": 2
+      },
+      "held_above_A": 0,
+      "below_A": 87,
+      "failed_within_A": 4,
+      "within_A": 27
+    },
+    {
+      "mag_mg": 3.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 0,
+        "-x": 0,
+        "+y": 0,
+        "-y": 0,
+        "+z": 16,
+        "-z": 0
+      },
+      "held_above_A": 8,
+      "below_A": 106,
+      "failed_within_A": 0,
+      "within_A": 8
+    }
+  ],
+  "held_fraction": {
+    "env": {
+      "+x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      }
+    },
+    "tip": {
+      "+x": {
+        "0.5": 0.3157894736842105,
+        "1": 0.15789473684210525,
+        "2": 0.05263157894736842,
+        "3": 0.0
+      },
+      "-x": {
+        "0.5": 0.3157894736842105,
+        "1": 0.15789473684210525,
+        "2": 0.05263157894736842,
+        "3": 0.0
+      },
+      "+y": {
+        "0.5": 1.0,
+        "1": 0.47368421052631576,
+        "2": 0.0,
+        "3": 0.0
+      },
+      "-y": {
+        "0.5": 0.9473684210526315,
+        "1": 0.5263157894736842,
+        "2": 0.0,
+        "3": 0.0
+      },
+      "+z": {
+        "0.5": 1.0,
+        "1": 1.0,
+        "2": 1.0,
+        "3": 0.8421052631578947
+      },
+      "-z": {
+        "0.5": 0.7894736842105263,
+        "1": 0.631578947368421,
+        "2": 0.10526315789473684,
+        "3": 0.0
+      }
+    }
+  },
+  "criteria": {
+    "slip_mm": 5.0,
+    "slip_mode": "any",
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "zero_rule": "fail"
+}

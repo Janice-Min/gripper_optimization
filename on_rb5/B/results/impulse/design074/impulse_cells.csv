@@ -1,0 +1,7 @@
+﻿r_mm,x_mm,y_mm,group,base_group,m_F,contact_type,A_group,level_min_mg,weakest_dir,non_monotonic,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,level_+x_mg,level_-x_mg,level_+y_mg,level_-y_mg,level_+z_mg,level_-z_mg,pass_0.5mg,pass_1mg,pass_2mg,pass_3mg
+40.0,0.0,35.0,env,env,4.698728277555952,env,env,3.0,+x,,False,,,0.5797066688537598,0.08533226698637009,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True
+40.0,0.0,45.0,env,env,4.811358241438467,env,env,3.0,+x,,False,,,0.6738865375518799,1.1820781230926514,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True
+40.0,0.0,55.0,env,env,4.821194566751929,env,env,3.0,+x,,False,,,1.149700403213501,2.4468891620635986,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True
+40.0,0.0,65.0,env,env,4.755799156113803,env,env,2.0,-y,,False,,,1.9020220041275024,3.3494622707366943,3.0,3.0,3.0,2.0,3.0,2.0,True,True,True,False
+40.0,10.0,65.0,env,env,4.637592228225541,env,env,1.0,-y,,False,,,1.9703744649887085,3.319180488586426,3.0,3.0,3.0,1.0,3.0,2.0,True,True,False,False
+50.0,0.0,55.0,env,env,7.43475092450419,env,env,3.0,+x,,False,,,0.9299193620681763,1.3954581022262573,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True

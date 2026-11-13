@@ -1,0 +1,216 @@
+{
+  "label": "design063",
+  "cells_in_map": 792,
+  "tested": 41,
+  "zero_fail_removed": {},
+  "success": 41,
+  "env": 0,
+  "tip": 41,
+  "A_success": 41,
+  "A_J_stable": 8.214850412044443,
+  "A_robust_area": 11.14169217334732,
+  "A_F_min_median_mg": 0.17838939553493144,
+  "pulse_ms": 50.0,
+  "shape": "rect",
+  "after_s": 10.0,
+  "mags": [
+    0.5,
+    1.0,
+    2.0,
+    3.0
+  ],
+  "dirs": [
+    "+x",
+    "-x",
+    "+y",
+    "-y",
+    "+z",
+    "-z"
+  ],
+  "impact_area": 3.0,
+  "level_min_median_mg": 0.0,
+  "weakest_dirs": {
+    "+x": 40,
+    "+y": 1
+  },
+  "causes": {
+    "rotation": 308,
+    "slip": 347,
+    "lost": 39
+  },
+  "phases": {
+    "pulse": 592,
+    "transient": 90,
+    "delayed": 12
+  },
+  "non_monotonic_cells": 0,
+  "type_changed": {},
+  "levels": [
+    {
+      "mag_mg": 0.5,
+      "passed": 5,
+      "env": 0,
+      "tip": 5,
+      "cond": 0.12195121951219512,
+      "J_impulse": 1.009143074165207,
+      "per_direction": {
+        "+x": 5,
+        "-x": 5,
+        "+y": 36,
+        "-y": 34,
+        "+z": 41,
+        "-z": 29
+      },
+      "held_above_A": 13,
+      "below_A": 109,
+      "failed_within_A": 0,
+      "within_A": 137
+    },
+    {
+      "mag_mg": 1.0,
+      "passed": 1,
+      "env": 0,
+      "tip": 1,
+      "cond": 0.024390243902439025,
+      "J_impulse": 0.20256359571880328,
+      "per_direction": {
+        "+x": 1,
+        "-x": 1,
+        "+y": 9,
+        "-y": 12,
+        "+z": 41,
+        "-z": 13
+      },
+      "held_above_A": 6,
+      "below_A": 175,
+      "failed_within_A": 0,
+      "within_A": 71
+    },
+    {
+      "mag_mg": 2.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 1,
+        "-x": 1,
+        "+y": 0,
+        "-y": 1,
+        "+z": 41,
+        "-z": 2
+      },
+      "held_above_A": 1,
+      "below_A": 200,
+      "failed_within_A": 1,
+      "within_A": 46
+    },
+    {
+      "mag_mg": 3.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 0,
+        "-x": 0,
+        "+y": 0,
+        "-y": 0,
+        "+z": 17,
+        "-z": 0
+      },
+      "held_above_A": 5,
+      "below_A": 234,
+      "failed_within_A": 0,
+      "within_A": 12
+    }
+  ],
+  "held_fraction": {
+    "env": {
+      "+x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      }
+    },
+    "tip": {
+      "+x": {
+        "0.5": 0.12195121951219512,
+        "1": 0.024390243902439025,
+        "2": 0.024390243902439025,
+        "3": 0.0
+      },
+      "-x": {
+        "0.5": 0.12195121951219512,
+        "1": 0.024390243902439025,
+        "2": 0.024390243902439025,
+        "3": 0.0
+      },
+      "+y": {
+        "0.5": 0.8780487804878049,
+        "1": 0.21951219512195122,
+        "2": 0.0,
+        "3": 0.0
+      },
+      "-y": {
+        "0.5": 0.8292682926829268,
+        "1": 0.2926829268292683,
+        "2": 0.024390243902439025,
+        "3": 0.0
+      },
+      "+z": {
+        "0.5": 1.0,
+        "1": 1.0,
+        "2": 1.0,
+        "3": 0.4146341463414634
+      },
+      "-z": {
+        "0.5": 0.7073170731707317,
+        "1": 0.3170731707317073,
+        "2": 0.04878048780487805,
+        "3": 0.0
+      }
+    }
+  },
+  "criteria": {
+    "slip_mm": 5.0,
+    "slip_mode": "any",
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "zero_rule": "fail"
+}

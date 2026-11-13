@@ -1,0 +1,12 @@
+﻿r_mm,x_mm,y_mm,group,base_group,m_F,contact_type,A_group,level_min_mg,weakest_dir,non_monotonic,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,level_+x_mg,level_-x_mg,level_+y_mg,level_-y_mg,level_+z_mg,level_-z_mg,pass_0.5mg,pass_1mg,pass_2mg,pass_3mg
+30.0,0.0,75.0,tip,tip,0.05543038249390886,tip,tip,0.0,+x,,False,,,2.1043004989624023,4.559179306030273,0.0,0.0,0.0,0.5,2.0,0.0,False,False,False,False
+30.0,10.0,75.0,tip,tip,0.037684391241960435,tip,tip,0.0,+x,,False,,,2.028876543045044,4.016982078552246,0.0,0.0,0.0,0.5,2.0,0.0,False,False,False,False
+30.0,20.0,75.0,tip,tip,0.034100337459973096,tip,tip,0.0,+x,,False,,,1.971911907196045,3.4160642623901367,0.0,0.0,0.0,0.5,2.0,0.0,False,False,False,False
+30.0,30.0,75.0,tip,tip,-0.039753623264659366,tip,tip,0.0,+x,,False,,,1.884894609451294,2.1645336151123047,0.0,0.0,0.0,0.0,2.0,0.0,False,False,False,False
+40.0,0.0,35.0,tip,tip,4.942080690671856,tip,tip,2.0,+y,,False,,,1.6190699338912964,0.9278895854949951,3.0,3.0,2.0,3.0,3.0,3.0,True,True,True,False
+40.0,0.0,45.0,tip,tip,1.7602426059855492,tip,tip,1.0,+y,,False,,,1.542175054550171,0.3298841416835785,3.0,3.0,1.0,1.0,3.0,2.0,True,True,False,False
+40.0,0.0,55.0,tip,tip,0.6567071731187881,tip,tip,0.5,+x,,False,,,1.5417739152908325,0.18931221961975098,0.5,0.5,1.0,1.0,3.0,1.0,True,False,False,False
+40.0,0.0,65.0,tip,tip,0.11731746682932753,tip,tip,0.0,+x,,False,,,1.5418494939804077,0.1278509646654129,0.0,0.0,0.5,0.5,3.0,0.5,False,False,False,False
+40.0,10.0,55.0,tip,tip,0.6828381087438165,tip,tip,1.0,+x,,False,,,1.5427403450012207,0.2651585340499878,1.0,1.0,1.0,1.0,3.0,1.0,True,True,False,False
+40.0,10.0,65.0,tip,tip,0.07909301269267055,tip,tip,0.0,+x,,False,,,1.5419347286224365,0.13300096988677979,0.0,0.0,0.5,0.5,2.0,0.5,False,False,False,False
+40.0,20.0,65.0,tip,tip,-0.008603228180222411,tip,tip,0.0,+x,,False,,,1.5423107147216797,0.1685604602098465,0.0,0.0,0.5,0.5,2.0,0.5,False,False,False,False

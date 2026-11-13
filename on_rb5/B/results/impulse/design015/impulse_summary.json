@@ -1,0 +1,221 @@
+{
+  "label": "design015",
+  "cells_in_map": 792,
+  "tested": 20,
+  "zero_fail_removed": {},
+  "success": 20,
+  "env": 0,
+  "tip": 20,
+  "A_success": 20,
+  "A_J_stable": 4.015722086070159,
+  "A_robust_area": 15.499490298991534,
+  "A_F_min_median_mg": 0.764525993883792,
+  "pulse_ms": 50.0,
+  "shape": "rect",
+  "after_s": 10.0,
+  "mags": [
+    0.5,
+    1.0,
+    2.0,
+    3.0
+  ],
+  "dirs": [
+    "+x",
+    "-x",
+    "+y",
+    "-y",
+    "+z",
+    "-z"
+  ],
+  "impact_area": 6.0,
+  "level_min_median_mg": 0.25,
+  "weakest_dirs": {
+    "+x": 12,
+    "-z": 4,
+    "-y": 2,
+    "-x": 1,
+    "+y": 1
+  },
+  "causes": {
+    "rotation": 109,
+    "lost": 12,
+    "slip": 153
+  },
+  "phases": {
+    "transient": 38,
+    "pulse": 221,
+    "delayed": 15
+  },
+  "non_monotonic_cells": 0,
+  "type_changed": {
+    "tip->env": 19
+  },
+  "levels": [
+    {
+      "mag_mg": 0.5,
+      "passed": 10,
+      "env": 0,
+      "tip": 10,
+      "cond": 0.5,
+      "J_impulse": 2.0124308807111047,
+      "per_direction": {
+        "+x": 11,
+        "-x": 12,
+        "+y": 13,
+        "-y": 19,
+        "+z": 20,
+        "-z": 16
+      },
+      "held_above_A": 3,
+      "below_A": 27,
+      "failed_within_A": 5,
+      "within_A": 93
+    },
+    {
+      "mag_mg": 1.0,
+      "passed": 2,
+      "env": 0,
+      "tip": 2,
+      "cond": 0.1,
+      "J_impulse": 0.4028313023463319,
+      "per_direction": {
+        "+x": 9,
+        "-x": 8,
+        "+y": 12,
+        "-y": 9,
+        "+z": 20,
+        "-z": 6
+      },
+      "held_above_A": 14,
+      "below_A": 62,
+      "failed_within_A": 8,
+      "within_A": 58
+    },
+    {
+      "mag_mg": 2.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 3,
+        "-x": 3,
+        "+y": 1,
+        "-y": 3,
+        "+z": 20,
+        "-z": 1
+      },
+      "held_above_A": 1,
+      "below_A": 86,
+      "failed_within_A": 4,
+      "within_A": 34
+    },
+    {
+      "mag_mg": 3.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 1,
+        "-x": 1,
+        "+y": 0,
+        "-y": 3,
+        "+z": 14,
+        "-z": 1
+      },
+      "held_above_A": 4,
+      "below_A": 102,
+      "failed_within_A": 2,
+      "within_A": 18
+    }
+  ],
+  "held_fraction": {
+    "env": {
+      "+x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      }
+    },
+    "tip": {
+      "+x": {
+        "0.5": 0.55,
+        "1": 0.45,
+        "2": 0.15,
+        "3": 0.05
+      },
+      "-x": {
+        "0.5": 0.6,
+        "1": 0.4,
+        "2": 0.15,
+        "3": 0.05
+      },
+      "+y": {
+        "0.5": 0.65,
+        "1": 0.6,
+        "2": 0.05,
+        "3": 0.0
+      },
+      "-y": {
+        "0.5": 0.95,
+        "1": 0.45,
+        "2": 0.15,
+        "3": 0.15
+      },
+      "+z": {
+        "0.5": 1.0,
+        "1": 1.0,
+        "2": 1.0,
+        "3": 0.7
+      },
+      "-z": {
+        "0.5": 0.8,
+        "1": 0.3,
+        "2": 0.05,
+        "3": 0.05
+      }
+    }
+  },
+  "criteria": {
+    "slip_mm": 5.0,
+    "slip_mode": "any",
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "zero_rule": "fail"
+}

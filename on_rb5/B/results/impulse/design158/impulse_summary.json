@@ -1,0 +1,218 @@
+{
+  "label": "design158",
+  "cells_in_map": 792,
+  "tested": 27,
+  "zero_fail_removed": {
+    "tip": 1
+  },
+  "success": 26,
+  "env": 0,
+  "tip": 26,
+  "A_success": 27,
+  "A_J_stable": 5.41457688621468,
+  "A_robust_area": 7.380224369413141,
+  "A_F_min_median_mg": 0.17838939553493144,
+  "pulse_ms": 50.0,
+  "shape": "rect",
+  "after_s": 10.0,
+  "mags": [
+    0.5,
+    1.0,
+    2.0,
+    3.0
+  ],
+  "dirs": [
+    "+x",
+    "-x",
+    "+y",
+    "-y",
+    "+z",
+    "-z"
+  ],
+  "impact_area": 1.5,
+  "level_min_median_mg": 0.0,
+  "weakest_dirs": {
+    "+x": 25,
+    "+y": 1
+  },
+  "causes": {
+    "rotation": 188,
+    "lost": 22,
+    "slip": 221
+  },
+  "phases": {
+    "pulse": 352,
+    "transient": 74,
+    "delayed": 5
+  },
+  "non_monotonic_cells": 0,
+  "type_changed": {},
+  "levels": [
+    {
+      "mag_mg": 0.5,
+      "passed": 2,
+      "env": 0,
+      "tip": 2,
+      "cond": 0.07692307692307693,
+      "J_impulse": 0.4041003996880462,
+      "per_direction": {
+        "+x": 2,
+        "-x": 2,
+        "+y": 20,
+        "-y": 18,
+        "+z": 26,
+        "-z": 18
+      },
+      "held_above_A": 5,
+      "below_A": 71,
+      "failed_within_A": 4,
+      "within_A": 85
+    },
+    {
+      "mag_mg": 1.0,
+      "passed": 1,
+      "env": 0,
+      "tip": 1,
+      "cond": 0.038461538461538464,
+      "J_impulse": 0.2027714014008289,
+      "per_direction": {
+        "+x": 1,
+        "-x": 1,
+        "+y": 8,
+        "-y": 11,
+        "+z": 26,
+        "-z": 12
+      },
+      "held_above_A": 7,
+      "below_A": 104,
+      "failed_within_A": 0,
+      "within_A": 52
+    },
+    {
+      "mag_mg": 2.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 1,
+        "-x": 1,
+        "+y": 0,
+        "-y": 1,
+        "+z": 26,
+        "-z": 1
+      },
+      "held_above_A": 0,
+      "below_A": 126,
+      "failed_within_A": 0,
+      "within_A": 30
+    },
+    {
+      "mag_mg": 3.0,
+      "passed": 0,
+      "env": 0,
+      "tip": 0,
+      "cond": 0.0,
+      "J_impulse": 0.0,
+      "per_direction": {
+        "+x": 0,
+        "-x": 0,
+        "+y": 0,
+        "-y": 0,
+        "+z": 17,
+        "-z": 1
+      },
+      "held_above_A": 4,
+      "below_A": 142,
+      "failed_within_A": 0,
+      "within_A": 14
+    }
+  ],
+  "held_fraction": {
+    "env": {
+      "+x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-x": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-y": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "+z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      },
+      "-z": {
+        "0.5": null,
+        "1": null,
+        "2": null,
+        "3": null
+      }
+    },
+    "tip": {
+      "+x": {
+        "0.5": 0.07692307692307693,
+        "1": 0.038461538461538464,
+        "2": 0.038461538461538464,
+        "3": 0.0
+      },
+      "-x": {
+        "0.5": 0.07692307692307693,
+        "1": 0.038461538461538464,
+        "2": 0.038461538461538464,
+        "3": 0.0
+      },
+      "+y": {
+        "0.5": 0.7692307692307693,
+        "1": 0.3076923076923077,
+        "2": 0.0,
+        "3": 0.0
+      },
+      "-y": {
+        "0.5": 0.6923076923076923,
+        "1": 0.4230769230769231,
+        "2": 0.038461538461538464,
+        "3": 0.0
+      },
+      "+z": {
+        "0.5": 1.0,
+        "1": 1.0,
+        "2": 1.0,
+        "3": 0.6538461538461539
+      },
+      "-z": {
+        "0.5": 0.6923076923076923,
+        "1": 0.46153846153846156,
+        "2": 0.038461538461538464,
+        "3": 0.038461538461538464
+      }
+    }
+  },
+  "criteria": {
+    "slip_mm": 5.0,
+    "slip_mode": "any",
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "zero_rule": "fail"
+}

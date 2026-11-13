@@ -1,0 +1,13 @@
+﻿r_mm,x_mm,y_mm,group,base_group,m_F,contact_type,A_group,level_min_mg,weakest_dir,non_monotonic,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,level_+x_mg,level_-x_mg,level_+y_mg,level_-y_mg,level_+z_mg,level_-z_mg,pass_0.5mg,pass_1mg,pass_2mg,pass_3mg
+30.0,0.0,15.0,env,env,2.491676784679123,env,env,0.5,-y,,False,,,1.9285796880722046,2.650625228881836,1.0,1.0,3.0,0.5,3.0,0.5,True,False,False,False
+30.0,0.0,25.0,env,env,1.4574599489317253,env,env,1.0,+x,,False,,,1.9699455499649048,2.5005736351013184,1.0,1.0,2.0,3.0,3.0,2.0,True,True,False,False
+30.0,0.0,35.0,env,env,2.3137257768619905,env,env,1.0,+x,,False,,,0.5830878019332886,0.2116832435131073,1.0,1.0,2.0,3.0,3.0,3.0,True,True,False,False
+30.0,0.0,45.0,env,env,1.7651276565590628,env,env,1.0,+x,,False,,,1.0959442853927612,1.2184425592422485,1.0,1.0,1.0,2.0,3.0,1.0,True,True,False,False
+30.0,0.0,5.0,env,env,1.5673313744480213,env,env,1.0,+x,,False,,,1.2492972612380981,1.5817052125930786,1.0,1.0,2.0,3.0,3.0,2.0,True,True,False,False
+30.0,10.0,25.0,env,env,2.585028476597798,env,env,1.0,-x,,False,,,0.8297877907752991,1.0594488382339478,2.0,1.0,2.0,3.0,3.0,2.0,True,True,False,False
+30.0,10.0,35.0,env,env,2.591267446036814,env,env,1.0,-x,,False,,,1.218660831451416,1.6095480918884277,2.0,1.0,2.0,3.0,3.0,2.0,True,True,False,False
+30.0,10.0,45.0,tip,tip,0.7404595558763774,tip,tip,0.5,+x,,False,,,1.8264684677124023,1.863321304321289,0.5,0.5,0.5,0.5,3.0,0.5,True,False,False,False
+40.0,0.0,25.0,env,env,14.42388725220435,env,env,3.0,+x,,False,,,0.859565794467926,0.8740044832229614,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True
+40.0,0.0,45.0,tip,tip,2.6616538915068544,tip,tip,1.0,+y,,False,,,3.070016622543335,4.602531433105469,3.0,3.0,1.0,2.0,3.0,2.0,True,True,False,False
+40.0,0.0,55.0,tip,tip,1.317078849881291,tip,tip,0.5,+x,,False,,,2.4360427856445312,2.6986703872680664,0.5,0.5,1.0,1.0,3.0,1.0,True,False,False,False
+40.0,10.0,55.0,tip,tip,1.3185468138636876,tip,tip,0.0,+x,,False,,,2.4808356761932373,2.778585195541382,0.0,0.5,1.0,1.0,3.0,1.0,False,False,False,False

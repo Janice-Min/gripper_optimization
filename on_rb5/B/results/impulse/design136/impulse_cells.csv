@@ -1,0 +1,15 @@
+﻿r_mm,x_mm,y_mm,group,base_group,m_F,contact_type,A_group,level_min_mg,weakest_dir,non_monotonic,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,level_+x_mg,level_-x_mg,level_+y_mg,level_-y_mg,level_+z_mg,level_-z_mg,pass_0.5mg,pass_1mg,pass_2mg,pass_3mg
+10.0,20.0,45.0,tip,tip,0.4107694399465156,tip,tip,0.0,-x,,False,,,1.3884612321853638,2.7482476234436035,0.5,0.0,0.0,3.0,3.0,0.5,False,False,False,False
+10.0,30.0,35.0,tip,tip,0.4534447366464105,tip,tip,0.0,-x,,False,,,1.709347128868103,3.2253634929656982,0.5,0.0,0.0,3.0,2.0,0.5,False,False,False,False
+10.0,30.0,65.0,tip,tip,-0.15483955876470756,tip,tip,0.0,-x,,False,,,2.7512564659118652,3.5361104011535645,0.5,0.0,0.0,0.0,2.0,0.0,False,False,False,False
+30.0,10.0,5.0,tip,tip,0.1315304224311975,tip,tip,0.0,-x,,False,,,2.011361598968506,0.5966891050338745,1.0,0.0,0.5,2.0,3.0,1.0,False,False,False,False
+30.0,20.0,55.0,tip,tip,0.4242542029769345,tip,tip,0.0,-x,,False,,,3.2666804790496826,3.8563761711120605,0.5,0.0,0.0,1.0,3.0,0.5,False,False,False,False
+40.0,0.0,25.0,tip,tip,1.719919693255925,tip,tip,1.0,+x,,False,,,2.0602123737335205,4.1117095947265625,1.0,1.0,1.0,1.0,3.0,1.0,True,True,False,False
+40.0,0.0,35.0,tip,tip,0.8775247243922628,tip,tip,0.5,+x,,False,,,1.8163169622421265,2.832681179046631,0.5,0.5,1.0,1.0,3.0,1.0,True,False,False,False
+40.0,0.0,45.0,tip,tip,0.3607701136837105,tip,tip,0.0,+x,,False,,,1.7444137334823608,2.1630494594573975,0.0,0.0,0.5,1.0,3.0,1.0,False,False,False,False
+40.0,0.0,5.0,tip,tip,5.0361909381843795,tip,tip,3.0,+x,,False,,,2.5982632637023926,3.018052101135254,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True
+40.0,0.0,55.0,tip,tip,0.15385130919693113,tip,tip,0.0,-x,,False,,,2.1383395195007324,4.070587158203125,1.0,0.0,0.5,0.5,2.0,0.0,False,False,False,False
+40.0,10.0,35.0,tip,tip,0.8365632014751792,tip,tip,0.5,+x,,False,,,1.8116145133972168,2.8024773597717285,0.5,0.5,1.0,1.0,3.0,1.0,True,False,False,False
+40.0,10.0,45.0,tip,tip,0.32548109477872367,tip,tip,0.0,+x,,False,,,1.7413020133972168,2.1279404163360596,0.0,0.0,0.5,1.0,3.0,0.5,False,False,False,False
+40.0,10.0,55.0,tip,tip,0.15450327318049117,tip,tip,0.0,-x,,False,,,2.2116312980651855,4.343245029449463,0.5,0.0,0.5,0.5,2.0,0.0,False,False,False,False
+50.0,0.0,45.0,tip,tip,0.07377344184654322,tip,tip,0.0,+x,,False,,,2.294335126876831,4.477637767791748,0.0,0.0,0.5,0.0,2.0,0.0,False,False,False,False

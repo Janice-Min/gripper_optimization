@@ -1,0 +1,14 @@
+﻿r_mm,x_mm,y_mm,group,base_group,m_F,contact_type,A_group,level_min_mg,weakest_dir,non_monotonic,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,level_+x_mg,level_-x_mg,level_+y_mg,level_-y_mg,level_+z_mg,level_-z_mg,pass_0.5mg,pass_1mg,pass_2mg,pass_3mg
+40.0,0.0,15.0,env,env,0.3610254625946572,env,env,0.5,+x,,False,,,0.7635434865951538,0.14195957779884338,0.5,0.5,1.0,0.5,2.0,0.5,True,False,False,False
+40.0,0.0,25.0,tip,tip,0.3243334823201758,tip,tip,0.0,+x,,False,,,2.5383429527282715,4.822729110717773,0.0,0.0,1.0,0.0,2.0,0.0,False,False,False,False
+40.0,0.0,35.0,zero_fail,tip,0.425867155995044,tip,tip,0.0,+x,+y,True,rotation,9.850000381469727,3.194326162338257,5.088073253631592,0.0,0.0,0.0,0.0,0.0,0.0,False,False,False,False
+40.0,0.0,5.0,tip,tip,0.22752997542506148,tip,tip,0.5,+x,-y,False,,,0.8028659820556641,0.8037818670272827,0.5,0.5,0.5,0.5,2.0,0.5,True,False,False,False
+40.0,10.0,15.0,env,env,0.2670500180213178,env,env,0.0,-x,,False,,,1.2585798501968384,1.7107627391815186,0.5,0.0,0.5,0.0,2.0,0.5,False,False,False,False
+50.0,0.0,15.0,env,env,2.766823823934428,env,env,2.0,+y,,False,,,0.5807589292526245,0.09677065163850784,3.0,3.0,2.0,3.0,3.0,3.0,True,True,True,False
+50.0,0.0,25.0,env,env,2.76731541841873,env,env,2.0,+y,,False,,,0.5805116295814514,0.0936625525355339,3.0,3.0,2.0,3.0,3.0,3.0,True,True,True,False
+50.0,0.0,35.0,env,env,2.771434025207361,env,env,2.0,+y,,False,,,0.5793003439903259,0.0772029235959053,3.0,3.0,2.0,3.0,3.0,3.0,True,True,True,False
+50.0,0.0,45.0,env,env,2.8851405601064126,env,env,2.0,+y,,False,,,0.5967181921005249,0.5729953646659851,3.0,3.0,2.0,3.0,3.0,3.0,True,True,True,False
+50.0,10.0,35.0,env,env,2.8062414822863033,env,env,2.0,+y,,False,,,0.8015620708465576,0.9679772257804871,3.0,3.0,2.0,3.0,3.0,3.0,True,True,True,False
+50.0,10.0,45.0,env,env,2.8221046781436003,env,env,2.0,+y,,False,,,0.5766807794570923,0.3096722662448883,3.0,3.0,2.0,3.0,3.0,3.0,True,True,True,False
+60.0,0.0,35.0,env,env,6.644009235155226,env,env,3.0,+x,,False,,,0.6135645508766174,0.38086622953414917,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True
+60.0,0.0,45.0,env,env,5.84664147608803,env,env,3.0,+x,,False,,,2.3022382259368896,2.5232326984405518,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True

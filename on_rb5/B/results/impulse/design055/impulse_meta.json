@@ -1,0 +1,50 @@
+{
+  "label": "design055",
+  "settings": {
+    "pulse_s": 0.05,
+    "shape": "rect",
+    "mags": [
+      0.5,
+      1.0,
+      2.0,
+      3.0
+    ],
+    "dirs": [
+      "+x",
+      "-x",
+      "+y",
+      "-y",
+      "+z",
+      "-z"
+    ],
+    "after_s": 10.0,
+    "settle_s": 0.5,
+    "sample_s": 0.005,
+    "detail_s": 0.55,
+    "coarse_s": 0.1,
+    "stop_mm": 30.0,
+    "stop_lost_s": 0.1,
+    "zero_control": true,
+    "monotonic": false,
+    "mg_N": 0.9810000000000001
+  },
+  "settings_hash": "708a00bc3340f761",
+  "cells": "success",
+  "limit": null,
+  "criteria_at_simulation": {
+    "slip_mm": 5.0,
+    "slip_mode": "any",
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "mujoco": "3.3.7",
+  "criteria": {
+    "slip_mm": 5.0,
+    "slip_mode": "any",
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "grace_s": 0.02
+  },
+  "zero_rule": "fail"
+}

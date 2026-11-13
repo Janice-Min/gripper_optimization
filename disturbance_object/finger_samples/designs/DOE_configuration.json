@@ -1,0 +1,49 @@
+{
+  "number_of_designs": 301,
+  "sampling": "maximin centred LHS, n=300, best of 200 candidates, min normalised pair distance=0.0832",
+  "seed": 20261113,
+  "varied_factors": {
+    "L_total_mm": {
+      "unit": "mm",
+      "min": 100.0,
+      "max": 150.0
+    },
+    "L_p_ratio": {
+      "unit": "-",
+      "min": 0.3,
+      "max": 0.7
+    },
+    "G_mm": {
+      "unit": "mm",
+      "min": 50.0,
+      "max": 100.0
+    },
+    "th_open_p_deg": {
+      "unit": "deg",
+      "min": 10.0,
+      "max": 45.0
+    }
+  },
+  "fixed_factors": {
+    "th_open_d": 0.0,
+    "k_p": 0.0107245099833,
+    "k_d": 0.000500423768821,
+    "preload_p_N": 0.107245099833,
+    "preload_d_N": 0.0500423768821
+  },
+  "fixed_factor_source": "th_open_d: user choice (0 = straight finger); k_p, k_d, preloads: gripper_stage0.xml stiffness and springref offsets",
+  "th_open_d_rule": "th_open_d fixed at 0 deg; phi = th_open_p + th_open_d; phi_fraction = (phi - 10)/(th_open_p + 20) varies per design",
+  "joint_moment_arm_mm_assumed": 5.0,
+  "baseline_included": true,
+  "json_units": {
+    "L_p": "m",
+    "L_d": "m",
+    "G": "m",
+    "th_open_p": "deg",
+    "th_open_d": "deg",
+    "k_p": "N*m/rad",
+    "k_d": "N*m/rad",
+    "tau0_p": "N*m",
+    "tau0_d": "N*m"
+  }
+}

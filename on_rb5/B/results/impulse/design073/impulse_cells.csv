@@ -1,0 +1,13 @@
+﻿r_mm,x_mm,y_mm,group,base_group,m_F,contact_type,A_group,level_min_mg,weakest_dir,non_monotonic,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,level_+x_mg,level_-x_mg,level_+y_mg,level_-y_mg,level_+z_mg,level_-z_mg,pass_0.5mg,pass_1mg,pass_2mg,pass_3mg
+30.0,0.0,75.0,tip,tip,0.3843084089276272,tip,tip,0.0,+x,,False,,,2.1040046215057373,4.735657691955566,0.0,0.0,0.0,0.5,2.0,0.0,False,False,False,False
+30.0,10.0,75.0,tip,tip,0.3875514734237131,tip,tip,0.0,+x,,False,,,2.1005356311798096,4.708209991455078,0.0,0.0,0.0,0.5,2.0,0.0,False,False,False,False
+30.0,20.0,75.0,tip,tip,0.29296755350353143,tip,tip,0.0,+x,,False,,,2.026309013366699,4.30683708190918,0.0,0.0,0.0,0.5,2.0,0.0,False,False,False,False
+30.0,30.0,75.0,tip,tip,0.2159044194463906,tip,tip,0.0,+x,,False,,,1.843823790550232,2.812824010848999,0.0,0.0,0.5,0.5,3.0,0.5,False,False,False,False
+40.0,0.0,35.0,tip,tip,6.504432454880053,tip,tip,3.0,+x,,False,,,1.735990047454834,1.0839524269104004,3.0,3.0,3.0,3.0,3.0,3.0,True,True,True,True
+40.0,0.0,45.0,tip,tip,2.4344300883578303,tip,tip,1.0,+y,,False,,,1.5417466163635254,0.34183433651924133,3.0,3.0,1.0,2.0,3.0,3.0,True,True,False,False
+40.0,0.0,55.0,tip,tip,1.1321334966167211,tip,tip,0.5,+x,,False,,,1.541182279586792,0.19848738610744476,0.5,0.5,1.0,1.0,3.0,1.0,True,False,False,False
+40.0,0.0,65.0,tip,tip,0.4909243206806633,tip,tip,0.0,+x,,False,,,1.5414880514144897,0.13677263259887695,0.0,0.0,1.0,1.0,3.0,1.0,False,False,False,False
+40.0,10.0,55.0,tip,tip,1.1092319053622437,tip,tip,0.5,+x,,False,,,1.5416359901428223,0.24107907712459564,0.5,0.5,1.0,1.0,3.0,1.0,True,False,False,False
+40.0,10.0,65.0,tip,tip,0.4601795743332202,tip,tip,0.0,+x,,False,,,1.5415611267089844,0.14195992052555084,0.0,0.0,1.0,1.0,3.0,1.0,False,False,False,False
+40.0,20.0,65.0,tip,tip,0.3366548048358353,tip,tip,0.0,+x,,False,,,1.5418833494186401,0.1607634425163269,0.0,0.0,0.5,1.0,3.0,1.0,False,False,False,False
+50.0,0.0,55.0,zero_fail,tip,0.5051992589393026,tip,tip,0.0,+x,+z,True,rotation,9.949999809265137,2.6930108070373535,5.054381847381592,0.0,0.0,0.0,0.0,0.0,0.0,False,False,False,False

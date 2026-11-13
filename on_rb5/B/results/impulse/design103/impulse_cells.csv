@@ -1,0 +1,2 @@
+﻿r_mm,x_mm,y_mm,group,base_group,m_F,contact_type,A_group,level_min_mg,weakest_dir,non_monotonic,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,level_+x_mg,level_-x_mg,level_+y_mg,level_-y_mg,level_+z_mg,level_-z_mg,pass_0.5mg,pass_1mg,pass_2mg,pass_3mg
+30.0,0.0,75.0,env,env,4.7960516278935,env,env,2.0,-y,,False,,,0.6539667844772339,1.2464227676391602,3.0,3.0,3.0,2.0,3.0,3.0,True,True,True,False
