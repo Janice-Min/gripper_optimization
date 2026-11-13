@@ -413,7 +413,9 @@
           "rotation": 8,
           "cap": 1,
           "slip": 1
-        }
+        },
+        "ramp_median": 6.7405707974681786,
+        "hold_median": 5.812288958970438
       },
       "-x": {
         "n": 10,
@@ -429,7 +431,9 @@
           "rotation": 8,
           "cap": 1,
           "slip": 1
-        }
+        },
+        "ramp_median": 6.345565652020966,
+        "hold_median": 5.6454968622579
       },
       "+y": {
         "n": 10,
@@ -444,7 +448,9 @@
         "causes": {
           "rotation": 9,
           "slip": 1
-        }
+        },
+        "ramp_median": 1.7966360734750977,
+        "hold_median": 1.49386189156473
       },
       "-y": {
         "n": 10,
@@ -459,7 +465,9 @@
         "causes": {
           "lost": 2,
           "rotation": 8
-        }
+        },
+        "ramp_median": 4.576962293105751,
+        "hold_median": 4.605422958078492
       },
       "+z": {
         "n": 10,
@@ -474,7 +482,9 @@
         "causes": {
           "lost": 4,
           "slip": 6
-        }
+        },
+        "ramp_median": 5.382262967777543,
+        "hold_median": 5.103260783002039
       },
       "-z": {
         "n": 10,
@@ -489,7 +499,9 @@
         "causes": {
           "slip": 6,
           "rotation": 4
-        }
+        },
+        "ramp_median": 3.7206931459308272,
+        "hold_median": 3.3426360617354733
       }
     },
     "tip": {
@@ -506,7 +518,9 @@
         "causes": {
           "rotation": 1,
           "slip": 2
-        }
+        },
+        "ramp_median": 0.7339449832927925,
+        "hold_median": 0.6450688073394494
       },
       "-x": {
         "n": 3,
@@ -521,7 +535,9 @@
         "causes": {
           "rotation": 1,
           "slip": 2
-        }
+        },
+        "ramp_median": 0.7441386534897924,
+        "hold_median": 0.6450688073394494
       },
       "+y": {
         "n": 3,
@@ -535,7 +551,9 @@
         "type_changed": 2,
         "causes": {
           "rotation": 3
-        }
+        },
+        "ramp_median": 0.8409785811203577,
+        "hold_median": 0.706290615443425
       },
       "-y": {
         "n": 3,
@@ -549,7 +567,9 @@
         "type_changed": 1,
         "causes": {
           "rotation": 3
-        }
+        },
+        "ramp_median": 0.34148828577436313,
+        "hold_median": 0.19431702344546378
       },
       "+z": {
         "n": 3,
@@ -564,7 +584,9 @@
         "causes": {
           "lost": 2,
           "rotation": 1
-        }
+        },
+        "ramp_median": 2.77777768056327,
+        "hold_median": 2.6151169087665647
       },
       "-z": {
         "n": 3,
@@ -579,7 +601,9 @@
         "causes": {
           "slip": 1,
           "lost": 2
-        }
+        },
+        "ramp_median": 0.3924566671388958,
+        "hold_median": 0.29127643985728846
       }
     },
     "hold_mixed": {
@@ -596,7 +620,9 @@
         "causes": {
           "rotation": 1,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.603975536383377,
+        "hold_median": 0.43810923165137605
       },
       "-x": {
         "n": 2,
@@ -610,7 +636,9 @@
         "type_changed": 1,
         "causes": {
           "slip": 2
-        }
+        },
+        "ramp_median": 1.862894975324897,
+        "hold_median": 1.8214358952917944
       },
       "+y": {
         "n": 2,
@@ -624,7 +652,9 @@
         "type_changed": 1,
         "causes": {
           "rotation": 2
-        }
+        },
+        "ramp_median": 0.7696228593618254,
+        "hold_median": 0.49833556320081546
       },
       "-y": {
         "n": 2,
@@ -639,7 +669,9 @@
         "causes": {
           "rotation": 1,
           "slip": 1
-        }
+        },
+        "ramp_median": 1.0499490176258222,
+        "hold_median": 0.827191242991845
       },
       "+z": {
         "n": 2,
@@ -654,7 +686,9 @@
         "causes": {
           "lost": 1,
           "slip": 1
-        }
+        },
+        "ramp_median": 2.706421989184271,
+        "hold_median": 2.5712661665392456
       },
       "-z": {
         "n": 2,
@@ -669,7 +703,9 @@
         "causes": {
           "rotation": 1,
           "lost": 1
-        }
+        },
+        "ramp_median": 0.3236493325500799,
+        "hold_median": 0.18336678134556572
       }
     },
     "zero_fail": {
@@ -685,7 +721,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 1
-        }
+        },
+        "ramp_median": 1.1926605067121872,
+        "hold_median": 1.0482368119266054
       },
       "-x": {
         "n": 1,
@@ -699,7 +737,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 1
-        }
+        },
+        "ramp_median": 2.5688073200066395,
+        "hold_median": 2.6967459862385312
       },
       "+y": {
         "n": 1,
@@ -713,7 +753,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 1
-        }
+        },
+        "ramp_median": 1.1926605067121872,
+        "hold_median": 1.071530963302752
       },
       "-y": {
         "n": 1,
@@ -727,7 +769,9 @@
         "type_changed": 0,
         "causes": {
           "slip": 1
-        }
+        },
+        "ramp_median": 1.335372010988319,
+        "hold_median": 1.1867076006625894
       },
       "+z": {
         "n": 1,
@@ -741,7 +785,9 @@
         "type_changed": 0,
         "causes": {
           "rotation": 1
-        }
+        },
+        "ramp_median": 3.3333333138904315,
+        "hold_median": 3.3528645833333335
       },
       "-z": {
         "n": 1,
@@ -755,8 +801,34 @@
         "type_changed": 0,
         "causes": {
           "rotation": 1
-        }
+        },
+        "ramp_median": 1.2996941652988196,
+        "hold_median": 1.1676939984709482
       }
+    }
+  },
+  "hold": {
+    "n": 13,
+    "F_min_median_mg": 1.4591695336391437,
+    "passed": {
+      "0.25mg": 11,
+      "0.5mg": 9,
+      "0.75mg": 8,
+      "1mg": 8,
+      "1.5mg": 5,
+      "2mg": 2,
+      "3mg": 0,
+      "5mg": 0
+    },
+    "passed_env": {
+      "0.25mg": 10,
+      "0.5mg": 8,
+      "0.75mg": 8,
+      "1mg": 8,
+      "1.5mg": 5,
+      "2mg": 2,
+      "3mg": 0,
+      "5mg": 0
     }
   },
   "criteria": {
