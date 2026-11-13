@@ -20,14 +20,14 @@ pick-and-lift is deterministic there, but other platforms can flip borderline ce
   python grasp/disturb_collect.py --workers 8                                  (from on_rb5/)
   python grasp/disturb_collect.py --labels candidate_02 --limit 5   # smoke test
 
-Writes <run>/grasp_states/<label>/   (<run> = grasp/results/rb5_cmaes_final by default)
+Writes grasp_cells/<label>/   (the grasp success cells; --run default grasp/results)
   cells.csv          one row per selected cell: original verdict (orig_*), re-run verdict
                      (rb5_eval row columns), reproduced, state_file
   states/*.npz       integration state at the end of 'lift hold' (cells with rb5_pass)
   hands/hand_r*.xml  hand XML of each radius, compiled again by disturb_force.py
   meta.json          design, stage0 patch, signatures, counts, non-reproduced cells
 Earlier states of the same design are deleted first, and so are the experiment A and B
-results built on them (A/results/<run name>/<label>/, B/results/<run name>/impulse*/<label>/).
+results built on them (A/results/<label>/, B/results/impulse*/<label>/).
 """
 from __future__ import annotations
 
@@ -66,7 +66,7 @@ DEFAULT_LABELS = ("all",)
 
 # ---------------------------------------------------------------- shared helpers
 def label_dir(run, label):
-    """Grasp states of one design: <run>/grasp_states/<label>/."""
+    """Grasp success cells (saved states) of one design: grasp_cells/<label>/."""
     return layout.states_root(run)/label
 
 
@@ -78,7 +78,7 @@ def load_label(run, label):
     """(design for build_xml, stage0 patch or None, hand template, workspace rows).
 
     references/<label>.json (eval_design_rb5.py, e.g. design001) is read first, then
-    final/<label> (baseline, candidate_01..03 or a design added with add_reference.py)."""
+    final/<label> (baseline, candidate_01..03)."""
     run = Path(run)
     ref = run/"references"
     if (ref/f"{label}.json").is_file() and (ref/f"{label}_workspace.csv").is_file():

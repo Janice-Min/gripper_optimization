@@ -19,7 +19,7 @@
 Default selection: design001, candidate_02 (if analyzed) and the top 3 by robust_area.
 --top-union N: the union of the top N by robust_area and the top N by J_robust at 1 m g.
 directions.png shows at most 6 designs; the heatmap and the CSV take any number.
-Writes A/results/<run name>/plots/.
+Writes A/results/plots/.
 """
 from __future__ import annotations
 

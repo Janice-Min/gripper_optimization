@@ -6,13 +6,13 @@ design168.xml), with label = file name without .xml:
   1. workspace  common/eval_design_rb5.py  RB5 pick-and-lift map on the run's final grid
                                      -> <run>/references/<label>*, plots/workspace_<label>.png
   2. collect    grasp/disturb_collect.py   re-run success + hold_mixed cells, save post-lift states
-                                     -> <run>/grasp_states/<label>/
+                                     -> grasp_cells/<label>/
   3. force      A/disturb_force.py   ramped force, F_max per direction (method A)
-                                     -> A/results/<run name>/<label>/
-(<run> = grasp/results/rb5_cmaes_final by default)
+                                     -> A/results/<label>/
+(<run> = grasp/results by default)
 Each design runs its three steps one after another, single-threaded; --workers designs
 run at the same time. That keeps every core busy without starting a process pool for
-every design, and one design that fails (log in A/results/<run name>/_logs/<label>.log) does not
+every design, and one design that fails (log in A/results/_logs/<label>.log) does not
 stop the others.
 
 Stopped or crashed? Run the same command again: finished steps are skipped and a
@@ -20,16 +20,16 @@ half-finished workspace map continues from its progress file. When a step runs a
 the steps after it run again too.
 
 At the end (and with --only-table, without simulating) it writes
-  A/results/<run name>/all_designs.csv   one row per design: design values, stiffness and
+  A/results/all_designs.csv   one row per design: design values, stiffness and
                                       preload, J and success of the map, re-run success,
                                       graspable, success before / after the zero-force
                                       rule, J_stable, robust_area (env / tip), per level: passed
                                       cells, conditional robustness, J_robust; F_min medians
                                       of env / tip / hold_mixed; median F of every
                                       direction for env and for tip; zero-control failures
-  A/results/<run name>/graspable_designs.csv   step 1: designs with >= 1 success cell that also
+  A/results/graspable_designs.csv   step 1: designs with >= 1 success cell that also
                                       holds through the zero-force control
-  A/results/<run name>/summary.json/csv  as disturb_force.py writes them, for all designs
+  A/results/summary.json/csv  as disturb_force.py writes them, for all designs
 Plots: python A/plot_disturbance.py
 Designs already in final/ (baseline, candidate_01..03) are included once they have been
 run through disturb_collect.py and disturb_force.py.

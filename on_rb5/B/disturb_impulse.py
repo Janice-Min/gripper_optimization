@@ -59,16 +59,15 @@ coarse-s after it. As in A, a trial stops early once the object is clearly gone 
   python B/disturb_impulse.py --rescore --slip-mode residual                  # re-judge only
 Stopped? Run the same command again: finished cells are kept (one file per cell).
 
-Reads the grasp states (grasp/results/<run>/grasp_states/<label>/) and A's results
-(A/results/<run>/: graspable_designs.csv, <label>/force_*). Writes
-B/results/<run>/impulse[_<tag>]/<label>/
+Reads the grasp success cells (grasp_cells/<label>/) and A's results (A/results/:
+graspable_designs.csv, <label>/force_*). Writes
+B/results/impulse[_<tag>]/<label>/
   traces/<cell>.npz   per trial '<dir>_<k>mg_trace' ('py_2mg_trace', ...; columns in
                       'columns'), '_ended', zero control 'z0_*'
   impulse_trials.csv  one row per cell x direction x pulse size
   impulse_cells.csv   one row per cell: level per direction, level_min, pass_<k>mg, zero control
   impulse_meta.json   settings and criteria;   impulse_summary.json   design summary
-and B/results/<run>/impulse[_<tag>]/all_designs.csv (one row per design, with A's numbers).
-(<run> = rb5_cmaes_final by default.)
+and B/results/impulse[_<tag>]/all_designs.csv (one row per design, with A's numbers).
 """
 from __future__ import annotations
 
@@ -144,7 +143,7 @@ def sub_dir(tag):
 
 
 def impulse_dir(run, sub, label=None):
-    """B results of one setting: B/results/<run name>/<sub>/, or of one design in it."""
+    """B results of one setting: B/results/<sub>/, or of one design in it."""
     d = layout.b_root(run)/sub
     return d/label if label else d
 

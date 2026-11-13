@@ -9,7 +9,7 @@ on_rb5의 workspace 실험은 **얼마나 넓은 범위를 잡을 수 있는가*
 | 단계 | 스크립트 | 하는 일 |
 |---|---|---|
 | 0. 방법 검증 | `A/disturb_validate.py` | 일부 cell에서 ramp 속도, timestep, hold test, 외력 0 대조를 비교해 F_max가 시뮬레이션 설정이 아니라 파지의 성질인지 확인 |
-| 1. 파지 가능한 설계 찾기 | `common/eval_design_rb5.py` → `grasp/disturb_collect.py` | 설계마다 workspace map(792 cell)을 평가하고, 성공 cell(env, tip)과 hold_mixed cell을 다시 돌려 **'lift hold'가 끝난 순간의 전체 상태**(`mj_getState`, `mjSTATE_INTEGRATION`)를 저장. 외력 0 대조(2단계)까지 통과한 성공 cell이 하나라도 있으면 graspable |
+| 1. 파지 가능한 설계 찾기 | `common/eval_design_rb5.py` → `grasp/disturb_collect.py` | 설계마다 workspace map(792 cell)을 평가하고, 성공 cell(env, tip)과 hold_mixed cell을 다시 돌려 **'lift hold'가 끝난 순간의 전체 상태**(`mj_getState`, `mjSTATE_INTEGRATION`)를 `grasp_cells/`에 저장. 외력 0 대조(2단계)까지 통과한 성공 cell이 하나라도 있으면 graspable |
 | 2. 외란 | `A/disturb_force.py` | 저장한 상태를 복원해 6방향으로 외력을 천천히 키우며 방향별 F_max 측정, 외력 0 대조 |
 | 정리 | `A/batch_disturbance.py`, `A/plot_disturbance.py` | 204개를 한 번에 돌리고 표·그림 생성 |
 
@@ -59,7 +59,7 @@ ramp는 물체가 30 mm 밀리거나 접촉을 0.1 s 잃을 때까지 계속하�
 ## 4. 실행
 
 ```powershell
-cd on_rb5        # 모든 명령은 on_rb5/에서. --run 기본값은 grasp/results/rb5_cmaes_final
+cd on_rb5        # 모든 명령은 on_rb5/에서. --run 기본값은 grasp/results
 # 0) 방법 검증: 이미 상태가 저장된 설계로 (design001, candidate_02)
 python A/disturb_validate.py --labels candidate_02 design001 --workers 8
 # 1+2) 204개 전부 (workspace -> 상태 저장 -> 외란)
@@ -78,13 +78,13 @@ python A/batch_disturbance.py --only-table
 ## 5. 산출물
 
 ```
-grasp/results/rb5_cmaes_final/
-├── references/<label>*                    1단계 workspace map (설계마다)
-└── grasp_states/<label>/
-    ├── cells.csv, states/*.npz            1단계: 다시 돌린 cell과 저장된 상태 (A·B·C가 공통으로 씀)
-    └── hands/, meta.json
+grasp/results/
+└── references/<label>*                    1단계 workspace map (설계마다)
+grasp_cells/<label>/                       1단계: 파지 성공 cell을 다시 돌려 저장한 상태 (A·B·C가 공통으로 씀)
+├── cells.csv, states/*.npz
+└── hands/, meta.json
 
-A/results/rb5_cmaes_final/
+A/results/
 ├── all_designs.csv                        설계당 한 줄: 설계값, J, graspable, robust_area, 방향별 env/tip 중앙값, pass/J_robust
 ├── graspable_designs.csv                  1단계 결과: 성공 cell이 있는 설계
 ├── summary.json / summary.csv
@@ -97,7 +97,7 @@ A/results/rb5_cmaes_final/
 │   └── force_summary.json
 └── plots/                                 pareto, directions, survival, fmin_map_<label>,
                                            direction_heatmap (설계 × 방향, env|tip), selected_designs.csv,
-                                           compare_*, peak_*, all_cells_* (compare_force.py)
+                                           compare_*, peak_*, all_cells_* (compare_force.py), arrows/ (plot_force_arrows.py)
 ```
 
 ## 6. 같이 고친 것: stage0 XML 변환 검사
@@ -161,7 +161,7 @@ env 파지의 약한 방향은 거의 항상 ±x(jaw 방향)다. 실 하나가 �
 
 ## 10. 고른 8개 설계의 18방향 결과 (6축 + 모서리 대각선 12)
 
-design074, 078, 076, 075, 138, 033, 163, candidate_02에 `A/disturb_force.py --dirs edges --append`로 대각선 12방향(`±x±y`, `±x±z`, `±y±z`, 성분 같은 크기)을 더했다. 값은 1 N/s ramp, 성공 cell(env + tip, 외력 0 대조 실패 제외) 중 **방향마다 최댓값**이다(방향마다 다른 cell일 수 있음). 대각선에는 hold test가 없으므로 ramp 값이고, 일정 하중 유지 한계는 약 0.85배로 본다.
+design074, 078, 076, 075, 138, 033, 163, candidate_02에 `python A/disturb_force.py --labels ... --dirs edges --append`로 대각선 12방향(`±x±y`, `±x±z`, `±y±z`, 성분 같은 크기)을 더했다. 값은 1 N/s ramp, 성공 cell(env + tip, 외력 0 대조 실패 제외) 중 **방향마다 최댓값**이다(방향마다 다른 cell일 수 있음). 대각선에는 hold test가 없으므로 ramp 값이고, 일정 하중 유지 한계는 약 0.85배로 본다.
 
 | 설계 | 6축 최약 | 18방향 최약 | 6축 최약보다 약한 대각선 |
 |---|---|---|---|
@@ -175,5 +175,4 @@ design074, 078, 076, 075, 138, 033, 163, candidate_02에 `A/disturb_force.py --d
 | candidate_02 | +y 1.58 | −x−z 1.08 | −x+y, −x−z |
 
 (단위 m g.) θ_open,p = 17° 계열(074/075/076/078)은 대각선을 더해도 가장 약한 방향이 +y(빼내기) 그대로이고, `+y`가 들어간 대각선(±x+y 3.9~4.8, +y−z 3.5~4.8)이 그다음으로 약하다. 반면 design033, 163, candidate_02는 대각선에서 6축보다 약한 방향이 나와, 6축만으로는 최약 방향을 과대평가한다. `−y+z`는 8개 모두 거의 상한(≥ 10, candidate_02 9.0)이다.
-그림: `plot_force_arrows.py --peak-csv .../peak_all_ramp.csv` (설계별 원기둥 + 화살표, 설계 × 방향 heatmap).
-(`--dirs edges --append`와 `plot_force_arrows.py`는 GitHub 사본(36159177)에는 없고 로컬 코드에만 있다. 폴더 재구성 후에는 `A/`로 옮겨야 한다.)
+그림: `python A/compare_force.py --labels ... --peak --value ramp` → `python A/plot_force_arrows.py` (기본 입력 `A/results/plots/peak_all_ramp.csv`, 출력 `A/results/plots/arrows/`: 설계별 원기둥 + 화살표, 설계 × 방향 heatmap).

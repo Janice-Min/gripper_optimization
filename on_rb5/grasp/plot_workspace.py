@@ -4,16 +4,16 @@ Writes to <run>/plots/:
   workspace_<label>.png       one panel per object radius: env / tip / failed / not
                               attempted, with the open hand drawn in the hand frame
   diff_<label>_vs_<ref>.png   cells gained / lost against the reference (default
-                              design168; --baseline design001 after add_reference.py)
+                              design168; --baseline <another design of final/>)
   compare_designs.png         successful cells per radius for every final candidate
 
 Each cell is drawn at the object center (x, y+r) of the hand frame (palm face at y=0,
 fingers toward +y). Only x >= 0 is simulated; x < 0 is mirrored (symmetric hand).
 
-  python grasp/plot_workspace.py --run grasp/results/rb5_cmaes
-  python grasp/plot_workspace.py --run grasp/results/rb5_cmaes --label candidate_01
-  python grasp/plot_workspace.py --run grasp/results/rb5_cmaes --baseline design001
-  python grasp/plot_workspace.py --run grasp/results/rb5_cmaes --show
+  python grasp/plot_workspace.py                               (from on_rb5/)
+  python grasp/plot_workspace.py --label candidate_01
+  python grasp/plot_workspace.py --baseline candidate_02
+  python grasp/plot_workspace.py --run grasp/results_rb5_cmaes --show
 """
 from __future__ import annotations
 
@@ -259,10 +259,10 @@ def plot_compare(path, entries):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, default=layout.DEFAULT_RUN,
-                   help="Output folder of optimize_rb5_cmaes.py (default grasp/results/rb5_cmaes_final)")
+                   help="Output folder of optimize_rb5_cmaes.py (default grasp/results)")
     p.add_argument("--label", help="Design to plot (default: the final best)")
-    p.add_argument("--baseline", help="Reference for the gain/loss plot, e.g. design001 added with "
-                                      "add_reference.py (default: baseline = design168)")
+    p.add_argument("--baseline", help="Reference for the gain/loss plot, a design of final/ "
+                                      "(default: baseline = design168)")
     p.add_argument("--show", action="store_true", help="Also open the figures in windows")
     args = p.parse_args()
     import matplotlib
@@ -289,8 +289,8 @@ def main():
             load(name)
     ref_name = args.baseline or "baseline"
     if args.baseline and ref_name not in entries:
-        raise SystemExit(f"No result '{ref_name}' in {run}. Available: {names}. "
-                         f"Add it first: python grasp/add_reference.py --run {args.run} --xml {ref_name}.xml")
+        raise SystemExit(f"No result '{ref_name}' in {run}/final. Available: {names}. "
+                         "Other designs are in references/ (common/eval_design_rb5.py, plot workspace_<label>.png).")
     out = run/"plots"
     out.mkdir(exist_ok=True)
     label = chosen["label"]

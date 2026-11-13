@@ -580,7 +580,7 @@ def plot(run, cfg, label, template, design, patch, summary, rows):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, default=layout.DEFAULT_RUN,
-                   help="Output folder of optimize_rb5_cmaes.py (default grasp/results/rb5_cmaes_final)")
+                   help="Output folder of optimize_rb5_cmaes.py (default grasp/results)")
     p.add_argument("--xml", type=Path, default=layout.COMMON/"design001.xml",
                    help="Design XML, stage0 or RB5 hand format (default common/design001.xml)")
     p.add_argument("--label", help="Name of the result (default: XML file name without .xml)")

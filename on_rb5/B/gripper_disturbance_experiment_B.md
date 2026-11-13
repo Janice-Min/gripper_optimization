@@ -2,13 +2,13 @@
 
 실험 A는 **천천히 커지는 힘**을 얼마나 버티는지(F_max)를 쟀다.
 실험 B는 **짧은 충격을 받은 뒤에도 놓치지 않고 계속 잡고 있는지**를 잰다.
-대상은 실험 A에서 graspable로 나온 설계(`A/results/rb5_cmaes_final/graspable_designs.csv`)이고, A와 같은 파지 상태(`grasp/results/rb5_cmaes_final/grasp_states/`)를 그대로 쓴다. 장면, 격자, 판정 규칙도 A와 같다.
+대상은 실험 A에서 graspable로 나온 설계(`A/results/graspable_designs.csv`)이고, A와 같은 파지 성공 cell의 상태(`grasp_cells/`)를 그대로 쓴다. 장면, 격자, 판정 규칙도 A와 같다.
 
 ## 1. 절차
 
 | 단계 | 스크립트 | 하는 일 |
 |---|---|---|
-| 0. 준비 | `grasp/disturb_collect.py`, 실험 A(`A/disturb_force.py`) | 파지 상태(`grasp_states/<label>/states/*.npz`)와 A의 성공 cell, 방향별 F_max가 이미 있어야 한다 |
+| 0. 준비 | `grasp/disturb_collect.py`, 실험 A(`A/disturb_force.py`) | 파지 성공 cell 상태(`grasp_cells/<label>/states/*.npz`)와 A의 성공 cell, 방향별 F_max가 이미 있어야 한다 |
 | 1. 충격 | `B/disturb_impulse.py` | 상태를 복원해 방향 × 크기마다 50 ms 펄스를 주고 10 s 유지되는지 판정. 외력 0 대조 포함 |
 | 정리 | `B/disturb_impulse.py --rescore`, `B/plot_impulse.py` | 판정 기준만 바꿔 다시 판정, 표·그림 |
 
@@ -78,14 +78,14 @@ python B/plot_impulse.py --trace design075 r40_x0_y15
 | `--monotonic` | 꺼짐 | 한 방향에서 실패하면 더 큰 펄스는 건너뜀. 파일럿에서 계산량은 7 %만 줄었다 |
 | `--slip-mm`, `--slip-mode`, `--rot-deg`, `--rot-mode`, `--grace-s` | config | 실패 기준 (`--rescore`에도 사용) |
 | `--zero-fail` | `fail` | 외력 0 대조 실패 cell 처리 |
-| `--tag` | 없음 | 결과 폴더 `B/results/<run>/impulse_<tag>/`. 설정이 다른 결과가 섞이지 않게 막고, 덮어쓰려면 `--overwrite` |
+| `--tag` | 없음 | 결과 폴더 `B/results/impulse_<tag>/`. 설정이 다른 결과가 섞이지 않게 막고, 덮어쓰려면 `--overwrite` |
 
 **trace 저장 방식.** 펄스 시작부터 T + settle(0.55 s)까지는 sample(5 ms)마다, 그 뒤에는 0.1 s마다 한 줄씩 저장한다. 각 줄에는 직전 줄 이후의 변위·회전·기울기 최댓값과 가장 긴 접촉 상실 시간이 함께 들어 있다. 그래서 `--rescore`의 held 여부는 어떤 기준으로 바꿔도 정확하고, 실패 시각은 0.55 s 이후에만 0.1 s 단위로 근사된다.
 
 ## 5. 산출물
 
 ```
-B/results/rb5_cmaes_final/impulse/        (--tag p20 이면 impulse_p20/)
+B/results/impulse/        (--tag p20 이면 impulse_p20/)
 ├── all_designs.csv                    설계당 한 줄: 설계값, A 지표(J_stable, robust_area, F_min 중앙값),
 │                                       B 지표(success, impact_area, pass/cond/J_impulse@k, 방향·크기별 held 비율 env/tip,
 │                                       실패 구간 수)
@@ -107,7 +107,7 @@ B/results/rb5_cmaes_final/impulse/        (--tag p20 이면 impulse_p20/)
 - **k = 0.5, 1, 2, 3 mg**: A의 F_max 분포를 덮는다. 가장 약한 방향의 F_min 중앙값은 설계마다 0.2~2.6 mg이고, 강한 env 방향은 3~10 mg이다. 원래 계획(1·2·3 mg)에 0.5 mg을 더했다. tip이 많은 설계는 1 mg에서 거의 다 실패해서, 0.5 mg이 없으면 이 설계들 사이의 차이가 보이지 않는다(파일럿에서 candidate_02의 pass@0.5 = 63, pass@1 = 6).
 - **10 s 유지**: 요청값. 외력 0 대조도 같은 길이로 맞췄다.
 
-**파일럿** (9개 설계 = 18방향 비교에서 고른 8개 + design001, 성공 cell 219개, 6방향 × 4크기, 50 ms 사각 펄스).
+**파일럿** (9개 설계 = 18방향 비교에서 고른 8개 + design001, 성공 cell 219개, 6방향 × 4크기, 50 ms 사각 펄스. A 열은 A에 대각선을 더하기 전의 6방향 값).
 
 | 설계 | 성공 cell (env/tip) | 대조 실패 | pass@0.5 | @1 | @2 | @3 | impact_area | level_min 중앙값 | A robust_area | A F_min 중앙값 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -144,4 +144,4 @@ trace는 cell당 약 0.3~0.4 MB로 전체 1.5~2 GB 정도다(실험 A의 1.7 GB�
 | 펄스 모양 | 사각 | 반주기 사인(실제 충돌에 가까움, 충격량 2/π배) | `--shape halfsine` |
 | slip 판정 | 언제든 5 mm (A와 같음) | 펄스 후 0.5 s부터의 변위만 | `--rescore --slip-mode residual` |
 | 회전 판정 | 전체 회전 5° | 축 기울기만 | `--rescore --rot-mode tilt` |
-| 설계 순위 지표 | impact_area | J_impulse@k, cond@k | `B/results/<run>/impulse/all_designs.csv`의 열 |
+| 설계 순위 지표 | impact_area | J_impulse@k, cond@k | `B/results/impulse/all_designs.csv`의 열 |

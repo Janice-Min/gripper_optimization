@@ -7,11 +7,11 @@ env / tip / fail in the map behaves the same here.
 Cell convention as in the map: object radius r, object center at hand (x, y+r),
 y = gap between palm face and object surface.
 
-  python grasp/run_task.py --run grasp/results/rb5_cmaes                     # final best design, its best cell
-  python grasp/run_task.py --run grasp/results/rb5_cmaes --cell 30 20 45     # r=30 mm, x=20, y=45
-  python grasp/run_task.py --run grasp/results/rb5_cmaes --label baseline    # same task with design168
-  python grasp/run_task.py --run grasp/results/rb5_cmaes --label design001   # a design added with add_reference.py
-  python grasp/run_task.py --run grasp/results/rb5_cmaes --headless --video task.mp4
+  python grasp/run_task.py                              # final best design, its best cell (from on_rb5/)
+  python grasp/run_task.py --cell 30 20 45              # r=30 mm, x=20, y=45
+  python grasp/run_task.py --label baseline             # same task with design168
+  python grasp/run_task.py --headless --video task.mp4
+  python grasp/run_task.py --run grasp/results_rb5_cmaes   # another run
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ from run_pick_lift import PickLift, VideoRecorder, save_results
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", type=Path, default=layout.DEFAULT_RUN,
-                   help="Output folder of optimize_rb5_cmaes.py (default grasp/results/rb5_cmaes_final)")
+                   help="Output folder of optimize_rb5_cmaes.py (default grasp/results)")
     p.add_argument("--label", help="Design in <run>/final, e.g. baseline, candidate_01, design001 (default: best)")
     p.add_argument("--cell", type=float, nargs=3, metavar=("R_MM", "X_MM", "Y_MM"),
                    help="Object radius and map cell (default: the design's best successful cell)")

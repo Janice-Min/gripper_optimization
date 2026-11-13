@@ -30,9 +30,9 @@ every design grasps a different set of map cells. For a design-to-design compari
      ... --value ramp|hold  F of the ramp, or of the hold test (default: hold if every design
                             was run with disturb_force.py --refine, else ramp)
 
-Reads A/results/<run name>/<label>/force_dirs.csv and force_cells.csv (zero-force failures are
+Reads A/results/<label>/force_dirs.csv and force_cells.csv (zero-force failures are
 group 'zero_fail' there and never count as success cells).
-Writes A/results/<run name>/plots/compare_<tag>.csv and compare_<tag>.png.
+Writes A/results/plots/compare_<tag>.csv and compare_<tag>.png.
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"common"))
 import layout  # noqa: E402  (puts common/, grasp/, A/, B/, C/ on the import path)
 from eval_design_rb5 import read_rows
-from disturb_force import DIRECTIONS, force_dir
+from disturb_force import dir_sort_key, force_dir
 
 GROUPS = {"env": ("env",), "tip": ("tip",), "all": ("env", "tip")}
 
@@ -94,25 +94,37 @@ def select(rows, r, groups, x=None):
 def resolve_value(dirs_rows, labels, value):
     """('hold'|'ramp', column): hold only if every design has hold-test values."""
     if value == "auto":
-        has_hold = {l: any(d.get("F_hold_mg") is not None for d in dirs_rows[l]) for l in labels}
+        # Hold values only if every direction of every design has a hold test (--refine, also with --append).
+        has_hold = {l: bool(dirs_rows[l]) and all(d.get("F_hold_mg") is not None for d in dirs_rows[l])
+                    for l in labels}
         value = "hold" if all(has_hold.values()) else "ramp"
         if not all(has_hold.values()):
-            print(f"Using ramp F: no hold test for {[l for l, h in has_hold.items() if not h]} "
+            print(f"Using ramp F: no hold test of every direction for {[l for l, h in has_hold.items() if not h]} "
                   "(python A/disturb_force.py --labels ... --refine).")
     return value, ("F_hold_mg" if value == "hold" else "F_max_mg")
 
 
-def collect_cells(dirs_rows, labels, group, key, cens_key):
-    """{label: {(r, x, y): dict(group, F={dir: F}, cens={dir: bool})}} of the cells with all six directions."""
+def measured_dirs(dirs_rows, labels):
+    """Directions measured for every design (axes first, then diagonals; see disturb_force.py --dirs)."""
+    sets = [{d["dir"] for d in dirs_rows[l]} for l in labels if dirs_rows[l]]
+    common = set.intersection(*sets) if sets else set()
+    extra = set.union(*sets)-common if sets else set()
+    if extra:
+        print(f"Only measured for some designs, left out: {sorted(extra, key=dir_sort_key)}")
+    return sorted(common, key=dir_sort_key)
+
+
+def collect_cells(dirs_rows, labels, group, key, cens_key, dirs):
+    """{label: {(r, x, y): dict(group, F={dir: F}, cens={dir: bool})}} of the cells with all directions dirs."""
     out = {}
     for l in labels:
         cells = {}
         for d in dirs_rows[l]:
-            if d["group"] not in GROUPS[group] or d.get(key) is None:
+            if d["group"] not in GROUPS[group] or d.get(key) is None or d["dir"] not in dirs:
                 continue
             c = cells.setdefault((d["r_mm"], d["x_mm"], d["y_mm"]), dict(group=d["group"], F={}, cens={}))
             c["F"][d["dir"]], c["cens"][d["dir"]] = float(d[key]), bool(d.get(cens_key))
-        out[l] = {k: c for k, c in cells.items() if len(c["F"]) == len(DIRECTIONS)}
+        out[l] = {k: c for k, c in cells.items() if len(c["F"]) == len(dirs)}
     return out
 
 
@@ -126,11 +138,12 @@ def plot_all(run, labels, group, value_opt, linear=False):
     dirs_rows = {l: rows_of(run, l, "force_dirs.csv") for l in labels}
     value, key = resolve_value(dirs_rows, labels, value_opt)
     cens_key = "hold_censored" if value == "hold" else "censored"
-    cells_of = collect_cells(dirs_rows, labels, group, key, cens_key)
+    dirs = measured_dirs(dirs_rows, labels)
+    cells_of = collect_cells(dirs_rows, labels, group, key, cens_key, dirs)
     labels = [l for l in labels if cells_of[l]]
     if not labels:
         raise SystemExit(f"No {group} success cells in these designs.")
-    cols = list(DIRECTIONS)+["F_min"]
+    cols = dirs+["F_min"]
     rng = np.random.default_rng(0)
     every = [v for l in labels for c in cells_of[l].values() for v in c["F"].values()]
     lo, hi = max(0.02, min(every)*0.8), max(every)*1.25
@@ -169,13 +182,14 @@ def plot_all(run, labels, group, value_opt, linear=False):
     n = len(labels)
     ncol = min(4, n)
     nrow = math.ceil(n/ncol)
-    fig, axes = plt.subplots(nrow, ncol, figsize=(3.5*ncol, 3.0*nrow+0.9), sharey=True, squeeze=False)
+    pw = max(3.5, 0.45*len(cols)+0.4)  # Panel width grows with the number of directions.
+    fig, axes = plt.subplots(nrow, ncol, figsize=(pw*ncol, 3.0*nrow+0.9), sharey=True, squeeze=False)
     for ax, l in zip(axes.flat, labels):
         cells = list(cells_of[l].values())
         for j, col in enumerate(cols):
             points(ax, j, cells, col)
         ax.axvline(len(cols)-1.5, color=MUTED, lw=0.8)
-        ax.set_xticks(range(len(cols)), cols, fontsize=8)
+        ax.set_xticks(range(len(cols)), cols, fontsize=8, rotation=90 if len(cols) > 8 else 0)
         ne, nt = sum(c["group"] == "env" for c in cells), sum(c["group"] == "tip" for c in cells)
         ax.set_title(f"{l}  ({ne} env, {nt} tip)", loc="left", fontsize=9.5)
         ax.grid(axis="x", visible=False)
@@ -222,8 +236,8 @@ def peak(run, labels, group, value_opt, top_k):
     dirs_rows = {l: rows_of(run, l, "force_dirs.csv") for l in labels}
     value, key = resolve_value(dirs_rows, labels, value_opt)
     cens_key = "hold_censored" if value == "hold" else "censored"
-    dirs = list(DIRECTIONS)
-    rows, cells_of = [], collect_cells(dirs_rows, labels, group, key, cens_key)
+    dirs = measured_dirs(dirs_rows, labels)
+    rows, cells_of = [], collect_cells(dirs_rows, labels, group, key, cens_key, dirs)
     for l in labels:
         full = cells_of[l]
         if not full:
@@ -297,13 +311,19 @@ def peak(run, labels, group, value_opt, top_k):
         print(f"Saved: {fig_path}")
 
 
+def peak_dirs(row):
+    """Directions of a peak row (its max_<dir>_mg columns), axes first."""
+    return sorted((k[4:-3] for k in row if k.startswith("max_") and k.endswith("_mg") and row[k] is not None),
+                  key=dir_sort_key)
+
+
 def read_peak_csv(path):
     """Rows of a peak_<group>_<value>.csv with numbers and flags restored."""
     rows = []
     for r in read_rows(path):
         if not r.get("cells"):
             continue
-        for d in DIRECTIONS:
+        for d in peak_dirs(r):
             r[f"max_{d}_censored"] = r.get(f"max_{d}_censored") in (True, "True")
         rows.append(r)
     return rows
@@ -318,7 +338,7 @@ def plot_peak(out, rows, value, group):
     import matplotlib.pyplot as plt
     from plot_disturbance import INK, INK_2, SERIES, SURFACE, style
     style(plt)
-    dirs = list(DIRECTIONS)
+    dirs = peak_dirs(rows[0])
     labels = [r["label"] for r in rows]
     top = max(float(r[f"max_{d}_mg"]) for r in rows for d in dirs)
     ymax = top*1.22
@@ -329,7 +349,8 @@ def plot_peak(out, rows, value, group):
     n = len(rows)
     ncol = min(4, n)
     nrow = math.ceil(n/ncol)
-    fig, axes = plt.subplots(nrow, ncol, figsize=(3.4*ncol, 2.9*nrow+0.8), sharey=True, squeeze=False)
+    pw = max(3.4, 0.5*len(dirs)+0.4)
+    fig, axes = plt.subplots(nrow, ncol, figsize=(pw*ncol, 2.9*nrow+0.8), sharey=True, squeeze=False)
     for ax, r in zip(axes.flat, rows):
         vals = [float(r[f"max_{d}_mg"]) for d in dirs]
         cens = [bool(r[f"max_{d}_censored"]) for d in dirs]
@@ -343,7 +364,7 @@ def plot_peak(out, rows, value, group):
             ax.text(j, v+0.012*ymax, f"{'≥' if c else ''}{v:.1f}\n{cell[0] if cell else ''}", ha="center", va="bottom",
                     fontsize=6.5, color=INK, linespacing=1.0)
         ax.axhline(1.0, color=INK_2, lw=0.8, ls="--")
-        ax.set_xticks(range(len(dirs)), dirs)
+        ax.set_xticks(range(len(dirs)), dirs, rotation=90 if len(dirs) > 8 else 0)
         ax.set_ylim(0, ymax)
         ax.grid(axis="x", visible=False)
         ax.set_title(f"{r['label']}  ({int(float(r['cells']))} cells)", loc="left", fontsize=9.5)
@@ -370,7 +391,7 @@ def plot_peak(out, rows, value, group):
                 b.set_hatch("////")
                 b.set_edgecolor(SURFACE)
     ax.axhline(1.0, color=INK_2, lw=0.8, ls="--")
-    ax.set_xticks(range(len(dirs)), dirs)
+    ax.set_xticks(range(len(dirs)), dirs, rotation=90 if len(dirs) > 8 else 0)
     ax.set_ylim(0, ymax)
     ax.grid(axis="x", visible=False)
     ax.set_ylabel(f"max F over cells [m g] ({value})")
@@ -427,6 +448,7 @@ def main():
     dirs_rows = {l: rows_of(run, l, "force_dirs.csv") for l in labels}
     groups = GROUPS[group]
     value, key = resolve_value(dirs_rows, labels, args.value)
+    dirs = measured_dirs(dirs_rows, labels)
     out_rows, grid, notes = [], {}, []
     for r in args.r:
         sel = {l: select(dirs_rows[l], r, groups, args.x) for l in labels}
@@ -439,7 +461,7 @@ def main():
             sel = {l: [d for d in sel[l] if (d["x_mm"], d["y_mm"]) in cells] for l in labels}
         for l in labels:
             n_cells = len({(d["x_mm"], d["y_mm"]) for d in sel[l]})
-            for dname in DIRECTIONS:
+            for dname in dirs:
                 v = [d[key] for d in sel[l] if d["dir"] == dname and d.get(key) is not None]
                 cens = sum(bool(d["censored"]) for d in sel[l] if d["dir"] == dname)
                 med = float(np.median(v)) if v else None
@@ -454,11 +476,11 @@ def main():
         print(f"\nr = {r:g} mm, {group} cells{'' if args.x is None else f', x = {args.x:g} mm'}"
               f"{', common cells only' if args.common else ''}: median F per direction [m g] ({value})")
         w = max(len(l) for l in labels)+2
-        print(" "*w + f"{'cells':>6}" + "".join(f"{d:>8}" for d in DIRECTIONS) + f"{'weakest':>10}")
+        print(" "*w + f"{'cells':>6}" + "".join(f"{d:>8}" for d in dirs) + f"{'weakest':>10}")
         for l in labels:
-            vals = [grid[(r, l, d)][0] for d in DIRECTIONS]
+            vals = [grid[(r, l, d)][0] for d in dirs]
             n = grid[(r, l, "+x")][1]
-            weakest = min(((v, d) for v, d in zip(vals, DIRECTIONS) if v is not None), default=(None, "-"))
+            weakest = min(((v, d) for v, d in zip(vals, dirs) if v is not None), default=(None, "-"))
             print(f"{l:<{w}}{n:>6}" + "".join(f"{v:>8.2f}" if v is not None else f"{'-':>8}" for v in vals)
                   + f"{weakest[1]:>10}")
     tag = args.tag or (f"{group}_r{'_'.join(f'{r:g}' for r in args.r)}"
@@ -471,22 +493,22 @@ def main():
         w.writeheader()
         w.writerows(out_rows)
     print(f"\nSaved: {out/f'compare_{tag}.csv'}")
-    path = plot(out/f"compare_{tag}.png", grid, labels, args.r, value, group)
+    path = plot(out/f"compare_{tag}.png", grid, labels, args.r, value, group, dirs)
     print(f"Saved: {path}")
 
 
-def plot(path, grid, labels, radii, value, group):
+def plot(path, grid, labels, radii, value, group, dirs):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib.colors import LinearSegmentedColormap
     from plot_disturbance import EMPTY_CELL, INK, INK_2, SEQUENTIAL, SURFACE, style
     style(plt)
-    dirs = list(DIRECTIONS)
     vals = [v for (v, _) in grid.values() if v is not None]
     vmax = min(5.0, max(1.0, math.ceil(np.percentile(vals, 90)*2)/2)) if vals else 1.0
     cmap = LinearSegmentedColormap.from_list("seq_blue", SEQUENTIAL)
-    fig, axes = plt.subplots(1, len(radii), figsize=(5.2*len(radii)+1.6, 0.42*len(labels)+1.7), squeeze=False)
+    fig, axes = plt.subplots(1, len(radii), figsize=(max(5.2, 0.8*len(dirs)+0.4)*len(radii)+1.6, 0.42*len(labels)+1.7),
+                             squeeze=False)
     for ax, r in zip(axes[0], radii):
         ax.grid(False)
         for i, l in enumerate(labels):

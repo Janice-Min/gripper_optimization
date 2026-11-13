@@ -13,10 +13,11 @@ gripper_optimization/
 ├── on_rb5/         RB5 장착 상태의 workspace 평가, CMA-ES 설계 최적화, 외란 실험 A·B·C
 │   ├── common/     공통 코드(gripper_core, rb5_eval, run_pick_lift, build_scene, eval_design_rb5, layout),
 │   │               RB5 sources/·assets/, config, design168.xml·design001.xml
-│   ├── grasp/      workspace map·CMA-ES·파지 상태 저장       결과 grasp/results/<run>/
-│   ├── A/          외란 실험 A (천천히 키우는 힘)            결과 A/results/<run>/
-│   ├── B/          외란 실험 B (짧은 충격)                   결과 B/results/<run>/impulse[_<tag>]/
-│   └── C/          외란 실험 C (팔 흔들기, 예정)             결과 C/results/<run>/
+│   ├── grasp/      workspace map·CMA-ES·파지 성공 cell 저장  결과 grasp/results/ (최종 run), grasp/results_rb5_cmaes/ (이전 탐색)
+│   ├── grasp_cells/ 파지 성공 cell을 들어 올린 직후의 상태 (설계마다 <label>/, A·B·C의 시작점)
+│   ├── A/          외란 실험 A (천천히 키우는 힘)            결과 A/results/
+│   ├── B/          외란 실험 B (짧은 충격)                   결과 B/results/impulse[_<tag>]/
+│   └── C/          외란 실험 C (팔 흔들기, 예정)             결과 C/results/
 ├── rb5_xml_pick/   그리퍼 XML 하나를 RB5에 달아 집고 들어 올리는 단독 실행 패키지
 └── xml/            평가할 설계 XML (design001 ~ design204, stage0 형식)
 ```
@@ -25,9 +26,9 @@ workspace map의 cell `(r, x, y)`는 원기둥 반지름 r, 손 좌표계에서�
 y는 palm 면과 물체 표면 사이 거리이고, 손이 대칭이라 x ≥ 0만 시뮬레이션합니다. 단위는 mm입니다.
 
 **on_rb5 실행 규칙.** 모든 명령은 `on_rb5/`에서 `python <폴더>/<스크립트>.py`로 실행합니다(다른 폴더에서 실행해도 경로는 맞습니다).
-`--run`의 기본값은 `grasp/results/rb5_cmaes_final`이고, A·B·C의 결과는 같은 이름(`rb5_cmaes_final`) 폴더에 쌓입니다.
+`--run`(grasp run)의 기본값은 `grasp/results`입니다. 다른 run(예: `grasp/results_rb5_cmaes`)을 주면 파지 성공 cell과 A·B·C 결과도 `grasp_cells_rb5_cmaes/`, `A/results_rb5_cmaes/`처럼 따로 쌓입니다.
 폴더 위치는 `common/layout.py` 한 곳에서 정하며, grasp/A/B/C의 스크립트는 첫머리에서 이 파일을 import해 `common/`, `grasp/`, `A/`, `B/`, `C/`를 import 경로에 넣습니다.
-`<run>/grasp_states/<label>/`에 저장한 파지 상태는 A·B·C가 공통으로 시작점으로 씁니다. 상태를 다시 저장하면(`grasp/disturb_collect.py`) 그 설계의 A·B 결과는 지워집니다.
+`grasp_cells/<label>/`에 저장한 파지 성공 cell 상태는 A·B·C가 공통으로 시작점으로 씁니다. 상태를 다시 저장하면(`grasp/disturb_collect.py`) 그 설계의 A·B 결과는 지워집니다.
 
 ---
 
@@ -40,24 +41,20 @@ y는 palm 면과 물체 표면 사이 거리이고, 손이 대칭이라 x ≥ 0�
 | `common/gripper_core.py` | 공통 모듈. 설계 변수와 범위, 설계값으로 손 MJCF 생성(`build_xml`), 평가 격자, 접촉 판정(env / tip), 목적함수 J |
 | `common/build_scene.py` | `sources/`의 RB5·작업 장면·손을 합쳐 `rb5_best_design_scene.xml` 생성 |
 | `common/run_pick_lift.py` | RB5 pick-and-lift 시뮬레이션: IK로 접근 → 텐던 파지 → 상승 → 유지 |
-| `grasp/rb5_cell.py` | map의 cell 하나에 대해 `run_pick_lift.py` 실행 |
 | `common/rb5_eval.py` | 설계 하나의 workspace를 RB5 위에서 평가. cell마다 pick-and-lift를 끝까지 돌려 판정하고 J 계산. `--rescore`로 저장된 CSV 재판정 |
 | `grasp/optimize_rb5_cmaes.py` | CMA-ES 최적화. `rb5_coarse` 격자로 탐색하고 상위 후보 3개는 `rb5_fine` 격자로 재평가. 세대마다 checkpoint 저장, `--resume`으로 이어서 실행 |
-| `common/eval_design_rb5.py` | 다른 설계 XML을 최적화 run과 같은 설정·격자로 평가해 `<run>/references/`에 저장. design168 형식과 design001(stage0) 형식 모두 읽음 (아래 "stage0 변환 검사" 참고) |
-| `grasp/add_reference.py` | 설계 XML을 같은 설정·격자로 평가해 `<run>/final/`에 추가 |
+| `common/eval_design_rb5.py` | 다른 설계 XML을 최적화 run과 같은 설정·격자로 평가해 `grasp/results/references/`에 저장. design168 형식과 design001(stage0) 형식 모두 읽음 (아래 "stage0 변환 검사" 참고) |
 | `grasp/plot_workspace.py` | run 결과의 workspace map, 기준 설계 대비 증감, 후보 비교 그림 |
-| `grasp/compare_designs_rb5.py` | 두 설계의 map·증감·요약 비교 그림과 CSV를 `<run>/plots/`에 저장 (기본: design001 vs 최종 best) |
 | `grasp/run_task.py` | run 폴더의 설계로 특정 cell의 pick-and-lift를 viewer로 재생 |
+| `grasp/disturb_collect.py` | 성공 cell을 다시 집어 들어 올린 직후 상태를 `grasp_cells/`에 저장 (A·B·C의 시작점, 아래 실험 A 절 참고) |
 
 ### 설정·입력
 
 | 파일 | 설명 |
 |---|---|
 | `common/config_rb5_arm.json` | 최적화·평가 설정: 변수 범위, 목적함수(w_tip = 0.2 등), 격자, 시뮬레이션, CMA-ES, RB5 장착 옵션 |
-| `common/config_rb5.json` | `rb5_arm` 항목이 없는 이전 설정. 현재 스크립트 기본값으로는 쓰지 않음 |
 | `common/design168.xml` | 최적화 기준 설계(baseline). `R_` / `L_` 이름 형식 |
 | `common/design001.xml` | 비교용 설계. stage0 형식 |
-| `common/check.xml` | RB5 + 손 통합 장면 확인용. 코드에서 읽지 않음 |
 | `grasp/results/rb5_agreement_best_design_fine.csv` | best_design_fine의 cell별 결과를 손 단독 시뮬레이션과 RB5 시뮬레이션 사이에서 비교한 표 |
 | `common/sources/` | RB5 모델(`rb5_850e.xml`), 작업 장면(`task_scene.xml`), 장착할 손(`best_design_fine.xml`), Class_IR 라이선스 |
 | `common/assets/rb5_850e/` | RB5 mesh(collision STL, visual OBJ)와 라이선스 |
@@ -68,10 +65,10 @@ Python 3.11.9, MuJoCo 3.3.7, cma 4.5.0, numpy 2.4.6 (Windows)에서 실행했습
 
 ```powershell
 python -m pip install mujoco numpy cma matplotlib
-python common/build_scene.py                                   # run_pick_lift.py, rb5_cell.py용 장면 생성
-python grasp/optimize_rb5_cmaes.py --workers 8 --out grasp/results/rb5_cmaes_final
+python common/build_scene.py                                   # run_pick_lift.py용 장면 생성
+python grasp/optimize_rb5_cmaes.py --workers 8 --out grasp/results_new   # 새 run (grasp/results는 최종 run)
 python common/eval_design_rb5.py --xml common/design001.xml --workers 8
-python grasp/compare_designs_rb5.py
+python grasp/plot_workspace.py
 python grasp/run_task.py --label candidate_02
 ```
 
@@ -85,7 +82,7 @@ stage0 형식 XML(`../xml/design***.xml`)은 run의 RB5 손 템플릿 위에 다
 
 ## on_rb5/A/ — 외란 실험 A
 
-실험 설계·검증 결과·결정 사항은 [`on_rb5/A/EXPERIMENT_A.md`](on_rb5/A/EXPERIMENT_A.md)에 있습니다. 이 절은 코드와 실행 방법을 설명합니다.
+실험 설계·검증 결과·결정 사항은 [`on_rb5/A/gripper_disturbance_experiment_A.md`](on_rb5/A/gripper_disturbance_experiment_A.md)에 있습니다. 이 절은 코드와 실행 방법을 설명합니다.
 
 ### 무엇을 재나
 
@@ -192,25 +189,27 @@ python grasp/disturb_collect.py --labels candidate_02 --limit 5        # 빠른 
 | `--extra-reasons` | 성공 외에 포함할 실패 cell (기본 `hold_mixed`) |
 | `--limit N` | 설계마다 처음 N개 cell만 |
 
-출력 `<run>/grasp_states/<label>/`(기본 `grasp/results/rb5_cmaes_final/grasp_states/<label>/`): `cells.csv`, `states/*.npz`, `hands/hand_r*.xml`, `meta.json`.
+출력 `grasp_cells/<label>/`: `cells.csv`, `states/*.npz`, `hands/hand_r*.xml`, `meta.json`.
 상태 파일에는 장면 서명(손 XML, sources, MuJoCo 버전)이 들어 있어서, 다른 장면이나 버전에서는 2단계가 거부합니다. 원래 평가와 같은 컴퓨터·같은 MuJoCo 버전에서 돌리세요.
 
 #### `A/disturb_force.py` — 2단계: 방향별 F_max
 
-저장한 상태마다 외력 0 대조 1번과 6방향 ramp를 돌리고, 판정해서 표와 요약을 만듭니다.
+저장한 상태마다 외력 0 대조 1번과 방향별 ramp(기본 6방향)를 돌리고, 판정해서 표와 요약을 만듭니다.
 
 ```powershell
 python A/disturb_force.py --labels candidate_02 --workers 8
 python A/disturb_force.py --labels design001 --limit 2 --dirs nz py        # 빠른 시험
 python A/disturb_force.py --labels design160 --refine                      # hold test 추가
 python A/disturb_force.py --rescore --slip-mm 10 --rot-deg 0               # 재판정만
+python A/disturb_force.py --labels design075 --dirs edges --append         # 대각선 12방향 추가
 ```
 
 | 옵션 | 기본 | 뜻 |
 |---|---|---|
 | `--rate` | 1 | 힘 증가율 [N/s] |
 | `--max-mg` | 10 | ramp 상한 [m g]. 상한까지 버티면 censored |
-| `--dirs` | 6방향 | `px nx py ny pz nz` |
+| `--dirs` | `axes` | `axes`(6방향), `xy`(손가락 평면 대각선 4), `edges`(두 축 대각선 12), `corners`(세 축 대각선 8), `all26`, 또는 `px nx pxpy pxnypz …`. F_min·robust_area는 잰 방향 전체의 최솟값이므로 같은 방향 집합끼리 비교 |
+| `--append` | | 기존 결과에 방향만 추가(이전 방향·hold test·외력 0 대조 유지) |
 | `--stop-mm`, `--stop-lost-s` | 30 mm, 0.1 s | 물체가 확실히 빠지면 ramp를 멈추는 기준(재판정 가능 범위) |
 | `--no-zero-control` | | 외력 0 대조 생략 |
 | `--refine` | | hold test(bisection). 계산량 약 5배 |
@@ -222,7 +221,7 @@ python A/disturb_force.py --rescore --slip-mm 10 --rot-deg 0               # 재
 | `--rescore` | | 시뮬레이션 없이 저장된 trace만 다시 판정 |
 | `--no-summary` | | 공유 summary.json/csv를 고치지 않음 |
 
-출력 `A/results/<run>/<label>/`:
+출력 `A/results/<label>/`:
 
 | 파일 | 내용 |
 |---|---|
@@ -240,13 +239,13 @@ python A/disturb_force.py --rescore --slip-mm 10 --rot-deg 0               # 재
 python A/disturb_validate.py --labels candidate_02 design001 --cells-per-group 6 --workers 8
 ```
 
-출력 `A/results/<run>/_validation/`: `summary.json`(비율 중앙값, 차이, 순위 상관), `rows.csv`, `zero.csv`, `validation.png`.
+출력 `A/results/_validation/`: `summary.json`(비율 중앙값, 차이, 순위 상관), `rows.csv`, `zero.csv`, `validation.png`.
 읽는 법: 순위 상관이 1에 가까우면 그 설정을 바꿔도 설계 순위가 같다는 뜻입니다. 지금까지의 결과는 timestep 수렴, 속도 ±5 %, hold ≈ 0.85 × ramp, 순위 상관 0.98 이상입니다.
 
 #### `A/batch_disturbance.py` — 설계 전부 한 번에
 
 `--xml-dir`의 설계마다 workspace(`eval_design_rb5.py`) → 상태 저장(`disturb_collect.py`) → 외란(`disturb_force.py`)을 순서대로 돌립니다.
-`--workers`개 설계를 동시에 돌리고, 한 설계가 실패해도 나머지는 계속합니다(로그 `A/results/<run>/_logs/<label>.log`). 끝난 단계는 건너뛰므로 중단 후 같은 명령으로 이어집니다.
+`--workers`개 설계를 동시에 돌리고, 한 설계가 실패해도 나머지는 계속합니다(로그 `A/results/_logs/<label>.log`). 끝난 단계는 건너뛰므로 중단 후 같은 명령으로 이어집니다.
 
 ```powershell
 python A/batch_disturbance.py --xml-dir ..\xml --workers 8
@@ -255,7 +254,7 @@ python A/batch_disturbance.py --force-args "--slip-mm 20"                       
 python A/batch_disturbance.py --only-table --rank-level 1                                  # 표만 다시
 ```
 
-출력 `A/results/<run>/`:
+출력 `A/results/`:
 
 | 파일 | 내용 |
 |---|---|
@@ -278,7 +277,7 @@ python A/plot_disturbance.py --labels design001 candidate_02 --pareto-y area
 | `--pareto-y` | Pareto y축: `median`(F_min 중앙값, 기본), `area`, `cond` |
 | `--value` | heatmap 값: `auto`(모두 hold가 있으면 hold), `ramp`, `hold` |
 
-출력 `A/results/<run>/plots/`:
+출력 `A/results/plots/`:
 
 | 파일 | 내용 |
 |---|---|
@@ -301,10 +300,10 @@ python A/compare_force.py --labels $L --r 40 --x 0        # 가운데 cell만 (+
 python A/compare_force.py --labels $L --r 40 --common     # 모든 설계가 잡는 (x, y) cell만
 python A/compare_force.py --labels $L --peak              # 설계별 최고값 (표 + 그래프)
 python A/compare_force.py --labels $L --plot-all          # 모든 cell의 방향별 F 그래프
-python A/compare_force.py --peak-csv A\results\rb5_cmaes_final\plots\peak_all_hold.csv   # 저장된 CSV로 그래프만
+python A/compare_force.py --peak-csv A\results\plots\peak_all_hold.csv   # 저장된 CSV로 그래프만
 ```
 
-| 모드 | 내용 | 출력 (`A/results/<run>/plots/`) |
+| 모드 | 내용 | 출력 (`A/results/plots/`) |
 |---|---|---|
 | `--coverage` | 설계 × 반지름의 env/tip 성공 cell 수와 모든 설계가 잡는 반지름 | 콘솔 |
 | `--r R …` | 그 반지름의 cell에서 방향별 F 중앙값 (`--group` env / tip / all, `--x`, `--common`) | `compare_<tag>.csv`, `.png` |
@@ -313,6 +312,17 @@ python A/compare_force.py --peak-csv A\results\rb5_cmaes_final\plots\peak_all_ho
 
 값은 모든 설계에 hold test가 있으면 hold, 아니면 ramp를 씁니다(`--value`로 지정 가능). 방향별 최댓값은 방향마다 다른 cell에서 나올 수 있습니다.
 상한(10 m g)에 걸린 방향까지 순위를 내려면 그 설계들을 `disturb_force.py --max-mg 30 --refine`으로 다시 잽니다.
+대각선을 더한 설계는 `--peak --value ramp`로 잰 방향 전체를 비교합니다(모든 설계가 공통으로 잰 방향만 씀).
+
+#### `A/plot_force_arrows.py` — 방향별 최댓값을 원기둥 둘레 화살표로
+
+```powershell
+python A/compare_force.py --labels $L --peak --value ramp     # A/results/plots/peak_all_ramp.csv
+python A/plot_force_arrows.py                                # 기본 입력이 위 CSV, 출력 A/results/plots/arrows/
+python A/plot_force_arrows.py --labels design075 design078
+```
+
+설계마다 원기둥을 세 방향(x-y, x-z, y-z)에서 본 그림에 방향별 화살표(길이 ∝ F)와 막대(그 값이 나온 cell)를 그리고, 설계 × 방향 heatmap을 하나 만듭니다.
 
 #### `A/demo_disturbance.py` — viewer 시연
 
@@ -345,16 +355,15 @@ python A/demo_disturbance.py --xml ..\xml\design075.xml --dir px --headless --vi
 ### 결과 폴더
 
 ```
-grasp/results/rb5_cmaes_final/
-├── final/, references/<label>*      1단계 workspace map (설계마다), plots/workspace_*.png
-└── grasp_states/<label>/            1단계 파지 상태: cells.csv, states/, hands/, meta.json (A·B·C 공통)
-A/results/rb5_cmaes_final/
+grasp/results/                       final/, references/<label>* 1단계 workspace map (설계마다), plots/workspace_*.png
+grasp_cells/<label>/                 1단계 파지 성공 cell 상태: cells.csv, states/, hands/, meta.json (A·B·C 공통)
+A/results/
 ├── all_designs.csv, graspable_designs.csv, summary.json, summary.csv
 ├── _validation/                     0단계 결과
 ├── _logs/<label>.log                batch 로그
 ├── <label>/                         2단계: traces/, force_dirs.csv, force_cells.csv, force_meta.json, force_summary.json
 └── plots/                           pareto, directions, direction_heatmap, survival, fmin_map_*,
-                                     selected_designs.csv, compare_*, peak_*, all_cells_*
+                                     selected_designs.csv, compare_*, peak_*, all_cells_*, arrows/
 ```
 
 ### 주의
@@ -367,8 +376,8 @@ A/results/rb5_cmaes_final/
 
 ## on_rb5/B/ — 외란 실험 B
 
-실험 설계·초기값·파일럿 결과는 [`on_rb5/B/EXPERIMENT_B.md`](on_rb5/B/EXPERIMENT_B.md)에 있습니다.
-A와 같은 파지 상태(`grasp/results/<run>/grasp_states/`)와 A의 graspable 설계 목록(`A/results/<run>/graspable_designs.csv`)을 그대로 씁니다.
+실험 설계·초기값·파일럿 결과는 [`on_rb5/B/gripper_disturbance_experiment_B.md`](on_rb5/B/gripper_disturbance_experiment_B.md)에 있습니다.
+A와 같은 파지 성공 cell 상태(`grasp_cells/`)와 A의 graspable 설계 목록(`A/results/graspable_designs.csv`)을 그대로 씁니다.
 
 - 물체 질량 중심에 F = k·mg를 T = 50 ms 동안 가하고(기본 k = 0.5, 1, 2, 3, 6방향), 펄스 후 10 s까지 A와 같은 기준(slip 5 mm, 회전 5°, 접촉 상실 20 ms)에 걸리지 않으면 **held**입니다.
 - 같은 길이의 외력 0 대조에서 실패하는 cell은 A와 같이 실패로 간주합니다.
@@ -385,8 +394,8 @@ python B/plot_impulse.py --trace design075 r40_x0_y15                           
 
 | 파일 | 내용 |
 |---|---|
-| `B/disturb_impulse.py` | 상태 복원 → 외력 0 대조 + 방향 × 크기별 펄스 → 판정. 출력 `B/results/<run>/impulse/<label>/`(`traces/*.npz`, `impulse_trials.csv`, `impulse_cells.csv`, `impulse_summary.json`)와 `B/results/<run>/impulse/all_designs.csv`. `--tag p20`이면 `impulse_p20/` |
-| `B/plot_impulse.py` | `B/results/<run>/impulse/plots/`: 설계 × 방향 × 크기 held 비율 heatmap, A의 F_max 대비 held 비율, workspace J_stable 대비 Pareto, A·B 순위 비교, cell 하나의 시간 응답 |
+| `B/disturb_impulse.py` | 상태 복원 → 외력 0 대조 + 방향 × 크기별 펄스 → 판정. 출력 `B/results/impulse/<label>/`(`traces/*.npz`, `impulse_trials.csv`, `impulse_cells.csv`, `impulse_summary.json`)와 `B/results/impulse/all_designs.csv`. `--tag p20`이면 `impulse_p20/` |
+| `B/plot_impulse.py` | `B/results/impulse/plots/`: 설계 × 방향 × 크기 held 비율 heatmap, A의 F_max 대비 held 비율, workspace J_stable 대비 Pareto, A·B 순위 비교, cell 하나의 시간 응답 |
 
 ---
 

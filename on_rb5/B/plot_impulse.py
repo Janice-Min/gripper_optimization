@@ -18,7 +18,7 @@
   python B/plot_impulse.py --labels design075 candidate_02 design001 --k 2
   python B/plot_impulse.py --tag pilot --trace design075 r40_x0_y15
 Default selection: design001, candidate_02 and the top 6 by impact_area.
-Writes B/results/<run name>/impulse[_<tag>]/plots/.
+Writes B/results/impulse[_<tag>]/plots/.
 """
 from __future__ import annotations
 

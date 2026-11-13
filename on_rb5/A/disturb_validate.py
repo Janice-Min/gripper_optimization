@@ -18,7 +18,7 @@ All F are judged with the same criteria as disturb_force.py (options are shared)
   python A/disturb_validate.py --labels candidate_02 design001 --workers 8      (from on_rb5/)
   python A/disturb_validate.py --cells-per-group 2 --dirs px nz   # quick
 
-Writes A/results/<run name>/_validation/
+Writes A/results/_validation/
   rows.csv        one row per cell, direction and variant: F [m*g], cause, censored
   zero.csv        one row per cell: zero-force control
   summary.json    per variant against base: median and 90th percentile of |dF|/F, rank

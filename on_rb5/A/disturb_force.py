@@ -12,6 +12,12 @@ Directions are in the hand frame (same frame as the workspace map):
   +x / -x   jaw-width direction, toward the R / L finger
   +y / -y   out of the hand (pull-out) / into the palm
   +z / -z   up / down along the cylinder axis = out of the finger plane (world z)
+Diagonals combine axes, each with weight 1, normalized: +x+y = (1, 1, 0)/sqrt(2), +x-y+z,
+... (also written pxpy, pxnypz). Sets: axes (the six, default), xy (the 4 in-plane
+diagonals of the finger plane), edges (12 two-axis diagonals), corners (8 three-axis
+diagonals), all26 (all of them), e.g. --dirs axes xy or --dirs all26. F_min, pass levels and
+robust_area take the weakest of ALL measured directions, so compare designs measured with
+the same direction set.
 
 A direction fails at the first sample where (criteria are options, defaults from config):
   slip      object moved >= --slip-mm relative to the hand        (hold_displacement_mm)
@@ -61,10 +67,12 @@ F_max distribution of every direction per group (direction_stats).
   python A/disturb_force.py --rescore --slip-mm 10 --rot-deg 0
   python A/disturb_force.py --labels design001 --limit 2 --dirs nz py
   python A/disturb_force.py --labels candidate_02 --refine
+  python A/disturb_force.py --labels candidate_02 --dirs edges --append
+    (--append adds directions to existing results: earlier directions, hold tests and the
+     zero-force control stay; the ramp settings of the earlier run are used)
 (--dirs takes px nx py ny pz nz; +x/+y/+z also work, but argparse reads -x as an option)
 
-Reads the grasp states in <run>/grasp_states/<label>/ (<run> = grasp/results/rb5_cmaes_final)
-and writes A/results/<run name>/<label>/
+Reads the grasp success cells in grasp_cells/<label>/ and writes A/results/<label>/
   traces/*.npz      per cell: '<dir>_trace' per direction ('px_trace', ...; column names
                     in 'columns'), 'z0_trace' of the zero-force control, '<dir>_hold_*'
                     with --refine; t, F, hand-frame displacement, rotation, link normal
@@ -74,7 +82,7 @@ and writes A/results/<run name>/<label>/
                     zero-force control
   force_meta.json   ramp settings and the criteria of the last analysis
   force_summary.json
-and A/results/<run name>/summary.json, summary.csv (all designs analyzed so far).
+and A/results/summary.json, summary.csv (all designs analyzed so far).
 """
 from __future__ import annotations
 
@@ -83,6 +91,7 @@ import json
 import math
 import multiprocessing as mp
 import os
+import re
 import sys
 import time
 from collections import Counter
@@ -104,7 +113,65 @@ from disturb_collect import (DEFAULT_LABELS, label_dir, resolve_labels, run_task
 from run_pick_lift import ARM_JOINTS, PickLift, smooth
 
 DIRECTIONS = {"+x": (1, 0, 0), "-x": (-1, 0, 0), "+y": (0, 1, 0), "-y": (0, -1, 0),
-              "+z": (0, 0, 1), "-z": (0, 0, -1)}
+              "+z": (0, 0, 1), "-z": (0, 0, -1)}  # The six axes; diagonals: direction_vector().
+AXES = "xyz"
+_TOKEN = re.compile(r"([+\-pn])([xyz])")
+
+
+def canonical(name):
+    """'+x+y', 'pxpy', '+y+x' -> '+x+y' (axes in x, y, z order). ValueError if not a direction."""
+    s = str(name).strip().lower()
+    tokens = _TOKEN.findall(s)
+    if not tokens or "".join(a+b for a, b in tokens) != s or len({ax for _, ax in tokens}) != len(tokens):
+        raise ValueError(f"'{name}' is not a direction: use +x, -y, +x+y, pxnz, ... (each axis at most once)")
+    sign = {ax: ("+" if sg in "+p" else "-") for sg, ax in tokens}
+    return "".join(sign[a]+a for a in AXES if a in sign)
+
+
+def direction_vector(name):
+    """Unit vector of a direction name in the hand frame (diagonals: equal weights)."""
+    v = np.zeros(3)
+    for sg, ax in _TOKEN.findall(canonical(name)):
+        v[AXES.index(ax)] = 1.0 if sg == "+" else -1.0
+    return v/np.linalg.norm(v)
+
+
+def dir_sort_key(name):
+    """Axes first (+x -x +y -y +z -z), then two-axis, then three-axis diagonals."""
+    tokens = _TOKEN.findall(canonical(name))
+    return len(tokens), [(AXES.index(ax), sg != "+") for sg, ax in tokens]
+
+
+def _signed(axes):
+    combos = [[]]
+    for ax in axes:
+        combos = [c+[s+ax] for c in combos for s in "+-"]
+    return ["".join(c) for c in combos]
+
+
+DIRECTION_SETS = {
+    "axes": list(DIRECTIONS),
+    "xy": _signed("xy"),
+    "edges": _signed("xy")+_signed("xz")+_signed("yz"),
+    "corners": _signed("xyz"),
+}
+DIRECTION_SETS["all26"] = DIRECTION_SETS["axes"]+DIRECTION_SETS["edges"]+DIRECTION_SETS["corners"]
+
+
+def expand_dirs(items):
+    """Direction names and set names -> canonical names, duplicates removed, order kept."""
+    out = []
+    for item in items:
+        for name in DIRECTION_SETS.get(str(item).lower(), [item]):
+            out.append(canonical(name))
+    return list(dict.fromkeys(out))
+
+
+def force_dir(run, label):
+    """Experiment A results of one design: A/results/<label>/."""
+    return layout.a_root(run)/label
+
+
 ZERO = "0"  # Zero-force control; saved under the key 'z0'.
 BILATERAL_N = 0.10  # run_pick_lift.PickLift: each side's finger force sum must exceed this.
 DEFAULT_LEVELS = (0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0)
@@ -119,11 +186,6 @@ TRACE_COLUMNS = ("t_s", "F_N", "dx_mm", "dy_mm", "dz_mm", "rot_deg", *(f"{n}_N" 
 HAND_COL = TRACE_COLUMNS.index("hand_mm")
 TILT_COL = TRACE_COLUMNS.index("tilt_deg")
 WORKER = {}
-
-
-def force_dir(run, label):
-    """Experiment A results of one design: A/results/<run name>/<label>/."""
-    return layout.a_root(run)/label
 
 
 def key(direction):
@@ -293,37 +355,49 @@ def open_cell(out, c, cfg):
 
 def force_task(task):
     """Zero control and all directions of the given cells (one radius). One traces/*.npz per cell.
-    out: grasp states of the design, dst: its A results."""
+    out: grasp success cells of the design, dst: its A results."""
     out, dst, cfg, s, crit, cells = task
     out, dst = Path(out), Path(dst)
     done, start = [], time.perf_counter()
     for c in cells:
         model, data, st = open_cell(out, c, cfg)
-        saved = {}
-        names = ([ZERO] if s["zero_control"] else [])+list(s["dirs"])
+        saved, dirs = {}, list(s["dirs"])
+        names = ([ZERO] if s["zero_control"] else [])+dirs
+        trace_path = dst/"traces"/Path(c["state_file"]).name
+        if s.get("append") and trace_path.is_file():  # Keep the cell's earlier directions as they are.
+            with np.load(trace_path) as old:
+                saved = {k: old[k] for k in old.files}
+            have = [str(d) for d in saved.pop("dirs")]
+            names = [d for d in s["dirs"] if d not in have]
+            dirs = have+names
+            for k in ("r_mm", "x_mm", "y_mm", "columns", "zero_control", "refine", "refine_criteria"):
+                saved.pop(k, None)
+        elif s.get("append"):  # No earlier trace for this cell: everything (as without --append).
+            names = ([ZERO] if s["zero_control"] else [])+list(s["dirs_all"])
+            dirs = list(s["dirs_all"])
         for name in names:
             t0 = time.perf_counter()
             k = key(name)
             if name == ZERO:
                 res = zero_control(model, data, st["state"], s)
             else:
-                res = ramp(model, data, st["state"], DIRECTIONS[name], s)
+                res = ramp(model, data, st["state"], direction_vector(name), s)
             saved.update({f"{k}_trace": res["trace"].astype(np.float32), f"{k}_ended": res["ended"],
                           f"{k}_world": res["direction_world"], f"{k}_pen_mm": res["penetration_mm"]})
             if s["refine"] and name != ZERO:
                 j = judge_trace(res["trace"], res["ended"], crit, s["cap_N"])
-                f_hold, cens, trials = refine(model, data, st["state"], DIRECTIONS[name], s, crit,
+                f_hold, cens, trials = refine(model, data, st["state"], direction_vector(name), s, crit,
                                               j["F_max_N"], j["censored"])
                 saved.update({f"{k}_hold_N": f_hold, f"{k}_hold_censored": cens,
                               f"{k}_hold_trials": np.array([t[:3] for t in trials], dtype=np.float64),
                               f"{k}_hold_causes": np.array([t[3] for t in trials])})
             saved[f"{k}_sec"] = time.perf_counter()-t0
-        np.savez_compressed(dst/"traces"/Path(c["state_file"]).name, r_mm=float(st["r_mm"]),
-                            x_mm=float(st["x_mm"]), y_mm=float(st["y_mm"]), dirs=np.array(s["dirs"]),
-                            columns=np.array(TRACE_COLUMNS), zero_control=s["zero_control"],
-                            refine=s["refine"], refine_criteria=json.dumps(crit), **saved)
+        np.savez_compressed(trace_path, r_mm=float(st["r_mm"]), x_mm=float(st["x_mm"]), y_mm=float(st["y_mm"]),
+                            dirs=np.array(dirs), columns=np.array(TRACE_COLUMNS), zero_control="z0_trace" in saved,
+                            refine=any(f"{key(d)}_hold_N" in saved for d in dirs),
+                            refine_criteria=json.dumps(crit), **saved)
         done.append(dict(r_mm=float(st["r_mm"]), x_mm=float(st["x_mm"]), y_mm=float(st["y_mm"]),
-                         ended=[str(saved[f"{key(d)}_ended"]) for d in s["dirs"]]))
+                         ended=[str(saved[f"{key(d)}_ended"]) for d in names if d != ZERO]))
     return done, time.perf_counter()-start
 
 
@@ -472,10 +546,12 @@ def analyze(run, label, cfg, crit, levels, metric="ramp", zero_rule="fail"):
             res["F_max_mg"] = res["F_max_N"]/mg
             res["creep_limited"] = bool(zero.get("zero_t_fail_s") is not None and not res["censored"]
                                         and zero["zero_t_fail_s"] <= res["t_Fmax_s"]+1e-9)
-            if refined:
+            if f"{k}_hold_N" in tr.files:
                 res.update(F_hold_N=float(tr[f"{k}_hold_N"]), F_hold_mg=float(tr[f"{k}_hold_N"])/mg,
                            hold_censored=bool(tr[f"{k}_hold_censored"]),
                            hold_trials=int(len(tr[f"{k}_hold_trials"])))
+            elif metric == "hold":
+                raise SystemExit(f"--metric hold: no hold test for {name} in {path.name} (add it with --refine).")
             res["F_mg"] = res["F_hold_mg"] if metric == "hold" else res["F_max_mg"]
             per[name] = res
             dir_rows.append(dict(info, dir=name, **res, max_unintended_penetration_mm=float(tr[f"{k}_pen_mm"]),
@@ -488,7 +564,8 @@ def analyze(run, label, cfg, crit, levels, metric="ramp", zero_rule="fail"):
         row.update({f"F_{d}_mg": per[d]["F_mg"] for d in per})
         if refined:
             row.update({f"F_ramp_{d}_mg": per[d]["F_max_mg"] for d in per})
-            row["F_min_hold_mg"] = min(per[d]["F_hold_mg"] for d in per)
+            if all("F_hold_mg" in per[d] for d in per):  # Only with a hold test of every direction.
+                row["F_min_hold_mg"] = min(per[d]["F_hold_mg"] for d in per)
         row.update({f"pass_{lv:g}mg": per[weakest]["F_mg"] >= lv-1e-9 for lv in levels})
         cell_rows.append(row)
     if cells and not cell_rows:
@@ -496,14 +573,20 @@ def analyze(run, label, cfg, crit, levels, metric="ramp", zero_rule="fail"):
     if no_zero and zero_rule == "fail":
         print(f"Warning [{label}]: {no_zero} cell(s) have no zero-force control (made with --no-zero-control "
               "or an older disturb_force.py); the zero-force rule cannot remove them.")
-    save_table(dst/"force_dirs.csv", dir_rows)
-    save_table(dst/"force_cells.csv", cell_rows)
+    save_table(dst/"force_dirs.csv", uniform(dir_rows))  # Hold columns may exist for some directions only.
+    save_table(dst/"force_cells.csv", uniform(cell_rows))
     meta["criteria"], meta["levels_mg"], meta["metric"], meta["zero_rule"] = crit, list(levels), metric, zero_rule
     write_json(dst/"force_meta.json", meta)
     sm = summarize(label, read_json(out/"meta.json"), cell_rows, dir_rows, cfg, levels, s)
     sm.update(criteria=crit, metric=metric, zero_rule=zero_rule)
     write_json(dst/"force_summary.json", json.loads(json.dumps(sm, default=to_json)))
     return sm
+
+
+def uniform(rows):
+    """Rows with the same columns (union, in first-seen order; missing values None)."""
+    keys = list(dict.fromkeys(k for r in rows for k in r))
+    return [{k: r.get(k) for k in keys} for r in rows]
 
 
 def pass_rate(rows, lv):
@@ -673,6 +756,33 @@ def simulate(run, label, cfg, s, crit, workers, limit):
     if limit:
         cells = cells[:limit]
     (dst/"traces").mkdir(parents=True, exist_ok=True)
+    if s.get("append"):
+        if not (dst/"force_meta.json").is_file():
+            raise SystemExit(f"[{label}] --append needs earlier results ({dst/'force_meta.json'}).")
+        old = read_json(dst/"force_meta.json")["settings"]
+        new = [d for d in s["dirs"] if d not in old["dirs"]]
+        if not cells or not new:
+            print(f"\n[{label}] nothing to add: {s['dirs']} already measured", flush=True)
+            return
+        changed = [k for k in ("rate_N_s", "cap_mg", "stop_mm", "stop_lost_s") if s[k] != old.get(k)]
+        if changed:
+            print(f"[{label}] --append keeps the earlier ramp settings ({', '.join(f'{k}={old[k]}' for k in changed)})")
+        s = dict(old, dirs=new, dirs_all=list(old["dirs"])+new, append=True, refine=s["refine"],
+                 rise_s=s["rise_s"], hold_s=s["hold_s"], tol_mg=s["tol_mg"], tol_N=s["tol_mg"]*old["mg_N"],
+                 zero_control=old.get("zero_control", True))
+        write_json(dst/"force_meta.json", dict(label=label, settings=dict(s, dirs=s["dirs_all"], refine=False),
+                                               mujoco=mujoco.__version__))
+        print(f"\n[{label}] adding {len(new)} directions {new} to {len(old['dirs'])} measured ones"
+              + (" with hold-test bisection" if s["refine"] else ""), flush=True)
+        by_r = {}
+        for c in cells:
+            by_r.setdefault(c["r_mm"], []).append(c)
+        per = max(1, math.ceil(len(cells)/(3*max(1, workers))))
+        tasks = [(str(out), str(dst), cfg, s, crit, g[i:i+per]) for _, g in sorted(by_r.items())
+                 for i in range(0, len(g), per)]
+        run_tasks(force_task, tasks, workers, lambda part, sec: print(
+            f"  r={part[0]['r_mm']:g} mm: {len(part)} cells, {sec:.0f} s", flush=True))
+        return
     for old in [*(dst/"traces").glob("*.npz"), *dst.glob("force_*")]:
         old.unlink()
     if not cells:  # Nothing was lifted: the design's summary is all zeros.
@@ -718,9 +828,11 @@ def criteria(args, cfg):
 
 def settings(args, cfg):
     sc = cfg["simulation"]
-    names = {key(d): d for d in DIRECTIONS}
-    return dict(rate_N_s=args.rate, cap_mg=args.max_mg,
-                dirs=list(dict.fromkeys(names.get(d, d) for d in args.dirs)),
+    try:
+        dirs = expand_dirs(args.dirs)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+    return dict(rate_N_s=args.rate, cap_mg=args.max_mg, dirs=dirs,
                 stop_mm=args.stop_mm if args.stop_mm is not None else sc["lift_slip_mm"],
                 stop_lost_s=args.stop_lost_s, sample_s=sc["sample_interval_s"],
                 zero_control=not args.no_zero_control, refine=args.refine,
@@ -733,9 +845,9 @@ def add_arguments(p):
     g = p.add_argument_group("ramp (simulation)")
     g.add_argument("--rate", type=float, default=1.0, help="Force rate [N/s] (default 1)")
     g.add_argument("--max-mg", type=float, default=10.0, help="Ramp end in units of m*g (default 10)")
-    g.add_argument("--dirs", nargs="+", default=list(DIRECTIONS), metavar="DIR",
-                   choices=[*DIRECTIONS, *map(key, DIRECTIONS)],
-                   help="px nx py ny pz nz (= +x -x +y -y +z -z); default all six")
+    g.add_argument("--dirs", nargs="+", default=["axes"], metavar="DIR",
+                   help="Directions and sets: px nx py ny pz nz (= +x -x ...), diagonals like pxpy "
+                        "(= +x+y) or pxnypz, sets axes (default) xy edges corners all26")
     g.add_argument("--stop-mm", type=float, help="Stop a direction once the object moved this far "
                    "(default simulation.lift_slip_mm)")
     g.add_argument("--stop-lost-s", type=float, default=0.1, help="... or lost bilateral contact this long")
@@ -775,6 +887,9 @@ def main():
     p.add_argument("--metric", choices=("ramp", "hold"), default="ramp",
                    help="F used for pass levels, F_min and robust_area: ramp F_max (default) or the "
                         "--refine hold force")
+    p.add_argument("--append", action="store_true",
+                   help="Add the --dirs not measured yet to the existing traces (keeps earlier directions, "
+                        "hold tests and the zero-force control; uses the earlier ramp settings)")
     p.add_argument("--zero-fail", choices=("fail", "keep"), default="fail",
                    help="Success cells whose zero-force control fails: count as failed (default) or "
                         "keep them as success cells (only flagged)")
@@ -790,6 +905,7 @@ def main():
     print(f"Designs: {labels}")
     if not args.rescore:
         s = settings(args, cfg)
+        s["append"] = args.append
         check_settings(s, crit)
         for label in labels:
             simulate(run, label, cfg, s, crit, args.workers, args.limit)

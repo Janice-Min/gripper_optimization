@@ -7,7 +7,7 @@ horizontally, closes the tendon, lifts and holds. Map convention as in gripper_c
 object radius r, object center at hand (x, y+r).
 
 One compiled model is shared by all (x, y) cells of one (design, r); only the 'grasp'
-site moves between cells, exactly like rb5_cell.py.
+site moves between cells.
 
 Cell success = run_pick_lift success, plus the workspace rules of the hand-only map
 (all switchable in config "rb5_arm"):
@@ -25,7 +25,7 @@ Quick checks (design168 by default, or --design a JSON with a "design" entry):
   python common/rb5_eval.py --cell 40 0 25                          (from on_rb5/)
   python common/rb5_eval.py --cell 40 0 25 --save-scene check_scene.xml
   python common/rb5_eval.py --grid rb5_smoke
-  python common/rb5_eval.py --rescore grasp/results/rb5_cmaes/best_workspace.csv   # new rules, old runs
+  python common/rb5_eval.py --rescore grasp/results_rb5_cmaes/best_workspace.csv   # new rules, old runs
 """
 from __future__ import annotations
 
@@ -235,7 +235,7 @@ class Rb5Arm:
     def compose(self, hand_xml, meshdir=None):
         scene = build_scene.compose(self.robot, ET.fromstring(hand_xml), copy.deepcopy(self.task),
                                     meshdir=meshdir or self.meshdir)
-        # Same idea as rb5_cell.py: relative asset folders must survive compiling from a string.
+        # Relative asset folders must survive compiling from a string.
         if meshdir is None:
             comp = scene.find("compiler")
             for attr in ("texturedir", "assetdir"):
@@ -348,7 +348,7 @@ class Rb5Arm:
         return rows
 
     def scene_file(self, path, template, design, r_mm, x_mm, y_mm):
-        """Write a viewer scene (with 'home' keyframe) for run_pick_lift.py / rb5_cell.py."""
+        """Write a viewer scene (with 'home' keyframe) for run_pick_lift.py."""
         path = Path(path).resolve()
         path.parent.mkdir(parents=True, exist_ok=True)
         hand_xml = self.hand_xml(template, design, r_mm, x_mm, y_mm)
@@ -463,8 +463,8 @@ def reference_design(template):
 def run_result(run, label=None):
     """(label, design, summary, rows, template) of one design in an optimize_rb5_cmaes.py folder.
 
-    With final/ results: the final best, or `label` (baseline, candidate_01, or a design
-    added with add_reference.py, which brings its own template XML).
+    With final/ results: the final best, or `label` (baseline, candidate_01, ...; a design
+    with its own template XML is read from source_xml).
     Without them: the best of the search so far (best_workspace.csv once the search has
     ended, the checkpoint while it is still running), or label 'baseline'."""
     run = Path(run)
@@ -476,7 +476,7 @@ def run_result(run, label=None):
         label = label or comparison["best_label"]
         if label not in results:
             raise SystemExit(f"No final result '{label}'. Available: {sorted(results)}. "
-                             "Other designs can be added with add_reference.py.")
+                             "Other designs are in references/ (common/eval_design_rb5.py).")
         res = results[label]
         if res.get("source_xml"):
             template = (final/res["source_xml"]).read_text(encoding="utf-8-sig")

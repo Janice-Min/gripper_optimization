@@ -5,10 +5,11 @@ cell grid, J = env + w_tip*tip + lambda_force*sum(m_F). Work is split into
 (design, radius) tasks, so a generation, the baseline and the final check all use
 every worker. Checkpoints are written after each generation; --resume continues.
 
-  python grasp/optimize_rb5_cmaes.py --grid rb5_smoke --generations 2 --popsize 4 --restarts 0 --no-final --out grasp/results/rb5_smoke
-  python grasp/optimize_rb5_cmaes.py --baseline-only --out grasp/results/rb5_timing
-  python grasp/optimize_rb5_cmaes.py --workers 8 --out grasp/results/rb5_cmaes
-  python grasp/optimize_rb5_cmaes.py --resume --workers 8 --out grasp/results/rb5_cmaes
+  python grasp/optimize_rb5_cmaes.py --grid rb5_smoke --generations 2 --popsize 4 --restarts 0 --no-final --out grasp/results_smoke
+  python grasp/optimize_rb5_cmaes.py --baseline-only --out grasp/results_timing
+  python grasp/optimize_rb5_cmaes.py --workers 8 --out grasp/results_new
+  python grasp/optimize_rb5_cmaes.py --resume --workers 8 --out grasp/results_new
+(grasp/results is the finished run the experiments use: give a new run its own folder.)
 """
 from __future__ import annotations
 
@@ -199,7 +200,7 @@ def parser():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--xml", type=Path, default=layout.COMMON/"design168.xml")
     p.add_argument("--config", type=Path, default=layout.COMMON/"config_rb5_arm.json")
-    p.add_argument("--out", type=Path, default=layout.GRASP_RESULTS/"rb5_cmaes_design168")
+    p.add_argument("--out", type=Path, default=layout.GRASP/"results_rb5_cmaes_design168")
     p.add_argument("--grid", default="rb5_coarse", help="Search grid name in the config")
     p.add_argument("--final-grid", default="rb5_fine", help="Grid for the final re-evaluation")
     p.add_argument("--start-from", type=Path,
