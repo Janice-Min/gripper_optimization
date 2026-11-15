@@ -1,0 +1,150 @@
+{
+  "cell": {
+    "design_id": "design0048",
+    "r_mm": 30.0,
+    "y_mm": 40.0,
+    "x_mm": 0.0,
+    "workspace_grasp_type": "tip",
+    "grasp_local_xy_m": [
+      -0.07100000000000001,
+      8.694992273946209e-18
+    ],
+    "tension_N": 10.0,
+    "source_xml": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\disturbance_object\\rb5_xml_pick\\xml\\design0048.xml",
+    "rb5_pick_success": true
+  },
+  "lifted_state": {
+    "time_s": 12.099999999998733,
+    "object_pos_m": [
+      0.5997681776766421,
+      -7.812277900032163e-05,
+      0.24684597677209374
+    ],
+    "object_quat": [
+      0.9999994684373885,
+      -0.0003243658783281778,
+      -0.0009270099483423549,
+      -0.0003139494761429323
+    ],
+    "palm_pos_m": [
+      0.5285395001698782,
+      -0.00016463967075630706,
+      0.24744506347826253
+    ],
+    "object_in_palm_frame_m": [
+      -0.0712305418795326,
+      -8.732550927437469e-05,
+      -0.00030523305888785035
+    ],
+    "lift_m": 0.14797552969474884,
+    "finger_normal_forces_N": {
+      "hand__upper_green_link": 0.0,
+      "hand__upper_red_link": 1.5322326310695076,
+      "hand__lower_green_link": 0.0,
+      "hand__lower_red_link": 1.5339400109505892
+    },
+    "side_forces_N": [
+      1.5322326310695076,
+      1.5339400109505892
+    ],
+    "support_force_N": 0.0
+  },
+  "saved_lifted_keyframe": true,
+  "success": true,
+  "initial_object_z_m": 0.09887044707734491,
+  "object_lift_m": 0.14773493100412197,
+  "minimum_lift_in_window_m": 0.14773493100412197,
+  "bilateral_contact_in_window": true,
+  "off_support_in_window": true,
+  "support_force_N": 0.0,
+  "final_link_forces_N": {
+    "hand__upper_green_link": 0.0,
+    "hand__upper_red_link": 1.532137453688267,
+    "hand__lower_green_link": 0.0,
+    "hand__lower_red_link": 1.534145753326931
+  },
+  "four_link_contact": false,
+  "reason": "success",
+  "source_xml": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\disturbance_object\\rb5_xml_pick\\xml\\design0048.xml",
+  "source_mujoco_version": "3.3.7",
+  "radius_m": 0.03,
+  "height_m": 0.038,
+  "mass_kg": 0.3,
+  "source_grasp_local_m": [
+    -0.07100000000000001,
+    8.694992273946209e-18,
+    0.0
+  ],
+  "original_grasp_local_m": [
+    -0.07100000000000001,
+    8.694992273946209e-18,
+    0.0
+  ],
+  "auto_grasp_shift_m": 0.0,
+  "open_key_used": "open",
+  "hand_joints": {
+    "joint1": -0.189804556154,
+    "joint2": -0.0,
+    "joint3": 0.189804556154,
+    "joint4": 0.0
+  },
+  "finger_geom_groups": [
+    [
+      "upper_green_link",
+      "upper_red_link"
+    ],
+    [
+      "lower_green_link",
+      "lower_red_link"
+    ]
+  ],
+  "object_geom": "object",
+  "motors": [
+    "pulley_pull"
+  ],
+  "world_rooted": false,
+  "object_generated": false,
+  "detected_palm_body": "palm",
+  "detected_object_body": "object_body",
+  "omitted_environment_bodies": [],
+  "forward_angle_deg": 180.0,
+  "tension_per_motor_N": 10.0,
+  "commanded_lift_m": 0.15,
+  "support_height_m": 0.08,
+  "scene_xml": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\disturbance_object\\rb5_xml_pick\\grasp_cells\\_tmp\\design0048_r030.0_y040.0\\rb5_attached_scene.xml",
+  "opening_assist_enabled": true,
+  "opening_assist_release_s": 0.3,
+  "friction_unchanged": true,
+  "object_welded": false,
+  "tendon_ctrl": [
+    20.0
+  ],
+  "hand_rotation_world": [
+    [
+      -1.0,
+      1.2246467991473532e-16,
+      0.0
+    ],
+    [
+      -1.2246467991473532e-16,
+      -1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "initial_hand_qpos": {
+    "joint1": -0.189804556154,
+    "joint2": -0.0,
+    "joint3": 0.189804556154,
+    "joint4": 0.0
+  },
+  "stage": "lift hold",
+  "simulation_time_s": 14.099999999997625,
+  "max_unintended_penetration_m": 0.0,
+  "max_tracking_error_m": 0.01301593159644608,
+  "mujoco_warning_count": 0
+}

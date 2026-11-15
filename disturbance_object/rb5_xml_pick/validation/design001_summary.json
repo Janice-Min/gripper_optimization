@@ -1,0 +1,93 @@
+{
+  "success": true,
+  "initial_object_z_m": 0.09896626051096447,
+  "object_lift_m": 0.14739840440914764,
+  "minimum_lift_in_window_m": 0.14739840440914764,
+  "bilateral_contact_in_window": true,
+  "off_support_in_window": true,
+  "support_force_N": 0.0,
+  "final_link_forces_N": {
+    "hand__upper_green_link": 0.0,
+    "hand__upper_red_link": 4.795835858501551,
+    "hand__lower_green_link": 0.0,
+    "hand__lower_red_link": 4.7989081231486095
+  },
+  "four_link_contact": false,
+  "reason": "success",
+  "source_xml": "/workspace/scratch/44300e9d6df8/rb5_xml_pick/design001.xml",
+  "source_mujoco_version": "3.17.0",
+  "radius_m": 0.055,
+  "height_m": 0.038,
+  "mass_kg": 0.3,
+  "source_grasp_local_m": [
+    -0.09,
+    1.8369701987210296e-18,
+    0.0
+  ],
+  "original_grasp_local_m": [
+    -0.075,
+    0.0,
+    0.0
+  ],
+  "auto_grasp_shift_m": 0.015,
+  "open_key_used": "open",
+  "hand_joints": {
+    "joint1": -0.349065850399,
+    "joint2": -0.0,
+    "joint3": 0.349065850399,
+    "joint4": 0.0
+  },
+  "finger_geom_groups": [
+    [
+      "upper_green_link",
+      "upper_red_link"
+    ],
+    [
+      "lower_green_link",
+      "lower_red_link"
+    ]
+  ],
+  "object_geom": "object",
+  "motors": [
+    "pulley_pull"
+  ],
+  "tension_per_motor_N": 20.0,
+  "commanded_lift_m": 0.15,
+  "support_height_m": 0.08,
+  "scene_xml": "/workspace/scratch/44300e9d6df8/rb5_xml_pick/validation/design001/rb5_attached_scene.xml",
+  "opening_assist_enabled": true,
+  "opening_assist_release_s": 0.3,
+  "friction_unchanged": true,
+  "object_welded": false,
+  "tendon_ctrl": [
+    40.0
+  ],
+  "hand_rotation_world": [
+    [
+      -1.0,
+      1.2246467991473532e-16,
+      0.0
+    ],
+    [
+      -1.2246467991473532e-16,
+      -1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "initial_hand_qpos": {
+    "joint1": -0.349065850399,
+    "joint2": -0.0,
+    "joint3": 0.349065850399,
+    "joint4": 0.0
+  },
+  "stage": "lift hold",
+  "simulation_time_s": 14.099999999997625,
+  "max_unintended_penetration_m": 0.0,
+  "max_tracking_error_m": 0.005201398079276957,
+  "mujoco_warning_count": 0
+}

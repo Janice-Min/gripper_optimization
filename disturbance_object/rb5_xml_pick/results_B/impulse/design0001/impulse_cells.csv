@@ -1,0 +1,4 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,pass@0.5,pass@1,pass@2,pass@3
+design0001,r050.0_y005.0,50,5,enveloping,env,env,success,1,,0.6771,0.1917,0.5,py|nx,0.3,10,True,0.5,0.5,1,0,0,0
+design0001,r055.0_y010.0,55,10,enveloping,env,env,success,1,,0.7376,0.4707,0.5,py,0.3,10,True,0.5,1,1,0,0,0
+design0001,r065.0_y030.0,65,30,tip,tip,tip,zero_fail,0,rotation,2.098,6.782,0,py|nx,0.3,10,False,0,0,0,0,0,0

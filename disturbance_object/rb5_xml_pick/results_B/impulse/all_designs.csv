@@ -1,0 +1,7 @@
+﻿design,ws_cells_attempted,rb5_pass_cells,traced_cells,incomplete,zero_fail,success,success_env,success_tip,success_other,impact_area,level_min_median,level_min_mean,pass@0.5,cond@0.5,env_pass@0.5,tip_pass@0.5,J_impulse@0.5,pass@1,cond@1,env_pass@1,tip_pass@1,J_impulse@1,pass@2,cond@2,env_pass@2,tip_pass@2,J_impulse@2,pass@3,cond@3,env_pass@3,tip_pass@3,J_impulse@3,fail_pulse,fail_transient,fail_delayed,cause_slip,cause_rotation,cause_lost,cause_collision,cause_unstable,type_changed,held_py@0.5,held_py@1,held_py@2,held_py@3,held_nx@0.5,held_nx@1,held_nx@2,held_nx@3
+design0001,14,10,3,0,1,2,2,0,0,1,0.5,0.5,2,1,2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,6,0,8,3,0,0,0,0,1,0,0,0,1,0.5,0,0
+design0041,1,,0,0,0,0,0,0,0,0,,,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0,,,,,,,,
+design0056,15,,0,0,0,0,0,0,0,0,,,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0,,,,,,,,
+design0135,19,,0,0,0,0,0,0,0,0,,,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0,,,,,,,,
+design0151,14,,0,0,0,0,0,0,0,0,,,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0,,,,,,,,
+design0276,6,,0,0,0,0,0,0,0,0,,,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,,0,0,0,0,0,0,0,0,0,0,0,0,,,,,,,,

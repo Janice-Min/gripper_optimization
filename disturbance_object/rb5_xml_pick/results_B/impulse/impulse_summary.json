@@ -1,0 +1,70 @@
+{
+  "criteria": {
+    "slip_mm": 5.0,
+    "slip_mode": "total",
+    "rot_deg": 5.0,
+    "rot_mode": "total",
+    "lost_s": 0.02,
+    "collision_n": 0.05,
+    "zero_fail": "fail",
+    "monotonic": false
+  },
+  "mags": [
+    0.5,
+    1.0,
+    2.0,
+    3.0
+  ],
+  "dirs": [
+    "py",
+    "nx"
+  ],
+  "w_tip": 0.2,
+  "totals": {
+    "cells": 3,
+    "success": 2,
+    "zero_fail": 1,
+    "incomplete": 0,
+    "trials": 24
+  },
+  "stale_traces_skipped": 0,
+  "design_index": null,
+  "top10_impact_area": [
+    {
+      "design": "design0001",
+      "impact_area": 1.0,
+      "success": 2,
+      "level_min_median": 0.5
+    },
+    {
+      "design": "design0041",
+      "impact_area": 0.0,
+      "success": 0,
+      "level_min_median": NaN
+    },
+    {
+      "design": "design0056",
+      "impact_area": 0.0,
+      "success": 0,
+      "level_min_median": NaN
+    },
+    {
+      "design": "design0135",
+      "impact_area": 0.0,
+      "success": 0,
+      "level_min_median": NaN
+    },
+    {
+      "design": "design0151",
+      "impact_area": 0.0,
+      "success": 0,
+      "level_min_median": NaN
+    },
+    {
+      "design": "design0276",
+      "impact_area": 0.0,
+      "success": 0,
+      "level_min_median": NaN
+    }
+  ]
+}

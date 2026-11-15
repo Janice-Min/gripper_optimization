@@ -1,0 +1,44 @@
+{
+  "joint1": {
+    "stiffness_preserved": true,
+    "range_preserved": true,
+    "springref_preserved": true
+  },
+  "joint2": {
+    "stiffness_preserved": true,
+    "range_preserved": true,
+    "springref_preserved": true
+  },
+  "joint3": {
+    "stiffness_preserved": true,
+    "range_preserved": true,
+    "springref_preserved": true
+  },
+  "joint4": {
+    "stiffness_preserved": true,
+    "range_preserved": true,
+    "springref_preserved": true
+  },
+  "upper_green_link": {
+    "size_preserved": true,
+    "friction_preserved": true
+  },
+  "upper_red_link": {
+    "size_preserved": true,
+    "friction_preserved": true
+  },
+  "lower_green_link": {
+    "size_preserved": true,
+    "friction_preserved": true
+  },
+  "lower_red_link": {
+    "size_preserved": true,
+    "friction_preserved": true
+  },
+  "object": {
+    "size_preserved": true,
+    "friction_preserved": true
+  },
+  "object_freejoint": true,
+  "equality_constraint_count": 0
+}

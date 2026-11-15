@@ -1,0 +1,12 @@
+[AUTO] Hand root=palm; object=object_body; world-rooted=False
+[AUTO] Finger-forward angle: 180.000 deg
+[OK] XML attached; open-hand approach and IK checked.
+[  0.00s] settle
+[  0.60s] lower
+[  3.60s] approach
+[  6.10s] settle before closing
+[  6.60s] close: 10 N per tendon
+[  8.10s] grasp hold
+Finger geom normal forces [N]: {'hand__upper_green_link': 0.407, 'hand__upper_red_link': 2.006, 'hand__lower_green_link': 0.37, 'hand__lower_red_link': 2.012}
+[  9.10s] lift
+[ 12.10s] lift hold

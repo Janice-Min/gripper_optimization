@@ -1,0 +1,9 @@
+﻿design,group,dir,k_mg,n,held,held_rate
+design0001,env,py,0.5,2,2,1
+design0001,env,py,1,2,0,0
+design0001,env,py,2,2,0,0
+design0001,env,py,3,2,0,0
+design0001,env,nx,0.5,2,2,1
+design0001,env,nx,1,2,1,0.5
+design0001,env,nx,2,2,0,0
+design0001,env,nx,3,2,0,0
