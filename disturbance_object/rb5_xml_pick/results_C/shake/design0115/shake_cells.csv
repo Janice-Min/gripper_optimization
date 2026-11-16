@@ -1,0 +1,15 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0115,r35y00,35,0,tip,tip,tip,success,1,,0.8291,0.2561,0,px|nx|py|ny,,0,0,0.3,10,0.42,False,0,0,0,0,0.5,0.5,0,0
+design0115,r35y05,35,5,tip,tip,tip,success,1,,0.9826,0.8597,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r35y10,35,10,tip,tip,tip,success,1,,1.054,1.096,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r35y15,35,15,tip,tip,tip,success,1,,0.9216,0.5478,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r40y00,40,0,tip,tip,tip,success,1,,0.8546,0.2829,0,px|nx,,0,0,0.3,10,0.42,False,0,0,0.5,0.5,0.5,0.5,0,0
+design0115,r40y05,40,5,tip,tip,tip,success,1,,0.8626,0.3136,0,px|nx,,0,0,0.3,10,0.42,False,0,0,0.5,0.5,0.5,0.5,0,0
+design0115,r40y10,40,10,tip,tip,tip,success,1,,1.071,0.9698,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r45y00,45,0,tip,tip,tip,success,1,,0.9759,0.5883,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r45y05,45,5,tip,tip,tip,success,1,,0.9287,0.4362,0,py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0.5,0.5,0,0,0,0,0,0
+design0115,r50y00,50,0,tip,tip,tip,success,1,,1.117,0.8006,0,py|ny|pz|nz,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0,0,0,0
+design0115,r50y05,50,5,tip,tip,tip,success,1,,1.279,1.089,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r60y05,60,5,tip,tip,tip,zero_fail,0,rotation,3.375,13.63,0,px|nx|py|ny|pz|nz,px:accel|nx:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r60y10,60,10,tip,tip,tip,zero_fail,0,rotation,3.626,18.84,0,px|nx|py|ny|pz|nz,px:accel|nx:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0115,r60y15,60,15,tip,tip,tip,zero_fail,0,rotation,2.938,12.94,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

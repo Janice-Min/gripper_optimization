@@ -1,0 +1,17 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0145,r30y00,30,0,tip,tip,tip,success,1,,0.8534,0.2715,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r30y05,30,5,tip,tip,tip,success,1,,1.129,1.334,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r30y10,30,10,tip,tip,tip,success,1,,0.8572,0.2959,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r30y15,30,15,tip,tip,tip,success,1,,1.104,1.129,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r30y20,30,20,tip,tip,tip,success,1,,1.062,0.8897,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r35y00,35,0,tip,tip,tip,success,1,,0.836,0.1504,0,px|nx,,0,0,0.3,10,0.42,False,0,0,0.5,0.5,0.5,0.5,0,0
+design0145,r35y05,35,5,tip,tip,tip,success,1,,0.8555,0.2235,0,px|nx,pz:accel,1,0,0.3,10,0.42,False,0,0,0.5,0.5,0.5,0.5,0,0
+design0145,r35y10,35,10,tip,tip,tip,success,1,,1.028,0.8614,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r35y15,35,15,tip,tip,tip,success,1,,1.149,1.044,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r40y00,40,0,tip,tip,tip,success,1,,0.9091,0.3452,0.5,py|ny|pz|nz,,0,0,0.3,10,0.42,False,1,1,0.5,0.5,0.5,0.5,1,0
+design0145,r40y05,40,5,tip,tip,tip,success,1,,0.9128,0.3577,0.5,nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,1,0.5,0.5,0.5,0.5,0.5,1,0
+design0145,r40y10,40,10,tip,tip,tip,success,1,,1.321,1.225,0,py|ny|pz|nz,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0,0,0,0
+design0145,r40y15,40,15,tip,tip,tip,zero_fail,0,collision,2.328,1.461,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0145,r45y00,45,0,tip,tip,tip,success,1,,1.041,0.6049,0.5,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0.5,0.5,0.5,0.5,0.5,0.5,1,0
+design0145,r45y05,45,5,tip,tip,tip,success,1,,1.425,1.404,0,py|ny,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0.5,0.5,0,0
+design0145,r50y25,50,25,tip,tip,tip,zero_fail,0,rotation,4.265,22.29,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

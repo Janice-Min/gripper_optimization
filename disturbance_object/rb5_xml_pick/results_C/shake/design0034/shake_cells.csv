@@ -1,0 +1,14 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0034,r40y00,40,0,tip,tip,tip,success,1,,0.8258,0.2865,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r40y05,40,5,tip,tip,tip,success,1,,0.9749,0.8053,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r40y10,40,10,tip,tip,tip,success,1,,1.01,0.8943,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r40y15,40,15,tip,tip,tip,success,1,,0.8281,0.3015,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r45y05,45,5,enveloping,tip,tip,success,1,,0.8674,0.3598,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r45y10,45,10,tip,tip,tip,success,1,,1.079,0.9477,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r50y05,50,5,tip,env,env,success,1,,1.158,0.7571,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0034,r50y10,50,10,enveloping,tip,tip,success,1,,0.9307,0.4668,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r55y05,55,5,enveloping,env,env,success,1,,0.8675,0.6504,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0034,r55y10,55,10,enveloping,env,env,success,1,,0.9612,0.906,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0034,r60y05,60,5,enveloping,env,env,success,1,,1.085,1.117,0,px|nx|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0034,r70y10,70,10,tip,tip,tip,zero_fail,0,rotation,2.422,7.836,0,px|nx|py|ny|pz|nz,px:accel|nx:accel|pz:accel|nz:accel,4,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0034,r70y15,70,15,tip,tip,tip,zero_fail,0,rotation,2.425,7.884,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

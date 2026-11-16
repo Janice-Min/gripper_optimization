@@ -1,0 +1,16 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0290,r35y00,35,0,tip,tip,tip,success,1,,0.8337,0.2779,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0290,r35y05,35,5,tip,tip,tip,success,1,,1.044,1.058,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0290,r35y10,35,10,tip,tip,tip,success,1,,1.029,0.9682,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0290,r35y15,35,15,tip,tip,tip,success,1,,0.9821,0.753,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0290,r40y00,40,0,tip,tip,tip,success,1,,0.8422,0.2438,0,px|nx,,0,0,0.3,10,0.42,False,0,0,0.5,0.5,0.5,0.5,0,0
+design0290,r40y05,40,5,tip,tip,tip,success,1,,0.8512,0.2775,0,px|nx,,0,0,0.3,10,0.42,False,0,0,0.5,0.5,0.5,0.5,0,0
+design0290,r40y10,40,10,tip,tip,tip,success,1,,0.9952,0.7685,0,py|ny|pz|nz,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0,0,0,0
+design0290,r40y15,40,15,tip,tip,tip,success,1,,0.9857,0.6647,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0290,r45y00,45,0,tip,tip,tip,success,1,,0.9323,0.4572,0,py|ny,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0.5,0.5,0,0
+design0290,r45y05,45,5,tip,tip,tip,success,1,,0.9162,0.4105,0,py|ny|pz|nz,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0,0,0,0
+design0290,r45y10,45,10,tip,tip,tip,success,1,,1.229,0.9042,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0290,r50y00,50,0,tip,tip,tip,success,1,,1.067,0.6659,0,py|ny,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0.5,0.5,0,0
+design0290,r50y05,50,5,tip,tip,tip,success,1,,1.371,1.225,0,py|ny,,0,0,0.3,10,0.42,False,0.5,0.5,0,0,0.5,0.5,0,0
+design0290,r60y15,60,15,tip,tip,tip,zero_fail,0,rotation,4.191,22.2,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0290,r60y20,60,20,tip,tip,tip,zero_fail,0,rotation,4.208,22.38,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

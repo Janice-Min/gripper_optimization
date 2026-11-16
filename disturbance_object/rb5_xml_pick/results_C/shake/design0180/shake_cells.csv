@@ -1,0 +1,16 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0180,r35y00,35,0,tip,tip,tip,success,1,,0.8382,0.3426,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r35y05,35,5,tip,tip,tip,success,1,,0.8343,0.334,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r35y10,35,10,tip,tip,tip,success,1,,0.8338,0.3315,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r35y15,35,15,tip,tip,tip,success,1,,0.8486,0.3892,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r40y00,40,0,tip,tip,tip,success,1,,0.8562,0.3224,0,px|nx,,0,0,0.3,10,0.42,False,0,0,0.5,0.5,0.5,0.5,0,0
+design0180,r40y05,40,5,tip,tip,tip,success,1,,0.8599,0.336,0,px|nx|py,,0,0,0.3,10,0.42,False,0,0,0,0.5,0.5,0.5,0,0
+design0180,r40y10,40,10,tip,tip,tip,success,1,,1.065,0.9876,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r40y15,40,15,tip,tip,tip,success,1,,0.9937,0.7062,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r45y00,45,0,tip,tip,tip,success,1,,0.9459,0.5088,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r45y05,45,5,tip,tip,tip,success,1,,0.942,0.4931,0,px|nx|py|ny,,0,0,0.3,10,0.42,False,0,0,0,0,0.5,0.5,0,0
+design0180,r45y10,45,10,tip,tip,tip,success,1,,1.138,1.005,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r50y00,50,0,tip,tip,tip,success,1,,1.182,0.6512,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r55y05,55,5,enveloping,tip,tip,success,1,,1.477,1.254,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0180,r60y05,60,5,enveloping,env,env,success,1,,1.651,2.09,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0180,r65y10,65,10,tip,tip,tip,zero_fail,0,rotation,2.651,10.4,0,px|nx|py|ny|pz|nz,px:accel|pz:accel|nz:accel,3,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

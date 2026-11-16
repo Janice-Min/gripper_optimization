@@ -1,0 +1,13 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0207,r35y05,35,5,enveloping,env,env,success,1,,1.15,0.873,0,px|nx|pz|nz,,0,0,0.3,10,0.42,True,0,0,1,0.5,0,0,0,0
+design0207,r35y20,35,20,enveloping,env,env,success,1,,0.943,0.3483,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0207,r40y05,40,5,enveloping,env,env,success,1,,1.463,0.7161,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0207,r45y05,45,5,enveloping,env,env,success,1,,1.495,1.056,0,px|nx|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,True,0,0,0.5,0,0,0,0,0
+design0207,r45y10,45,10,enveloping,env,env,success,1,,2.067,0.9916,0,px|nx|py|pz|nz,nz:accel,1,0,0.3,10,0.42,True,0,0,0,0.5,0,0,0,0
+design0207,r45y15,45,15,enveloping,env,env,success,1,,0.8522,0.7553,0,px|nx,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0.5,0.5,0,0
+design0207,r45y20,45,20,enveloping,env,env,success,1,,0.8788,1.113,0,nx,,0,0,0.3,10,0.42,True,0.5,0,0.5,0.5,0.5,0.5,0,0
+design0207,r50y10,50,10,enveloping,env,env,success,1,,0.8607,0.7272,0,px|nx,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0.5,0.5,0,0
+design0207,r50y15,50,15,enveloping,env,env,success,1,,0.9117,1.075,0.5,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0.5,0.5,0.5,0.5,0.5,0.5,1,0
+design0207,r60y25,60,25,tip,tip,tip,zero_fail,0,rotation,2.978,10.36,0,px|nx|py|ny|pz|nz,px:accel|nx:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0207,r60y30,60,30,tip,tip,tip,zero_fail,0,rotation,2.75,6.201,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0207,r60y35,60,35,tip,tip,tip,success,1,,2.667,3.618,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

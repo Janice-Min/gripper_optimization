@@ -1,0 +1,12 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0268,r45y00,45,0,tip,tip,tip,success,1,,1.84,0.02814,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r45y10,45,10,tip,tip,tip,success,1,,0.9625,0.01358,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r45y15,45,15,tip,tip,tip,success,1,,1.132,0.01858,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r50y05,50,5,tip,tip,tip,success,1,,0.8228,0.2891,0,px|nx|py|ny|pz|nz,,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r50y10,50,10,tip,tip,tip,success,1,,0.8242,0.3028,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r55y05,55,5,tip,tip,tip,success,1,,0.8725,0.3649,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r60y00,60,0,tip,tip,tip,success,1,,1.117,0.4884,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r60y05,60,5,tip,tip,tip,success,1,,1.049,0.6689,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r65y05,65,5,enveloping,env,env,success,1,,0.9575,0.9255,0,px|nx|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0268,r75y10,75,10,tip,tip,tip,zero_fail,0,rotation,2.143,6.068,0,px|nx|py|ny|pz|nz,px:accel|nx:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0268,r75y15,75,15,tip,tip,tip,zero_fail,0,rotation,2.167,6.523,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

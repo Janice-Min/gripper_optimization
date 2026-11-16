@@ -1,0 +1,9 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0067,r35y00,35,0,enveloping,tip,tip,success,1,,0.8792,0.5086,0.5,py|ny|pz|nz,,0,0,0.3,10,0.42,False,1,1,0.5,0.5,0.5,0.5,1,0
+design0067,r35y05,35,5,enveloping,tip,tip,success,1,,0.8783,0.5055,0.5,py|ny|pz|nz,,0,0,0.3,10,0.42,False,1,1,0.5,0.5,0.5,0.5,1,0
+design0067,r35y10,35,10,enveloping,tip,tip,success,1,,1.372,1.487,0,nx|py|pz|nz,,0,0,0.3,10,0.42,False,0.5,0,0,0.5,0,0,0,0
+design0067,r40y05,40,5,tip,env,env,success,1,,1.034,1.835,0,py|ny,,0,0,0.3,10,0.42,True,0.5,0.5,0,0,1,1,0,0
+design0067,r40y10,40,10,enveloping,env,env,success,1,,1.45,2.79,0.5,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0.5,0.5,0.5,0.5,0.5,0.5,1,0
+design0067,r45y10,45,10,tip,tip,tip,zero_fail,0,rotation,2.383,8.92,0,px|nx|py|ny|pz|nz,px:accel|nx:accel,4,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0067,r45y15,45,15,tip,tip,tip,zero_fail,0,rotation,2.447,9.819,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0067,r45y20,45,20,tip,tip,tip,zero_fail,0,rotation,2.424,9.57,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

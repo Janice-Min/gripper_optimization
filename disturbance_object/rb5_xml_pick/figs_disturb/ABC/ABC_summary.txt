@@ -1,0 +1,37 @@
+score = area, norm = max, agg = min, rank by joint_area
+designs ranked: 301  (excluded as incomplete: 0)
+
+TOP 20
+            rank  A_score  B_score  C_score  ABC_score  coverage  pareto_layer  joint_success  joint_area  joint_pass@0.5
+design                                                                                                                   
+design0009     1     9.23     7.75        4      0.939        13             1              0           0               0
+design0043     2     6.44     6.75        3      0.698         7             2              0           0               0
+design0111     3     7.95     8.25      2.5      0.625        10             1              0           0               0
+design0168     4     6.01        6      2.5      0.625         6             3              0           0               0
+design0219     5     5.93      5.5      2.5      0.625         4             4              0           0               0
+design0136     6     5.89      5.5      2.5      0.625         5             5              0           0               0
+design0239     7     6.63        5      2.5      0.606         5             2              0           0               0
+design0262     8     5.03        5        3      0.545         3             3              0           0               0
+design0187     9     4.92     4.75      2.5      0.533         5             6              0           0               0
+design0294    10     4.76        5      2.5      0.516         4             6              0           0               0
+design0208    11     4.63      4.5      2.5      0.502         3             7              0           0               0
+design0008    12     6.88        7        2        0.5        10             2              0           0               0
+design0117    13     7.07     6.75        2        0.5        11             2              0           0               0
+design0144    14     7.51        6        2        0.5        12             2              0           0               0
+design0247    15     6.49     6.75        2        0.5         7             3              0           0               0
+design0139    16     5.28      5.5        2        0.5         6             6              0           0               0
+design0245    17     5.49     5.25        2        0.5         7             6              0           0               0
+design0124    18     5.04        5        2        0.5         3             7              0           0               0
+design0071    19     5.31      4.5        2        0.5         8             7              0           0               0
+design0102    20     4.57        5        2      0.495         4             8              0           0               0
+
+3-AXIS PARETO FRONT (3 designs; no design is at least as good in A, B and C and better in one):
+design0009(#1), design0111(#3), design0023(#105)
+
+ALL-ROUND (top 25 % in every one of A, B, C): design0009(#1), design0043(#2), design0111(#3), design0168(#4), design0219(#5), design0136(#6), design0239(#7), design0262(#8), design0187(#9), design0008(#12), design0117(#13), design0144(#14), design0247(#15), design0139(#16), design0245(#17), design0124(#18), design0071(#19), design0145(#30), design0033(#31), design0256(#32), design0194(#33), design0213(#34), design0053(#35), design0205(#36), design0120(#37), design0133(#38), design0093(#39)
+
+BASELINE design0001: rank 114 / 301, A 4.26, B 4.5, C 0.5, Pareto layer 12
+
+Spearman between experiments: A–B 0.95, A–C 0.50, B–C 0.60
+160 of 301 designs score 0 in C (no cell held the smallest shake in all directions); with --agg min they all tie at ABC_score 0.
+C: 611 of 2037 success cells (30 %) have an arm-limited (censored) direction; their C level is a lower bound.

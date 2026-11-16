@@ -8,12 +8,17 @@
   python view_pick_disturb.py design0001/r060.0_y015.0 --from saved          # 저장된 '들어 올린 직후' 상태에서 시작
   python view_pick_disturb.py design0001/r060.0_y015.0 --video b_px2.mp4     # 창 없이 영상으로 저장
   python view_pick_disturb.py design0001/r060.0_y015.0 --headless            # 판정만 출력
+  python view_pick_disturb.py grasp_cells_xml/design0001_r60y15.xml           # XML 파일 직접 (design0001_r60y15도 됨)
+
+cell 입력: 기본은 이 파일 옆 grasp_cells_xml/ (XML 하나 = cell 하나, 없으면 grasp_cells/). --cells-dir로 지정.
+  XML에 summary(<custom> cell_summary)가 없으면 집기 목표점은 task_grasp site, 손 열림 각도는 task_home key,
+  손 자세는 task_home의 palm 자세에서 가져온다.
 
 --from pick (기본): 장면의 task_home 자세에서 run_rb5_xml.py와 같은 단계와 시간
   (settle → lower → approach → settle → close → grasp hold → lift)으로 다시 집는다.
   팔은 palm 목표 경로를 IK로 따라가고, 텐던 장력 ramp와 열림 보조(PD)도 같은 설정을 쓴다.
   rb5_pick_config.json이 grasp_cells/에 있으면 그 값을 쓴다.
---from saved: state.npz를 복원해 바로 hold부터 시작한다. 실험 B(disturb_impulse_rb5.py)와 같은 출발점이다
+--from saved: 저장된 들어 올린 직후 상태(XML은 <key name="lifted">, 폴더는 state.npz)를 복원해 바로 hold부터 시작한다. 실험 B(disturb_impulse_rb5.py)와 같은 출발점이다
   (--hold-s 0.5이면 B의 시행과 같다).
 
 viewer: Space = 일시정지/재생. 펄스 전후는 --slowmo 배속으로 느리게 보여 준다(물리 시간 간격은 그대로).
@@ -42,6 +47,30 @@ PICK_DEFAULTS = {
 ARM = ('base', 'shoulder', 'elbow', 'wrist1', 'wrist2', 'wrist3')
 
 
+def hand_open_from_key(m, key):
+    """key(task_home)의 손 관절 값 = 열린 각도. {joint1: q, ...}"""
+    import mujoco
+    kid = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_KEY, key)
+    if kid < 0:
+        return {}
+    out = {}
+    for j in range(m.njnt):
+        n = m.joint(j).name
+        if n.startswith('hand__joint') and m.jnt_type[j] == mujoco.mjtJoint.mjJNT_HINGE:
+            out[n[len('hand__'):]] = float(m.key_qpos[kid, m.jnt_qposadr[j]])
+    return out
+
+
+def grasp_site_local(m, palm):
+    """palm에 붙은 task_grasp site 위치 (palm 좌표). 없으면 None."""
+    import mujoco
+    for n in ('task_grasp', 'hand__task_grasp'):
+        sid = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SITE, n)
+        if sid >= 0 and m.site_bodyid[sid] == palm:
+            return m.site_pos[sid].tolist()
+    return None
+
+
 def min_jerk(s):
     s = min(max(s, 0.0), 1.0)
     return 10 * s ** 3 - 15 * s ** 4 + 6 * s ** 5
@@ -54,17 +83,14 @@ class Episode:
         import mujoco
         self.mj = mujoco
         self.a = a
-        cells_dir = Path(a.cells_dir) if a.cells_dir else (
-            HERE / 'grasp_cells' if (HERE / 'grasp_cells').is_dir() else HERE.parent / 'grasp_cells')
+        cells_dir = B.default_cells_dir(a.cells_dir)
         cdir = Path(a.cell)
-        if not (cdir / 'state.npz').is_file():
-            cdir = cells_dir / a.cell
-        if not (cdir / 'scene.xml').is_file():
-            raise SystemExit(f'no scene.xml in {cdir}')
+        if not ((cdir / 'state.npz').is_file() or (B.is_xml_cell(cdir) and cdir.is_file())):
+            cdir = B.resolve_cell(cells_dir, a.cell)
         self.cdir = cdir
-        self.summary = B.read_json(cdir / 'summary.json', {}) or {}
         cfg = dict(PICK_DEFAULTS)
-        for p in (cdir.parent.parent / 'rb5_pick_config.json', cells_dir / 'rb5_pick_config.json'):
+        for p in (cdir.parent.parent / 'rb5_pick_config.json', cdir.parent / 'rb5_pick_config.json',
+                  cells_dir / 'rb5_pick_config.json', cells_dir.parent / 'grasp_cells' / 'rb5_pick_config.json'):
             got = B.read_json(p)
             if got:
                 cfg.update({k: got[k] for k in PICK_DEFAULTS if k in got})
@@ -72,11 +98,13 @@ class Episode:
         self.cfg = cfg
         mesh_roots = ([a.mesh_dir] if a.mesh_dir else []) + [
             str(HERE / 'assets' / 'rb5_850e' / 'meshes'), str(cells_dir.parent / 'assets' / 'rb5_850e' / 'meshes')]
-        xml, dropped, _ = B.load_scene_xml(cdir / 'scene.xml', mesh_roots, a.allow_missing_collision)
+        # 모델 + 저장된 들어 올린 상태 (XML: lifted key / 폴더: state.npz) + summary
+        m, d, _, self.summary, cinfo = B.load_cell(cdir, mesh_roots, a.allow_missing_collision)
+        dropped = cinfo['dropped_meshes']
         if dropped:
             print(f'[WARN] mesh files not found, not drawn: {len(dropped)} (give --mesh-dir)')
-        m = mujoco.MjModel.from_xml_string(xml)
-        d = mujoco.MjData(m)
+        if B.is_xml_cell(cdir) and cinfo['summary_source'] != 'xml':
+            print('[WARN] no summary in this XML: grasp point from task_grasp site, open angles from task_home key')
         self.m, self.d = m, d
         self.ctx = ctx = B.Ctx(m, self.summary)
         self.dt = m.opt.timestep
@@ -93,7 +121,8 @@ class Episode:
         self.arm_v = [m.jnt_dofadr[m.joint(n).id] for n in ARM]
         self.arm_u = [m.actuator(n).id for n in ARM]
         self.hand = []   # (qposadr, dofadr, open angle)
-        for n, q in (self.summary.get('initial_hand_qpos') or self.summary.get('hand_joints') or {}).items():
+        for n, q in (self.summary.get('initial_hand_qpos') or self.summary.get('hand_joints')
+                     or hand_open_from_key(m, 'task_home')).items():
             j = m.joint(f'hand__{n}').id if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, f'hand__{n}') >= 0 \
                 else m.joint(n).id
             self.hand.append((m.jnt_qposadr[j], m.jnt_dofadr[j], float(q)))
@@ -104,9 +133,7 @@ class Episode:
             mujoco.mj_forward(m, d)
             self._setup_pick()
             t_up = self.t_lift_end
-        else:
-            with np.load(cdir / 'state.npz', allow_pickle=False) as z:
-                mujoco.mj_setState(m, d, np.array(z['integration_state']), int(z['integration_spec']))
+        else:  # load_cell이 이미 저장 상태로 복원함
             d.qfrc_applied[:] = 0.0
             d.xfrc_applied[:] = 0.0
             if self.motor is not None:
@@ -139,8 +166,12 @@ class Episode:
         R_star = np.array(self.summary.get('hand_rotation_world') or d.xmat[ctx.palm].reshape(3, 3).tolist())
         self.R_star = R_star
         fwd = R_star @ np.array([math.cos(a), math.sin(a), 0.0])
-        gl = np.array(self.summary.get('source_grasp_local_m') or
-                      list((self.summary.get('cell') or {}).get('grasp_local_xy_m', [-0.076, 0.0])) + [0.0])
+        gl = self.summary.get('source_grasp_local_m')
+        if not gl and (self.summary.get('cell') or {}).get('grasp_local_xy_m'):
+            gl = list(self.summary['cell']['grasp_local_xy_m']) + [0.0]
+        if not gl:  # summary 없는 XML: 장면의 task_grasp site (palm 좌표) = 집기 목표점
+            gl = grasp_site_local(m, ctx.palm)
+        gl = np.array(gl if gl is not None else [-0.076, 0.0, 0.0], dtype=float)
         obj0 = d.xpos[ctx.obj].copy()
         self.p_home = d.xpos[ctx.palm].copy()
         self.p_grasp = obj0 - R_star @ gl
@@ -467,8 +498,9 @@ def run_video(ep):
 
 def main():
     p = argparse.ArgumentParser(description='성공 cell: RB5로 집어 올리고 hold-s 뒤 펄스 외란을 주는 viewer')
-    p.add_argument('cell', help='design0001/r060.0_y015.0 (grasp_cells 기준) 또는 cell 폴더 경로')
-    p.add_argument('--cells-dir', default=None, help='grasp_cells 폴더 (기본: 이 파일 옆)')
+    p.add_argument('cell', help='design0001/r060.0_y015.0, design0001_r60y15, XML 파일 경로 또는 cell 폴더 경로')
+    p.add_argument('--cells-dir', default=None,
+                   help='grasp_cells_xml 또는 grasp_cells (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
     p.add_argument('--from', dest='start', choices=('pick', 'saved'), default='pick',
                    help='pick: 집기부터 다시 / saved: 저장된 들어 올린 직후 상태에서')
     p.add_argument('--hold-s', type=float, default=5.0, help='들어 올린 뒤 외란까지 시간 [s]')

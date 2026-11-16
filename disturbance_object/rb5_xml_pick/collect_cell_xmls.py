@@ -8,7 +8,8 @@ summary.json(손·물체 이름, 손 좌표계, r·y 등)은 실험 A/B/C 코드
     <text name="cell_summary" data="{...summary.json...}"/>
   </custom>
 (<custom>은 물리에 영향 없음. 나머지 내용은 원본 그대로.)
-rb5_pick_results.csv가 있으면 같이 복사한다 (실험 표의 ws_cells_attempted / rb5_pass_cells에 씀).
+rb5_pick_results.csv(실험 표의 ws_cells_attempted / rb5_pass_cells), rb5_pick_config.json(view_pick_disturb.py)이
+있으면 같이 복사한다.
 
 사용:
   python collect_cell_xmls.py grasp_cells                 # → grasp_cells_xml/ (기존 xml은 지우고 새로 만듦)
@@ -96,14 +97,16 @@ def main():
             w = csv.DictWriter(f, fieldnames=list(rows[0]))
             w.writeheader()
             w.writerows(rows)
-    pick = root / "rb5_pick_results.csv"
-    if pick.is_file():
-        shutil.copy2(pick, out / pick.name)
+    copied = []
+    for extra in ("rb5_pick_results.csv", "rb5_pick_config.json"):  # 실험 표 / view_pick_disturb.py 집기 설정
+        if (root / extra).is_file():
+            shutil.copy2(root / extra, out / extra)
+            copied.append(extra)
 
     for msg in skipped:
         print("[SKIP]", msg)
-    print(f"{len(rows)}개 XML → {out}  (index.csv" + (", rb5_pick_results.csv" if pick.is_file() else "")
-          + " 포함" + (f", 이전 xml {len(old)}개 지움" if old else "") + ")")
+    print(f"{len(rows)}개 XML → {out}  (" + ", ".join(["index.csv"] + copied) + " 포함"
+          + (f", 이전 xml {len(old)}개 지움" if old else "") + ")")
 
     if a.check and rows:
         import mujoco

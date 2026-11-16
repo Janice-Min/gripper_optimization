@@ -1,0 +1,17 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0077,r40y00,40,0,tip,tip,tip,success,1,,0.8282,0.276,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r40y05,40,5,tip,tip,tip,success,1,,0.9836,0.8171,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r40y10,40,10,tip,tip,tip,success,1,,0.9758,0.759,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r40y15,40,15,tip,tip,tip,success,1,,0.8844,0.3382,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r45y00,45,0,tip,tip,tip,success,1,,0.8487,0.2854,0,px|nx|py|ny,,0,0,0.3,10,0.42,False,0,0,0,0,0.5,0.5,0,0
+design0077,r45y05,45,5,tip,tip,tip,success,1,,0.8493,0.2872,0,px|nx|py|ny,,0,0,0.3,10,0.42,False,0,0,0,0,0.5,0.5,0,0
+design0077,r45y10,45,10,tip,tip,tip,success,1,,1.004,0.7592,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r45y15,45,15,tip,tip,tip,success,1,,1.184,0.02166,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r50y05,50,5,tip,tip,tip,success,1,,0.903,0.3802,0,px|nx|py|ny|pz|nz,nz:accel,1,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r50y10,50,10,tip,tip,tip,success,1,,0.907,0.4039,0,px|nx|py|ny|pz|nz,py:accel|pz:accel|nz:accel,3,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r55y05,55,5,tip,tip,tip,success,1,,0.9698,0.472,0,px|nx|py|ny|pz|nz,pz:accel|nz:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r60y00,60,0,tip,tip,tip,success,1,,1.257,0.5744,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r60y05,60,5,tip,tip,tip,success,1,,1.232,0.8575,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0
+design0077,r65y05,65,5,tip,env,env,success,1,,1.155,1.257,0,px|nx|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0077,r70y05,70,5,enveloping,env,env,success,1,,1.536,1.884,0,py|pz|nz,,0,0,0.3,10,0.42,True,0.5,0.5,0,0.5,0,0,0,0
+design0077,r75y10,75,10,tip,tip,tip,zero_fail,0,rotation,3.048,14.47,0,px|nx|py|ny|pz|nz,px:accel|nx:accel,2,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

@@ -1,0 +1,17 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0163,r35y10,35,10,enveloping,env,env,success,1,,1.444,0.6854,0,px|nx|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0,0,0,0,0
+design0163,r35y15,35,15,enveloping,env,env,success,1,,0.9787,0.3203,0,px|nx|pz|nz,pz:accel,1,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0163,r35y20,35,20,enveloping,env,env,success,1,,0.8645,0.516,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0163,r40y05,40,5,enveloping,env,env,success,1,,0.8088,0.4561,0,px|nx|pz|nz,nz:accel,1,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0163,r40y10,40,10,enveloping,env,env,success,1,,1.26,0.1311,0,px|nx|py|pz|nz,nz:accel,1,0,0.3,10,0.42,True,0,0,0,0.5,0,0,0,0
+design0163,r40y15,40,15,enveloping,env,env,success,1,,0.8892,0.5787,0,px|nx|py|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0.5,0,0,0,0
+design0163,r40y20,40,20,enveloping,env,env,success,1,,0.9273,0.6984,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0163,r45y05,45,5,enveloping,env,env,success,1,,0.8733,0.7001,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0163,r45y10,45,10,enveloping,env,env,success,1,,1.018,0.4831,0,px|nx|pz|nz,pz:accel,1,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0163,r45y15,45,15,enveloping,env,env,success,1,,0.8972,0.7592,0,px|nx|py|ny|pz|nz,pz:accel,1,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0163,r45y20,45,20,enveloping,env,env,success,1,,0.9532,1.015,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0,0,0,0,0
+design0163,r50y10,50,10,enveloping,env,env,success,1,,0.9885,0.972,0,px|nx|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0163,r50y15,50,15,enveloping,env,env,success,1,,1.046,1.172,0,px|nx|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0,0,0,0,0
+design0163,r55y15,55,15,enveloping,env,env,success,1,,1.471,1.911,0,px|nx|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0,0,0,0
+design0163,r60y15,60,15,enveloping,env,env,success,1,,2.097,2.804,0,pz|nz,,0,0,0.3,10,0.42,True,0.5,0.5,0.5,0.5,0,0,0,0
+design0163,r60y20,60,20,enveloping,tip,tip,success,1,,2.733,1.959,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

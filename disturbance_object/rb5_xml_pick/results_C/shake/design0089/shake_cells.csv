@@ -1,0 +1,7 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,censored_dirs,arm_limited_trials,infeasible_trials,mass_kg,tension_N,motion_s,rb5_four_link_contact,level_px,level_nx,level_py,level_ny,level_pz,level_nz,pass@0.5,pass@1
+design0089,r45y05,45,5,enveloping,env,env,success,1,,0.8759,0.1724,0,px|nx|py|pz|nz,,0,0,0.3,10,0.42,True,0,0,0,0.5,0,0,0,0
+design0089,r55y10,55,10,enveloping,env,env,success,1,,0.7608,0.4663,0,px|nx|ny,,0,0,0.3,10,0.42,True,0,0,0.5,0,0.5,0.5,0,0
+design0089,r55y15,55,15,enveloping,env,env,success,1,,0.7789,0.5882,0,px|nx|ny|pz|nz,,0,0,0.3,10,0.42,True,0,0,0.5,0,0,0,0,0
+design0089,r60y15,60,15,enveloping,env,env,success,1,,0.9119,0.955,0,px|nx,,0,0,0.3,10,0.42,True,0,0,0.5,0.5,0.5,0.5,0,0
+design0089,r70y25,70,25,tip,tip,tip,success,1,,2.165,3.235,0,px|nx|py|pz|nz,px:accel|nx:accel,2,0,0.3,10,0.42,False,0,0,0,0.5,0,0,0,0
+design0089,r70y30,70,30,tip,tip,tip,success,1,,2.189,4.046,0,px|nx|py|ny|pz|nz,,0,0,0.3,10,0.42,False,0,0,0,0,0,0,0,0

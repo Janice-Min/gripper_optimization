@@ -1,0 +1,13 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,dir,k_g,valid,held,held_raw,cause,phase,t_fail_s,load_dir_at_fail,ended,arm_reason,acc_ratio_pos,acc_ratio_neg,max_aperp_g,max_track_mm,max_palm_rot_deg,max_sat,max_arm_contact_N,pred_force_ratio,max_speed_mps,max_disp_mm,resid_disp_mm,max_rot_deg,max_tilt_deg,end_dx_mm,end_dy_mm,end_dz_mm,min_side_N,max_ext_N,end_type,type_changed,cell_status
+design0259,r40y15,40,15,enveloping,env,px,0.5,1,0,0,rotation,motion,0.055,nx,stop_disp,,,,0.04108,0.1913,0.05259,0.0506,0,0.05077,0.4727,30.34,,38.31,38.27,-16.17,1.033,-25.65,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,px,1,1,0,0,slip,motion,0.05,nx,stop_disp,,,,0.0359,0.3625,0.09402,0.09823,0,0.1023,0.9454,30.43,,35.61,35.09,-24.76,1.221,-17.65,0,0,tip,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,nx,0.5,1,0,0,slip,motion,0.06,px,stop_disp,,1.055,,0.04449,0.2712,0.06042,0.05072,0,0.05118,0.4727,30.21,,34.32,34.23,16.85,1.175,-25.04,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,nx,1,1,0,0,slip,motion,0.05,px,stop_disp,,,,0.0522,0.427,0.09858,0.09865,0,0.1024,0.9454,30.14,,33.18,32.31,25.32,1.74,-16.26,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,py,0.5,1,0,0,rotation,motion,0.075,ny,stop_disp,,1.052,,0.04334,0.221,0.04957,0.06214,0,0.07417,0.4727,30.37,,26.06,26.05,1.242,1.483,-30.31,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,py,1,1,0,0,rotation,motion,0.06,ny,stop_disp,,1.042,,0.06631,0.2677,0.05785,0.1312,0,0.1368,0.9454,30.04,,48.84,48.84,1.346,-10.46,-28.12,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,ny,0.5,1,0,0,rotation,motion,0.21,ny,stop_disp,,1.005,1.035,0.0395,0.209,0.04168,0.09041,0,0.07865,0.4727,30.06,,41.71,41.71,0.5345,-11.11,-27.93,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,ny,1,1,0,0,rotation,motion,0.055,py,stop_disp,,,,0.03308,0.1788,0.01739,0.1551,0,0.1612,0.9454,30.05,,34.14,34.1,1.209,17.43,-24.44,0,0,one_side,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,pz,0.5,1,0,0,slip,motion,0.055,nz,stop_disp,,,,0.03086,0.2953,0.06902,0.08317,0,0.07816,0.4727,30.78,,5.29,5.266,-0.1344,0.4017,-30.78,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,pz,1,1,0,0,slip,motion,0.045,nz,stop_disp,,,,0.05536,0.3084,0.07671,0.1543,0,0.1454,0.9454,30.05,,4.566,4.517,0.906,0.03802,-30.04,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,nz,0.5,1,0,0,slip,motion,0.155,nz,stop_disp,,1.003,,0.03846,0.2943,0.04242,0.0855,0,0.08655,0.4727,30.39,,3.971,3.802,1.169,0.1848,-30.37,0,0,none,0,zero_fail
+design0259,r40y15,40,15,enveloping,env,nz,1,1,0,0,slip,motion,0.145,nz,stop_disp,,1.003,,0.05644,0.456,0.06838,0.1961,0,0.1789,0.9454,30.21,,3.926,3.926,0.7987,0.2062,-30.2,0,0,none,0,zero_fail
