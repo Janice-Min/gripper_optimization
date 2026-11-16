@@ -1,0 +1,28 @@
+# rb5_xml_pick — 실험 A/B/C를 grasp_cells_xml(XML 하나 = cell 하나)로 돌리기 (2026-11-16)
+
+## 배경
+- grasp_cells/<design>/<cell>/scene.xml에는 파지 성공 상태가 이미 `<key name="lifted">`(time, qpos, qvel, ctrl, 15자리)로 들어 있음. state.npz와 차이 ~1e-15, 빠진 건 qacc_warmstart뿐(qfrc/xfrc_applied 0, act 없음).
+- design0001 10 cell 확인: lifted key로 시작해도 S0 차이 ~1e-15 m, world 3방향 ramp 미끄러짐 시작 힘 30/30 동일.
+
+## 파일
+- `collect_cell_xmls.py grasp_cells` → `grasp_cells_xml/design0001_r50y05.xml` (+ index.csv, rb5_pick_results.csv 복사). XML 끝에 `<custom>`으로 `cell_id`(원래 이름 design0001/r050.0_y005.0)와 `cell_summary`(summary.json) 추가. 실행 때 기존 xml 지우고 새로 만듦
+- `disturb_impulse_rb5.py`(B)에 공통 함수: `load_cell`(폴더면 state.npz, XML이면 lifted key로 복원), `select_cells`/`resolve_cell`/`cell_parts`(XML도 원래 cell 이름 사용 → 결과 폴더 구조·cell 이름은 예전과 같음), `default_cells_dir`(grasp_cells_xml 우선, 없으면 grasp_cells), `clean_results`
+- A(`disturb_force_rb5.py`), C(`disturb_shake_rb5.py`)도 같은 함수 사용. 세 스크립트 모두 `--clean`(results_X 안의 기존 파일 전부 삭제 후 시작), `--only`는 `design0001/r060.0_y015.0`·`design0001_r60y15` 둘 다 받음
+- trace meta에 `cell_path`, `state_source`(key:lifted / state.npz), `summary_source` 기록
+- summary 없는 예전 XML이면 경고 후 index.csv·기본값 사용
+
+## 실행 (rb5_xml_pick 폴더)
+```
+python collect_cell_xmls.py grasp_cells
+python disturb_force_rb5.py   --clean --workers 6
+python disturb_impulse_rb5.py --clean --workers 6
+python disturb_shake_rb5.py   --clean --workers 6
+```
+끊기면 `--clean` 빼고 같은 명령으로 이어서.
+
+## 검증 (sandbox, MuJoCo 3.3.7, mesh 파일 없어 충돌 mesh 제외 — 두 방식 같은 조건)
+- design0001 10 cell, XML 실행 vs 기존 state.npz 실행:
+  - B: impulse_cells/trials(240 시행)/all_designs 완전히 같음
+  - C: shake_cells/trials(120 시행)/all_designs 완전히 같음
+  - A: force_cells, all_designs 같음. force_dirs 60행 중 1행(r060.0_y015.0 ny, F_max 6.21 mg 동일)의 실패 뒤 값 3개(max_disp 30.02 vs 30.18 mm 등)만 조금 다름
+- 확인 못 함: view_shake_rb5.py, rank_*/plot_* 스크립트(업로드 안 됨). 결과 폴더 구조·cell 이름은 같게 유지
