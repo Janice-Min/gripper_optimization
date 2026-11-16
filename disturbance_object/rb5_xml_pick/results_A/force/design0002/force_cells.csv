@@ -1,0 +1,14 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,F_min_mg,weakest_dir,weakest_cause,weakest_creep_limited,any_type_change,any_censored,F_px_mg,F_nx_mg,F_py_mg,F_ny_mg,F_pz_mg,F_nz_mg,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3,pass@5
+design0002,r040.0_y010.0,40,10,enveloping,env,env,0,,,0.7814,0.184,0.29,px,rotation,0,0,0,0.29,0.3,0.38,1.8,2.46,0.42,1,0,0,0,0,0,0,0
+design0002,r040.0_y020.0,40,20,enveloping,env,env,0,,,0.7983,0.4395,0.27,px,rotation,0,0,0,0.27,0.27,0.52,0.69,2.48,0.33,1,0,0,0,0,0,0,0
+design0002,r045.0_y010.0,45,10,enveloping,env,env,0,,,0.7718,0.4251,0.29,nx,rotation,0,0,0,0.3,0.29,0.33,3.16,2.27,0.33,1,0,0,0,0,0,0,0
+design0002,r045.0_y015.0,45,15,enveloping,env,env,0,,,1.402,0.2975,0.21,nx,rotation,0,0,0,0.22,0.21,0.46,1,2.36,0.36,0,0,0,0,0,0,0,0
+design0002,r045.0_y020.0,45,20,enveloping,env,env,0,,,0.7784,0.5233,0.35,nx,rotation,0,0,0,0.37,0.35,0.35,0.87,2.32,0.4,1,0,0,0,0,0,0,0
+design0002,r045.0_y025.0,45,25,enveloping,env,zero_fail,1,slip,7.44,30.31,22.33,0.17,nx,slip,0,0,0,0.24,0.17,0.23,0.67,2.43,0.28,0,0,0,0,0,0,0,0
+design0002,r050.0_y010.0,50,10,enveloping,env,env,0,,,0.8116,0.5988,0.38,py,rotation,0,0,0,0.57,0.6,0.38,6.9,2.61,0.57,1,0,0,0,0,0,0,0
+design0002,r050.0_y015.0,50,15,enveloping,env,env,0,,,0.8176,0.6413,0.41,py,rotation,0,0,0,0.53,0.78,0.41,4.62,2.55,0.57,1,0,0,0,0,0,0,0
+design0002,r050.0_y020.0,50,20,enveloping,env,env,0,,,0.8571,0.8236,0.48,nz,slip,0,0,0,0.88,1,0.5,2.04,2.37,0.48,1,0,0,0,0,0,0,0
+design0002,r055.0_y015.0,55,15,enveloping,env,env,0,,,0.9849,1.057,0.5,py,rotation,0,1,0,0.98,1,0.5,4.53,2.59,0.66,1,1,0,0,0,0,0,0
+design0002,r055.0_y020.0,55,20,enveloping,env,env,0,,,1.114,1.321,0.45,nz,slip,0,1,0,0.62,0.57,0.54,1.36,2.42,0.45,1,0,0,0,0,0,0,0
+design0002,r065.0_y020.0,65,20,tip,tip,tip,0,,,2.172,1.278,0.51,nz,slip,0,1,0,0.97,0.98,0.74,3.95,2.5,0.51,1,1,0,0,0,0,0,0
+design0002,r065.0_y025.0,65,25,tip,tip,tip,0,,,2.187,2.326,0.3,nz,slip,0,0,0,0.35,0.36,0.5,1.18,2.3,0.3,1,0,0,0,0,0,0,0

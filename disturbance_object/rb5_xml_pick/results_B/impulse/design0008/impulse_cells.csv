@@ -1,0 +1,13 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,level_px,level_ny,level_pz,level_nz,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3
+design0008,r035.0_y000.0,35,0,enveloping,env,env,success,1,,0.5967,0.652,0.5,py|nx|px|nz,0.3,10,True,0.5,0.5,0.5,3,3,0.5,1,1,0,0,0,0,0
+design0008,r035.0_y005.0,35,5,enveloping,env,env,success,1,,1.603,1.094,0.25,nx|px,0.3,10,True,0.75,0.25,0.25,1.5,2,0.75,1,0,0,0,0,0,0
+design0008,r035.0_y010.0,35,10,enveloping,env,env,success,1,,0.924,0.09283,0.25,nx|px,0.3,10,True,0.75,0.25,0.25,1.5,2,0.5,1,0,0,0,0,0,0
+design0008,r035.0_y015.0,35,15,enveloping,env,env,success,1,,1.35,0.5386,0.25,nx|px,0.3,10,True,0.75,0.25,0.25,1.5,2,0.5,1,0,0,0,0,0,0
+design0008,r040.0_y010.0,40,10,enveloping,env,env,success,1,,0.787,0.2017,1,py,0.3,10,True,1,2,2,3,3,1.5,1,1,1,1,0,0,0
+design0008,r040.0_y015.0,40,15,enveloping,env,env,success,1,,0.7434,0.8213,1.5,py|nz,0.3,10,True,1.5,2,2,3,3,1.5,1,1,1,1,1,0,0
+design0008,r040.0_y020.0,40,20,enveloping,env,env,success,1,,0.8232,1.368,1,nx|px|nz,0.3,10,True,1.5,1,1,1.5,3,1,1,1,1,1,0,0,0
+design0008,r045.0_y015.0,45,15,enveloping,env,env,success,1,,0.8986,1.455,2,py|nx|px|nz,0.3,10,True,2,2,2,3,3,2,1,1,1,1,1,1,0
+design0008,r050.0_y025.0,50,25,tip,tip,tip,zero_fail,0,rotation,3.097,14.28,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0
+design0008,r050.0_y030.0,50,30,tip,tip,tip,zero_fail,0,rotation,2.559,7.39,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0
+design0008,r050.0_y035.0,50,35,tip,tip,tip,success,1,,2.425,4.103,0.25,nz,0.3,10,False,0.5,0.5,0.5,1.5,2,0.25,1,0,0,0,0,0,0
+design0008,r050.0_y040.0,50,40,tip,tip,tip,success,1,,2.381,2.097,0,py|nx|px|nz,0.3,10,False,0,0,0,0.5,2,0,0,0,0,0,0,0,0

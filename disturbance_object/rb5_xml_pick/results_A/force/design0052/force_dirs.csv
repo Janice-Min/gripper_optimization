@@ -1,0 +1,13 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,dir,cause,censored,ended,t_Fmax_s,max_disp_mm,disp_at_Fmax_mm,hand_at_Fmax_mm,max_rot_deg,type_start,type_at_Fmax,type_change_to,F_type_change_N,type_changed_before_Fmax,F_max_mg,creep_limited,F_mg
+design0052,r035.0_y015.0,35,15,enveloping,env,env,px,rotation,0,drop,0.21,30.27,4.608,0.09165,29.7,env,env,tip,0.7358,0,0.21,0,0.21
+design0052,r035.0_y015.0,35,15,enveloping,env,env,nx,rotation,0,drop,0.21,30.27,4.567,0.1185,26.08,env,env,tip,0.7652,0,0.21,0,0.21
+design0052,r035.0_y015.0,35,15,enveloping,env,env,py,slip,0,drop,0.36,30.01,5.439,0.2089,28.53,env,env,,,0,0.36,0,0.36
+design0052,r035.0_y015.0,35,15,enveloping,env,env,ny,rotation,0,drop,0.9,30.13,2.437,0.1491,54.28,env,env,tip,2.825,0,0.9,0,0.9
+design0052,r035.0_y015.0,35,15,enveloping,env,env,pz,slip,0,drop,2.31,30.33,5.026,1.733,4.504,env,env,,,0,2.31,0,2.31
+design0052,r035.0_y015.0,35,15,enveloping,env,env,nz,slip,0,drop,0.3,30.24,6.729,0.06412,4.186,env,env,,,0,0.3,0,0.3
+design0052,r040.0_y010.0,40,10,enveloping,env,zero_fail,px,slip,0,drop,0.16,30.35,5.487,0.1315,19.43,env,env,,,0,0.16,0,0.16
+design0052,r040.0_y010.0,40,10,enveloping,env,zero_fail,nx,slip,0,drop,0.16,30.22,5.389,0.1603,21.57,env,env,,,0,0.16,0,0.16
+design0052,r040.0_y010.0,40,10,enveloping,env,zero_fail,py,slip,0,drop,0.29,30.2,5.213,0.1779,25.42,env,env,,,0,0.29,0,0.29
+design0052,r040.0_y010.0,40,10,enveloping,env,zero_fail,ny,rotation,0,drop,0.81,30.5,3.143,0.1005,48.78,env,env,,,0,0.81,0,0.81
+design0052,r040.0_y010.0,40,10,enveloping,env,zero_fail,pz,slip,0,drop,2.19,30.02,5.274,1.671,4.177,env,env,,,0,2.19,0,2.19
+design0052,r040.0_y010.0,40,10,enveloping,env,zero_fail,nz,slip,0,drop,0.17,30.61,6.647,0.09437,4.951,env,env,,,0,0.17,0,0.17

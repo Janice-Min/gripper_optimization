@@ -1,0 +1,7 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,dir,cause,censored,ended,t_Fmax_s,max_disp_mm,disp_at_Fmax_mm,hand_at_Fmax_mm,max_rot_deg,type_start,type_at_Fmax,type_change_to,F_type_change_N,type_changed_before_Fmax,F_max_mg,creep_limited,F_mg
+design0016,r050.0_y035.0,50,35,tip,tip,zero_fail,px,slip,0,drop,1.01,30.05,5.115,0.5724,32.38,tip,tip,,,0,1.01,0,1.01
+design0016,r050.0_y035.0,50,35,tip,tip,zero_fail,nx,slip,0,drop,1.02,30.24,5.079,0.5686,32.62,tip,tip,,,0,1.02,0,1.02
+design0016,r050.0_y035.0,50,35,tip,tip,zero_fail,py,rotation,0,drop,0.52,30.41,2.699,0.1352,9.992,tip,tip,,,0,0.52,0,0.52
+design0016,r050.0_y035.0,50,35,tip,tip,zero_fail,ny,rotation,0,cap,2.08,28.26,2.604,0.5776,42.63,tip,tip,env,8.388,0,2.08,0,2.08
+design0016,r050.0_y035.0,50,35,tip,tip,zero_fail,pz,rotation,0,drop,2.37,30.06,2.058,2.05,27.63,tip,tip,,,0,2.37,0,2.37
+design0016,r050.0_y035.0,50,35,tip,tip,zero_fail,nz,rotation,0,drop,0.36,30.32,2.149,0.2294,20.74,tip,tip,,,0,0.36,0,0.36

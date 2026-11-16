@@ -1,0 +1,16 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,level_px,level_ny,level_pz,level_nz,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3
+design0166,r025.0_y000.0,25,0,other,tip,tip,success,1,,1.725,3.819,0,nz,0.3,10,False,0.25,0.25,0.25,3,2,0,0,0,0,0,0,0,0
+design0166,r030.0_y015.0,30,15,enveloping,env,env,success,1,,0.9961,0.2196,0,nx|px,0.3,10,True,0.5,0,0,1,2,0.25,0,0,0,0,0,0,0
+design0166,r030.0_y025.0,30,25,enveloping,env,env,success,1,,1.174,0.8879,0,px,0.3,10,True,0.5,0.25,0,0.75,2,0.5,0,0,0,0,0,0,0
+design0166,r030.0_y030.0,30,30,enveloping,env,env,success,1,,1.089,0.7195,0,nx|px,0.3,10,True,0.5,0,0,0.5,2,0.25,0,0,0,0,0,0,0
+design0166,r035.0_y010.0,35,10,enveloping,env,env,success,1,,1.371,0.3914,0,nx|px,0.3,10,True,0.5,0,0,1,2,0.5,0,0,0,0,0,0,0
+design0166,r035.0_y015.0,35,15,enveloping,env,env,success,1,,1.019,0.1898,0,px,0.3,10,True,0.25,0.25,0,0.75,2,0.25,0,0,0,0,0,0,0
+design0166,r040.0_y010.0,40,10,enveloping,env,env,success,1,,1.217,0.3458,0,nx|px,0.3,10,True,0.25,0,0,1,2,0.25,0,0,0,0,0,0,0
+design0166,r040.0_y015.0,40,15,enveloping,env,env,success,1,,1.714,0.2495,0,nx|px,0.3,10,True,0.5,0,0,0.75,2,0.25,0,0,0,0,0,0,0
+design0166,r045.0_y010.0,45,10,enveloping,env,env,success,1,,1.083,1.43,0.5,py|nx|px,0.3,10,True,0.5,0.5,0.5,3,2,0.75,1,1,0,0,0,0,0
+design0166,r045.0_y015.0,45,15,enveloping,env,env,success,1,,0.9932,1.033,0.25,py|nx,0.3,10,True,0.25,0.25,0.5,2,2,0.5,1,0,0,0,0,0,0
+design0166,r045.0_y020.0,45,20,enveloping,env,env,success,1,,1.094,1.458,0.5,py|px|nz,0.3,10,True,0.5,0.75,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0166,r050.0_y015.0,50,15,enveloping,env,env,success,1,,1.25,1.683,0.5,py,0.3,10,True,0.5,1,1,3,2,0.75,1,1,0,0,0,0,0
+design0166,r055.0_y015.0,55,15,enveloping,env,env,success,1,,1.535,2.142,0.75,py|nz,0.3,10,True,0.75,1,1,3,2,0.75,1,1,1,0,0,0,0
+design0166,r060.0_y020.0,60,20,tip,tip,tip,zero_fail,0,rotation,2.923,8.543,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0
+design0166,r060.0_y025.0,60,25,tip,tip,tip,zero_fail,0,rotation,2.783,5.468,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0

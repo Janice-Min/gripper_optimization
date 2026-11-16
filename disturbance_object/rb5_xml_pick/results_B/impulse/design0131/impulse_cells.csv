@@ -1,0 +1,9 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,level_px,level_ny,level_pz,level_nz,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3
+design0131,r040.0_y000.0,40,0,tip,tip,tip,success,1,,0.8265,0.5092,0.25,py,0.3,10,False,0.25,0.75,0.75,3,2,0.5,1,0,0,0,0,0,0
+design0131,r040.0_y005.0,40,5,tip,tip,tip,success,1,,0.8005,0.4051,0.75,py|nz,0.3,10,False,0.75,1,1.5,3,2,0.75,1,1,1,0,0,0,0
+design0131,r040.0_y010.0,40,10,tip,tip,tip,success,1,,1.053,0.948,0.25,nz,0.3,10,False,0.5,1,1,3,2,0.25,1,0,0,0,0,0,0
+design0131,r045.0_y000.0,45,0,enveloping,tip,tip,success,1,,1.176,0.3191,0.5,py|nz,0.3,10,False,0.5,2,1.5,3,2,0.5,1,1,0,0,0,0,0
+design0131,r045.0_y005.0,45,5,enveloping,tip,tip,success,1,,1.108,1.05,0.5,py|nz,0.3,10,False,0.5,1.5,1.5,3,2,0.5,1,1,0,0,0,0,0
+design0131,r050.0_y005.0,50,5,enveloping,env,env,success,1,,1.374,2.065,0.75,py|nz,0.3,10,True,0.75,1,1,3,2,0.75,1,1,1,0,0,0,0
+design0131,r050.0_y010.0,50,10,enveloping,tip,tip,zero_fail,0,rotation,2.082,5.651,0,py|ny|pz,0.3,10,False,0,0.25,0.25,0,0,0.25,0,0,0,0,0,0,0
+design0131,r055.0_y010.0,55,10,tip,tip,tip,zero_fail,0,rotation,2.07,5.797,0,py|nx|px|ny|pz,0.3,10,False,0,0,0,0,0,0.25,0,0,0,0,0,0,0

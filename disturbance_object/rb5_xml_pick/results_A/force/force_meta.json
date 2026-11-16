@@ -1,0 +1,55 @@
+{
+  "sim": {
+    "rate_mg_s": 1.0,
+    "cap_mg": 10.0,
+    "pre_s": 0.5,
+    "sample_s": 0.01,
+    "check_ms": 1.0,
+    "stop_mm": 30.0,
+    "stop_lost_s": 0.1,
+    "lost_n": 0.1,
+    "tension": null
+  },
+  "sim_hash": "3855c48d1e26",
+  "dirs": [
+    "px",
+    "nx",
+    "py",
+    "ny",
+    "pz",
+    "nz"
+  ],
+  "cells_dir": "C:\\Users\\User\\Desktop\\BEAR lab\\GWO_experiment\\gripper_optimization\\disturbance_object\\rb5_xml_pick\\grasp_cells",
+  "created": "2026-11-15 15:37:51",
+  "updated": "2026-11-15 15:38:01",
+  "last_score": {
+    "criteria": {
+      "slip_mm": 5.0,
+      "rot_deg": 5.0,
+      "rot_mode": "total",
+      "lost_s": 0.02,
+      "collision_n": 0.05,
+      "zero_fail": "fail"
+    },
+    "dirs": [
+      "px",
+      "nx",
+      "py",
+      "ny",
+      "pz",
+      "nz"
+    ],
+    "levels": [
+      0.25,
+      0.5,
+      0.75,
+      1.0,
+      1.5,
+      2.0,
+      3.0,
+      5.0
+    ],
+    "metric": "ramp",
+    "time": "2026-11-15 15:49:55"
+  }
+}

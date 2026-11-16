@@ -1,0 +1,6 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,F_min_mg,weakest_dir,weakest_cause,weakest_creep_limited,any_type_change,any_censored,F_px_mg,F_nx_mg,F_py_mg,F_ny_mg,F_pz_mg,F_nz_mg,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3,pass@5
+design0255,r045.0_y000.0,45,0,tip,tip,tip,0,,,0.8385,0.4032,0.91,py,rotation,0,0,1,1.95,1.99,0.91,10,3.19,1.07,1,1,1,0,0,0,0,0
+design0255,r045.0_y005.0,45,5,tip,tip,tip,0,,,1.076,0.9991,0.77,py,rotation,0,0,1,1.23,1.57,0.77,10,2.48,0.96,1,1,1,0,0,0,0,0
+design0255,r050.0_y020.0,50,20,tip,tip,zero_fail,1,rotation,2.39,3.633,19.99,0.27,nz,rotation,0,0,0,0.94,0.95,0.59,1.17,2.31,0.27,0,0,0,0,0,0,0,0
+design0255,r050.0_y025.0,50,25,tip,tip,zero_fail,1,rotation,3.4,2.746,13.96,0.25,nz,rotation,0,0,0,0.53,0.54,0.47,1.07,2.26,0.25,0,0,0,0,0,0,0,0
+design0255,r050.0_y030.0,50,30,tip,tip,tip,0,,,1.959,1.092,0.21,nz,slip,0,0,0,0.22,0.22,0.31,0.6,2.26,0.21,0,0,0,0,0,0,0,0

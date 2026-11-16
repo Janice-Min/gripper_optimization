@@ -1,0 +1,7 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,dir,cause,censored,ended,t_Fmax_s,max_disp_mm,disp_at_Fmax_mm,hand_at_Fmax_mm,max_rot_deg,type_start,type_at_Fmax,type_change_to,F_type_change_N,type_changed_before_Fmax,F_max_mg,creep_limited,F_mg
+design0259,r040.0_y015.0,40,15,enveloping,env,zero_fail,px,slip,0,drop,0.15,30.06,5.887,0.08694,20.31,env,env,tip,0.6916,0,0.15,0,0.15
+design0259,r040.0_y015.0,40,15,enveloping,env,zero_fail,nx,slip,0,drop,0.19,30.13,5.875,0.1302,22.57,env,env,tip,0.6475,0,0.19,0,0.19
+design0259,r040.0_y015.0,40,15,enveloping,env,zero_fail,py,slip,0,drop,0.26,30.14,6.013,0.1708,23.9,env,env,,,0,0.26,0,0.26
+design0259,r040.0_y015.0,40,15,enveloping,env,zero_fail,ny,rotation,0,drop,0.82,30.07,3.35,0.09311,47.76,env,env,tip,2.59,0,0.82,0,0.82
+design0259,r040.0_y015.0,40,15,enveloping,env,zero_fail,pz,slip,0,drop,2.19,30.37,5.393,1.677,8.049,env,env,,,0,2.19,0,2.19
+design0259,r040.0_y015.0,40,15,enveloping,env,zero_fail,nz,slip,0,drop,0.18,30.44,5.727,0.09466,4.46,env,env,,,0,0.18,0,0.18

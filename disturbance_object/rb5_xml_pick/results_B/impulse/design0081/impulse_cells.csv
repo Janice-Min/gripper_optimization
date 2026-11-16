@@ -1,0 +1,17 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,level_px,level_ny,level_pz,level_nz,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3
+design0081,r030.0_y000.0,30,0,enveloping,env,env,success,1,,0.7227,0.2492,0.5,py|nx|px|nz,0.3,10,True,0.5,0.5,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0081,r030.0_y005.0,30,5,enveloping,env,env,success,1,,1.504,0.6301,0.25,nx|px,0.3,10,True,0.75,0.25,0.25,3,2,0.75,1,0,0,0,0,0,0
+design0081,r030.0_y010.0,30,10,enveloping,env,env,success,1,,1.718,0.8567,0.25,nx|px,0.3,10,True,0.75,0.25,0.25,2,2,0.75,1,0,0,0,0,0,0
+design0081,r030.0_y015.0,30,15,enveloping,env,env,success,1,,0.9214,0.7382,0.5,nx|px,0.3,10,True,0.75,0.5,0.5,2,3,0.75,1,1,0,0,0,0,0
+design0081,r030.0_y020.0,30,20,enveloping,env,env,success,1,,0.7621,0.2301,0.25,nx|px,0.3,10,True,0.5,0.25,0.25,0.75,3,0.75,1,0,0,0,0,0,0
+design0081,r035.0_y000.0,35,0,enveloping,env,env,success,1,,0.7933,0.6197,0.25,nx|px,0.3,10,True,0.5,0.25,0.25,3,2,0.5,1,0,0,0,0,0,0
+design0081,r035.0_y005.0,35,5,enveloping,env,env,success,1,,1.324,0.05247,0.5,nx|px|nz,0.3,10,True,0.75,0.5,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0081,r035.0_y010.0,35,10,enveloping,env,env,success,1,,1.049,0.3965,0.5,nx|px|nz,0.3,10,True,0.75,0.5,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0081,r035.0_y015.0,35,15,enveloping,env,env,success,1,,0.905,1.025,0.5,nx|px|nz,0.3,10,True,0.75,0.5,0.5,2,2,0.5,1,1,0,0,0,0,0
+design0081,r040.0_y005.0,40,5,enveloping,env,env,success,1,,1.163,0.6553,0.5,py|nx|px|nz,0.3,10,True,0.5,0.5,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0081,r040.0_y010.0,40,10,enveloping,env,env,success,1,,1.15,0.6658,0.5,py|nx|px|nz,0.3,10,True,0.5,0.5,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0081,r040.0_y015.0,40,15,enveloping,env,env,success,1,,1.001,1.311,0.5,py|px|nz,0.3,10,True,0.5,0.75,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0081,r045.0_y005.0,45,5,enveloping,env,env,success,1,,1.106,1.403,0.25,py,0.3,10,True,0.25,1,1,3,2,0.75,1,0,0,0,0,0,0
+design0081,r045.0_y010.0,45,10,enveloping,env,env,success,1,,1.161,1.572,0.5,py,0.3,10,True,0.5,1,1,3,2,0.75,1,1,0,0,0,0,0
+design0081,r050.0_y010.0,50,10,enveloping,env,env,success,1,,1.798,2.593,0.5,nz,0.3,10,True,0.75,1,1,3,2,0.5,1,1,0,0,0,0,0
+design0081,r055.0_y015.0,55,15,tip,tip,tip,zero_fail,0,rotation,2.7,8.964,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0

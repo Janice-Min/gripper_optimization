@@ -1,0 +1,16 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,F_min_mg,weakest_dir,weakest_cause,weakest_creep_limited,any_type_change,any_censored,F_px_mg,F_nx_mg,F_py_mg,F_ny_mg,F_pz_mg,F_nz_mg,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3,pass@5
+design0240,r035.0_y000.0,35,0,enveloping,env,env,0,,,0.729,0.1595,0.43,py,rotation,0,1,1,0.45,0.48,0.43,10,2.49,0.49,1,0,0,0,0,0,0,0
+design0240,r035.0_y005.0,35,5,enveloping,env,env,0,,,0.9903,0.4381,0.42,nx,rotation,0,0,0,0.44,0.42,0.56,2.33,2.91,0.8,1,0,0,0,0,0,0,0
+design0240,r035.0_y010.0,35,10,enveloping,env,env,0,,,1.347,0.5892,0.35,nx,rotation,0,0,0,0.36,0.35,0.63,1.59,2.79,0.73,1,0,0,0,0,0,0,0
+design0240,r035.0_y015.0,35,15,enveloping,env,env,0,,,1.428,0.5972,0.33,nx,rotation,0,0,0,0.35,0.33,0.65,1.4,2.76,0.68,1,0,0,0,0,0,0,0
+design0240,r035.0_y020.0,35,20,enveloping,env,env,0,,,0.8847,0.7468,0.29,nz,rotation,0,0,0,0.32,0.31,0.77,0.44,2.27,0.29,1,0,0,0,0,0,0,0
+design0240,r040.0_y005.0,40,5,enveloping,env,env,0,,,1.491,0.622,0.34,px,rotation,0,0,1,0.34,0.35,0.53,10,2.67,0.65,1,0,0,0,0,0,0,0
+design0240,r040.0_y010.0,40,10,enveloping,env,env,0,,,1.612,0.7471,0.33,px,rotation,0,0,1,0.33,0.33,0.53,10,2.66,0.64,1,0,0,0,0,0,0,0
+design0240,r040.0_y015.0,40,15,enveloping,env,env,0,,,0.8635,0.5234,0.37,nx,rotation,0,0,0,0.46,0.37,0.56,1.33,2.39,0.52,1,0,0,0,0,0,0,0
+design0240,r040.0_y020.0,40,20,enveloping,env,env,0,,,0.8233,0.9546,0.53,nz,rotation,0,0,0,0.93,0.92,0.7,3.02,2.35,0.53,1,1,0,0,0,0,0,0
+design0240,r045.0_y010.0,45,10,enveloping,env,env,0,,,0.7941,0.5939,0.76,py,rotation,0,0,0,0.93,1.08,0.76,7.84,3.15,1.19,1,1,1,0,0,0,0,0
+design0240,r045.0_y015.0,45,15,enveloping,env,env,0,,,0.8257,0.9521,0.98,py,slip,0,0,0,1.44,1.66,0.98,3.36,3.14,1.07,1,1,1,0,0,0,0,0
+design0240,r050.0_y015.0,50,15,enveloping,env,env,0,,,1.07,1.668,1.16,nz,slip,0,1,0,1.34,1.38,1.35,3.68,3.19,1.16,1,1,1,1,0,0,0,0
+design0240,r055.0_y020.0,55,20,tip,tip,zero_fail,1,rotation,1.66,3.251,11.7,0.29,nz,rotation,0,0,0,1.6,1.61,0.65,1.21,2.34,0.29,0,0,0,0,0,0,0,0
+design0240,r055.0_y025.0,55,25,tip,tip,zero_fail,1,rotation,2.35,3.752,19.13,0.29,nz,rotation,0,0,0,0.68,0.68,0.57,1.18,2.31,0.29,0,0,0,0,0,0,0,0
+design0240,r055.0_y030.0,55,30,tip,tip,zero_fail,1,rotation,3.11,3.187,14.44,0.22,nz,rotation,0,0,0,0.39,0.4,0.41,0.98,2.24,0.22,0,0,0,0,0,0,0,0

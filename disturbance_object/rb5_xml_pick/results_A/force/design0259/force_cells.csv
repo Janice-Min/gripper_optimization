@@ -1,0 +1,2 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,F_min_mg,weakest_dir,weakest_cause,weakest_creep_limited,any_type_change,any_censored,F_px_mg,F_nx_mg,F_py_mg,F_ny_mg,F_pz_mg,F_nz_mg,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3,pass@5
+design0259,r040.0_y015.0,40,15,enveloping,env,zero_fail,1,slip,7.69,30.13,7.397,0.15,px,slip,0,0,0,0.15,0.19,0.26,0.82,2.19,0.18,0,0,0,0,0,0,0,0

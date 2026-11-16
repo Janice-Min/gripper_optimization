@@ -1,0 +1,14 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,F_min_mg,weakest_dir,weakest_cause,weakest_creep_limited,any_type_change,any_censored,F_px_mg,F_nx_mg,F_py_mg,F_ny_mg,F_pz_mg,F_nz_mg,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3,pass@5
+design0084,r040.0_y010.0,40,10,enveloping,env,env,0,,,0.6984,0.2326,0.22,nx,rotation,0,0,0,0.25,0.22,0.34,0.89,2.39,0.36,0,0,0,0,0,0,0,0
+design0084,r040.0_y015.0,40,15,enveloping,env,env,0,,,1.259,0.4031,0.23,px,rotation,0,0,0,0.23,0.24,0.48,1.21,2.47,0.45,0,0,0,0,0,0,0,0
+design0084,r040.0_y020.0,40,20,enveloping,env,env,0,,,0.7677,0.356,0.26,px,rotation,0,0,0,0.26,0.26,0.47,0.88,2.46,0.37,1,0,0,0,0,0,0,0
+design0084,r040.0_y025.0,40,25,enveloping,env,env,0,,,0.7522,0.4538,0.23,px,rotation,0,0,0,0.23,0.24,0.46,0.47,2.37,0.26,0,0,0,0,0,0,0,0
+design0084,r045.0_y015.0,45,15,enveloping,env,env,0,,,0.735,0.4438,0.4,py,rotation,0,0,0,0.75,0.7,0.4,4.31,2.62,0.56,1,0,0,0,0,0,0,0
+design0084,r045.0_y020.0,45,20,enveloping,env,env,0,,,0.7455,0.5367,0.41,px,rotation,0,0,0,0.41,1.08,0.44,2.93,2.41,0.47,1,0,0,0,0,0,0,0
+design0084,r045.0_y025.0,45,25,enveloping,env,env,0,,,0.7729,0.7487,0.35,nz,rotation,0,0,0,0.88,0.96,0.54,1.35,2.18,0.35,1,0,0,0,0,0,0,0
+design0084,r050.0_y015.0,50,15,enveloping,env,env,0,,,0.8092,0.6771,0.43,py,rotation,0,1,0,1.34,1.38,0.43,9.15,2.77,0.77,1,0,0,0,0,0,0,0
+design0084,r050.0_y020.0,50,20,enveloping,env,env,0,,,0.8545,0.9058,0.59,py,slip,0,0,0,0.98,1.04,0.59,3.4,2.64,0.69,1,1,0,0,0,0,0,0
+design0084,r050.0_y025.0,50,25,enveloping,env,env,0,,,0.9485,1.12,0.46,nz,slip,0,0,0,0.64,0.62,0.58,1.25,2.47,0.46,1,0,0,0,0,0,0,0
+design0084,r055.0_y020.0,55,20,enveloping,env,env,0,,,1.134,1.487,0.69,nz,slip,0,1,0,1.17,1.2,0.71,3.31,2.49,0.69,1,1,0,0,0,0,0,0
+design0084,r060.0_y025.0,60,25,tip,tip,zero_fail,1,rotation,4.65,2.4,10.12,0.34,nz,rotation,0,0,0,0.58,0.6,0.62,1.2,2.34,0.34,0,0,0,0,0,0,0,0
+design0084,r060.0_y030.0,60,30,tip,tip,zero_fail,1,rotation,6.33,2.21,7.529,0.23,nz,slip,0,0,0,0.28,0.28,0.38,0.97,2.23,0.23,0,0,0,0,0,0,0,0

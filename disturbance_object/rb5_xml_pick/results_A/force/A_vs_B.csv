@@ -1,0 +1,10 @@
+﻿k_minus_FA_from,k_minus_FA_to,trials,held_rate,note,value,designs
+-10,-0.4,23980,0.9929,,,
+-0.4,-0.2,4867,0.9821,,,
+-0.2,0,6369,0.8824,,,
+0,0.2,6125,0.4098,,,
+0.2,0.4,5905,0.1062,,,
+0.4,0.6,5614,0.02494,,,
+0.6,1,7327,0.01078,,,
+1,10,19067,0.001049,,,
+,,,,design rank correlation (Spearman) A robust_area vs B impact_area,0.9396,273

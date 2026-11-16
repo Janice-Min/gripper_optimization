@@ -1,0 +1,15 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,level_px,level_ny,level_pz,level_nz,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3
+design0193,r040.0_y000.0,40,0,tip,tip,tip,success,1,,0.8143,0.2438,0.5,py|nx|px,0.3,10,False,0.5,0.5,0.5,3,2,0.75,1,1,0,0,0,0,0
+design0193,r040.0_y005.0,40,5,tip,tip,tip,success,1,,0.9009,0.557,0.5,py|nx|px|nz,0.3,10,False,0.5,0.5,0.5,3,3,0.5,1,1,0,0,0,0,0
+design0193,r040.0_y010.0,40,10,tip,tip,tip,success,1,,0.9896,0.8371,0.25,nx|nz,0.3,10,False,0.5,0.25,0.5,3,2,0.25,1,0,0,0,0,0,0
+design0193,r040.0_y015.0,40,15,tip,tip,tip,success,1,,0.8583,0.3984,0,py,0.3,10,False,0,0.25,0.25,1.5,2,0.25,0,0,0,0,0,0,0
+design0193,r045.0_y000.0,45,0,tip,tip,tip,success,1,,0.8455,0.295,0.5,py|nx|px,0.3,10,False,0.5,0.5,0.5,3,2,0.75,1,1,0,0,0,0,0
+design0193,r045.0_y005.0,45,5,tip,tip,tip,success,1,,0.8479,0.3033,0.5,py|nx|px|nz,0.3,10,False,0.5,0.5,0.5,3,2,0.5,1,1,0,0,0,0,0
+design0193,r045.0_y010.0,45,10,tip,tip,tip,success,1,,1.009,0.77,0.25,py|px|nz,0.3,10,False,0.25,0.5,0.25,3,2,0.25,1,0,0,0,0,0,0
+design0193,r045.0_y015.0,45,15,tip,tip,tip,success,1,,1.113,0.1721,0,py|nx|px|ny|nz,0.3,10,False,0,0,0,0,2,0,0,0,0,0,0,0,0
+design0193,r050.0_y000.0,50,0,tip,tip,tip,success,1,,0.8989,0.387,0.25,py,0.3,10,False,0.25,0.5,0.5,3,2,0.5,1,0,0,0,0,0,0
+design0193,r050.0_y005.0,50,5,tip,tip,tip,success,1,,0.8977,0.3825,0.25,py,0.3,10,False,0.25,0.5,0.5,3,2,0.5,1,0,0,0,0,0,0
+design0193,r050.0_y010.0,50,10,tip,tip,tip,success,1,,0.901,0.4009,0,py,0.3,10,False,0,0.25,0.25,3,2,0.25,0,0,0,0,0,0,0
+design0193,r055.0_y005.0,55,5,tip,tip,tip,success,1,,0.9592,0.4597,0.25,py|nz,0.3,10,False,0.25,0.5,0.5,3,2,0.25,1,0,0,0,0,0,0
+design0193,r055.0_y010.0,55,10,tip,tip,tip,success,1,,0.9852,0.5162,0,py|nz,0.3,10,False,0,0.25,0.25,3,2,0,0,0,0,0,0,0,0
+design0193,r060.0_y005.0,60,5,tip,tip,tip,success,1,,1.039,0.5477,0,py|nz,0.3,10,False,0,0.5,0.5,3,2,0,0,0,0,0,0,0,0

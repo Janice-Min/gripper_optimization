@@ -1,0 +1,5 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,level_px,level_ny,level_pz,level_nz,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3
+design0274,r035.0_y020.0,35,20,tip,tip,tip,success,1,,1.806,1.372,1,py|nz,0.3,10,False,1,1.5,1.5,3,3,1,1,1,1,1,0,0,0
+design0274,r035.0_y025.0,35,25,tip,tip,tip,success,1,,1.81,1.637,0.75,nx|px|nz,0.3,10,False,1,0.75,0.75,2,3,0.75,1,1,1,0,0,0,0
+design0274,r035.0_y030.0,35,30,tip,tip,tip,success,1,,1.832,2.757,0.25,nz,0.3,10,False,0.5,0.5,0.5,1.5,2,0.25,1,0,0,0,0,0,0
+design0274,r035.0_y035.0,35,35,tip,tip,tip,success,1,,1.842,3.133,0,nz,0.3,10,False,0.25,0.25,0.25,1,2,0,0,0,0,0,0,0,0

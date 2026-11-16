@@ -10,61 +10,92 @@
     "monotonic": false
   },
   "mags": [
+    0.25,
     0.5,
+    0.75,
     1.0,
+    1.5,
     2.0,
     3.0
   ],
   "dirs": [
     "py",
-    "nx"
+    "nx",
+    "px",
+    "ny",
+    "pz",
+    "nz"
   ],
   "w_tip": 0.2,
   "totals": {
-    "cells": 3,
-    "success": 2,
-    "zero_fail": 1,
+    "cells": 2545,
+    "success": 2046,
+    "zero_fail": 499,
     "incomplete": 0,
-    "trials": 24
+    "trials": 106890
   },
   "stale_traces_skipped": 0,
   "design_index": null,
   "top10_impact_area": [
     {
-      "design": "design0001",
-      "impact_area": 1.0,
-      "success": 2,
+      "design": "design0023",
+      "impact_area": 8.25,
+      "success": 16,
       "level_min_median": 0.5
     },
     {
-      "design": "design0041",
-      "impact_area": 0.0,
-      "success": 0,
-      "level_min_median": NaN
+      "design": "design0111",
+      "impact_area": 8.25,
+      "success": 10,
+      "level_min_median": 0.75
     },
     {
-      "design": "design0056",
-      "impact_area": 0.0,
-      "success": 0,
-      "level_min_median": NaN
+      "design": "design0009",
+      "impact_area": 7.75,
+      "success": 13,
+      "level_min_median": 0.25
     },
     {
-      "design": "design0135",
-      "impact_area": 0.0,
-      "success": 0,
-      "level_min_median": NaN
+      "design": "design0116",
+      "impact_area": 7.75,
+      "success": 20,
+      "level_min_median": 0.25
     },
     {
-      "design": "design0151",
-      "impact_area": 0.0,
-      "success": 0,
-      "level_min_median": NaN
+      "design": "design0008",
+      "impact_area": 7.0,
+      "success": 10,
+      "level_min_median": 0.375
     },
     {
-      "design": "design0276",
-      "impact_area": 0.0,
-      "success": 0,
-      "level_min_median": NaN
+      "design": "design0043",
+      "impact_area": 6.75,
+      "success": 7,
+      "level_min_median": 0.75
+    },
+    {
+      "design": "design0060",
+      "impact_area": 6.75,
+      "success": 13,
+      "level_min_median": 0.5
+    },
+    {
+      "design": "design0117",
+      "impact_area": 6.75,
+      "success": 11,
+      "level_min_median": 0.5
+    },
+    {
+      "design": "design0247",
+      "impact_area": 6.75,
+      "success": 7,
+      "level_min_median": 0.75
+    },
+    {
+      "design": "design0145",
+      "impact_area": 6.5,
+      "success": 14,
+      "level_min_median": 0.5
     }
   ]
 }

@@ -12,6 +12,9 @@ run_rb5_workspace.py가 저장한 grasp_cells/<design>/<cell>/ 의 '들어 올�
   python disturb_impulse_rb5.py --rescore --slip-mode residual                  # 시뮬레이션 없이 재판정
   python disturb_impulse_rb5.py --view design0001/r060.0_y015.0 --dir py --mag 1  # 한 시행을 viewer로
 
+셀 입력: 기본은 이 파일 옆 grasp_cells_xml/ (collect_cell_xmls.py가 만든 XML 하나 = cell 하나,
+상태는 <key name="lifted">, summary는 <custom>). 없으면 grasp_cells/ (폴더, state.npz). --cells-dir로 지정.
+--clean: 시작 전에 results_X 안의 기존 결과를 모두 지움.
 시뮬레이션 결과는 cell마다 traces/<cell>.npz 하나에 저장하고, 표(CSV)는 항상 trace에서 다시 계산한다.
 그래서 판정 기준만 바꿀 때는 --rescore로 충분하고, 중단돼도 같은 명령으로 끝난 cell을 건너뛴다.
 """
@@ -19,10 +22,13 @@ from __future__ import annotations
 
 import argparse
 import csv
+import functools
 import hashlib
 import json
 import math
 import os
+import re
+import shutil
 import sys
 import time
 import traceback
@@ -161,6 +167,161 @@ def load_scene_xml(scene_path, mesh_roots, allow_missing_collision=False):
                 f'collision mesh files not found ({", ".join(sorted(set(dropped_collision)))}). '
                 f'Give --mesh-dir <rb5_xml_pick>/assets/rb5_850e/meshes')
     return ET.tostring(root, encoding='unicode'), sorted(missing), sorted(set(dropped_collision))
+
+
+# ----------------------------------------------------------------------------- cells (폴더 또는 XML 하나)
+# grasp_cells/<design>/<cell>/        scene.xml + state.npz + summary.json   (상태: state.npz)
+# grasp_cells_xml/<design>_rYYyZZ.xml collect_cell_xmls.py가 만든 XML 하나  (상태: <key name="lifted">,
+#                                     summary·cell 이름: <custom><text name="cell_summary"/"cell_id">)
+STATE_KEY = 'lifted'
+_CELL_ID_RE = re.compile(r'<text\s+name="cell_id"\s+data="([^"]+)"')
+
+
+def is_xml_cell(p):
+    return Path(p).suffix.lower() == '.xml'
+
+
+def is_xml_cells_dir(cells_dir):
+    return Path(cells_dir).is_dir() and any(Path(cells_dir).glob('*.xml'))
+
+
+@functools.lru_cache(maxsize=None)
+def cell_parts(p):
+    """cell 경로 -> (design, cell). XML이면 안에 적힌 원래 cell 이름(design0001/r060.0_y015.0)을 쓴다."""
+    p = Path(p)
+    if not is_xml_cell(p):
+        return p.parent.name, p.name
+    mt = _CELL_ID_RE.search(p.read_text(encoding='utf-8', errors='ignore'))
+    if mt:
+        parts = mt.group(1).replace('\\', '/').strip('/').split('/')
+        if len(parts) >= 2:
+            return parts[-2], parts[-1]
+    design, _, cell = p.stem.partition('_')
+    return design, (cell or p.stem)
+
+
+def cell_label(p):
+    return '/'.join(cell_parts(p))
+
+
+@functools.lru_cache(maxsize=None)
+def _xml_cell_map(cells_dir):
+    out = {}
+    for f in sorted(Path(cells_dir).glob('*.xml')):
+        out[cell_label(f)] = f
+        out[f.stem] = f
+        out[f.name] = f
+    return out
+
+
+def resolve_cell(cells_dir, cid):
+    """'design0001/r060.0_y015.0', 'design0001_r60y15', 'design0001_r60y15.xml' 모두 받는다."""
+    cells_dir = Path(cells_dir)
+    cid = str(cid).replace('\\', '/')
+    if is_xml_cells_dir(cells_dir):
+        f = _xml_cell_map(str(cells_dir)).get(cid) or _xml_cell_map(str(cells_dir)).get(Path(cid).name)
+        if f is None:
+            raise SystemExit(f'cell {cid!r} not found in {cells_dir}')
+        return f
+    p = cells_dir / cid
+    if not (p / 'state.npz').is_file():
+        raise SystemExit(f'no state.npz in {p}')
+    return p
+
+
+def _xml_summary(path):
+    """XML 안의 cell_summary. 없으면 같은 폴더 index.csv의 몇 가지 값만."""
+    root = ET.parse(path).getroot()
+    for el in root.iter('text'):
+        if el.get('name') == 'cell_summary' and el.get('data'):
+            return json.loads(el.get('data')), 'xml'
+    for row in read_csv(Path(path).parent / 'index.csv') or []:
+        if row.get('file') == Path(path).name:
+            num = lambda v: float(v) if v not in (None, '') else None  # noqa: E731
+            flag = lambda v: {'True': True, 'False': False}.get(str(v), v)  # noqa: E731
+            return ({'cell': {'r_mm': num(row.get('r_mm')), 'y_mm': num(row.get('y_mm')),
+                              'workspace_grasp_type': row.get('workspace_grasp_type') or None},
+                     'four_link_contact': flag(row.get('four_link_contact')),
+                     'success': flag(row.get('success'))}, 'index.csv')
+    return {}, 'none'
+
+
+def load_cell(cell_path, mesh_roots, allow_missing_collision=False):
+    """cell 하나를 읽어 파지 상태로 복원. 반환 (m, d, xml, summary, info).
+
+    폴더: scene.xml + state.npz(mj_setState) + summary.json
+    XML : 파일 하나 + <key name="lifted">(mj_resetDataKeyframe) + <custom> summary
+    """
+    import mujoco
+    p = Path(cell_path)
+    if not p.exists():  # cells_dir/design0001/r060.0_y015.0 처럼 원래 id로 만든 경로 (view 스크립트 등)
+        p = resolve_cell(p.parent.parent, f'{p.parent.name}/{p.name}')
+    xml_mode = is_xml_cell(p)
+    scene = p if xml_mode else p / 'scene.xml'
+    xml, dropped, dropped_col = load_scene_xml(scene, mesh_roots, allow_missing_collision)
+    m = mujoco.MjModel.from_xml_string(xml)
+    d = mujoco.MjData(m)
+    if xml_mode:
+        summary, ssrc = _xml_summary(p)
+        kid = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_KEY, STATE_KEY)
+        if kid < 0:
+            raise ValueError(f'{p.name}: <key name="{STATE_KEY}"> 없음')
+        mujoco.mj_resetDataKeyframe(m, d, kid)
+        state_src = f'key:{STATE_KEY}'
+    else:
+        summary, ssrc = (read_json(p / 'summary.json', {}) or {}), 'summary.json'
+        with np.load(p / 'state.npz', allow_pickle=False) as z:
+            spec = int(z['integration_spec']) if 'integration_spec' in z.files else int(
+                mujoco.mjtState.mjSTATE_INTEGRATION)
+            state = np.array(z['integration_state'], dtype=float)
+        if mujoco.mj_stateSize(m, spec) != state.size:
+            raise ValueError(f'state size {state.size} != model {mujoco.mj_stateSize(m, spec)} '
+                             f'(scene.xml과 state.npz가 다른 모델?)')
+        mujoco.mj_setState(m, d, state, spec)
+        state_src = 'state.npz'
+    info = {'cell_path': str(p), 'state_source': state_src, 'summary_source': ssrc,
+            'dropped_meshes': dropped, 'dropped_collision_meshes': dropped_col}
+    return m, d, xml, summary, info
+
+
+def warn_old_xml(cells, tag):
+    """summary가 안 들어간(예전 collect_cell_xmls.py로 만든) XML이 있으면 알림."""
+    old = [p for p in cells if is_xml_cell(p) and 'name="cell_summary"' not in Path(p).read_text(encoding='utf-8', errors='ignore')]
+    if old:
+        print(f'[{tag}] [WARN] {len(old)} XML files have no <custom> cell_summary (e.g. {Path(old[0]).name}): '
+              'hand/object names and hand frame fall back to defaults and cell names come from the file name. '
+              'Re-run collect_cell_xmls.py to embed summary.json.')
+
+
+def default_cells_dir(explicit=None):
+    """--cells-dir가 없으면 grasp_cells_xml(있으면)을 먼저, 그다음 grasp_cells."""
+    if explicit:
+        return Path(explicit).resolve()
+    for p in (HERE / 'grasp_cells_xml', HERE.parent / 'grasp_cells_xml', HERE / 'grasp_cells', HERE.parent / 'grasp_cells'):
+        if p.is_dir():
+            return p.resolve()
+    return (HERE / 'grasp_cells').resolve()
+
+
+def clean_results(out_root, cells_dir, tag):
+    """--clean: 결과 상위 폴더(results_X) 안의 기존 파일을 모두 지운다."""
+    out_root, cells_dir = Path(out_root).resolve(), Path(cells_dir).resolve()
+    if (out_root in (HERE, HERE.parent, Path(out_root.anchor)) or out_root in HERE.parents
+            or out_root == cells_dir or out_root in cells_dir.parents):
+        raise SystemExit(f'[{tag}] --clean refused: {out_root} is not a results folder')
+    if not out_root.is_dir():
+        return
+    items = list(out_root.iterdir())
+    if not items:
+        return
+    nfile = sum(1 for _ in out_root.rglob('*') if _.is_file())
+    print(f'[{tag}] --clean: removing {nfile} files in {out_root} ({", ".join(sorted(i.name for i in items)[:8])}'
+          + (' …' if len(items) > 8 else '') + ')')
+    for it in items:
+        if it.is_dir() and not it.is_symlink():
+            shutil.rmtree(it)
+        else:
+            it.unlink()
 
 
 def _name(m, objtype, *cands):
@@ -419,22 +580,10 @@ def simulate_cell(job):
     try:
         import mujoco
         sim = job['sim']
-        cdir = Path(job['cell_dir'])
-        summary = read_json(cdir / 'summary.json', {}) or {}
-        xml, dropped, dropped_col = load_scene_xml(cdir / 'scene.xml', job['mesh_roots'],
-                                                  job['allow_missing_collision'])
-        m = mujoco.MjModel.from_xml_string(xml)
-        d = mujoco.MjData(m)
+        m, d, _, summary, cinfo = load_cell(job['cell_dir'], job['mesh_roots'], job['allow_missing_collision'])
+        dropped, dropped_col = cinfo['dropped_meshes'], cinfo['dropped_collision_meshes']
         ctx = Ctx(m, summary)
-        with np.load(cdir / 'state.npz', allow_pickle=False) as z:
-            spec = int(z['integration_spec']) if 'integration_spec' in z.files else int(
-                mujoco.mjtState.mjSTATE_INTEGRATION)
-            state = np.array(z['integration_state'], dtype=float)
-        if mujoco.mj_stateSize(m, spec) != state.size:
-            raise ValueError(f'state size {state.size} != model {mujoco.mj_stateSize(m, spec)} '
-                             f'(scene.xml과 state.npz가 다른 모델?)')
-        mujoco.mj_setState(m, d, state, spec)
-        applied = float(np.abs(d.qfrc_applied).sum() + np.abs(d.xfrc_applied).sum())
+        applied =float(np.abs(d.qfrc_applied).sum() + np.abs(d.xfrc_applied).sum())
         d.qfrc_applied[:] = 0.0
         d.xfrc_applied[:] = 0.0
         # 텐던 장력: 기본은 저장 상태의 ctrl 그대로, --tension이면 ctrl = -T/gear
@@ -518,6 +667,8 @@ def simulate_cell(job):
             'object_in_palm_mm': (1000.0 * p0).tolist(),
             'applied_force_in_state': applied,
             'dropped_meshes': dropped, 'dropped_collision_meshes': dropped_col,
+            'cell_path': cinfo['cell_path'], 'state_source': cinfo['state_source'],
+            'summary_source': cinfo['summary_source'],
             'mujoco_version': mujoco.__version__,
             'source_mujoco_version': summary.get('source_mujoco_version'),
         }
@@ -827,15 +978,9 @@ def score_all(out_dir, cells_dir, meta, crit, mags, dirs, designs_filter, w_tip,
 def view_trial(args, sim, cells_dir, mesh_roots):
     import mujoco
     import mujoco.viewer
-    cdir = cells_dir / args.view
-    summary = read_json(cdir / 'summary.json', {}) or {}
-    xml, _, _ = load_scene_xml(cdir / 'scene.xml', mesh_roots, args.allow_missing_collision)
-    m = mujoco.MjModel.from_xml_string(xml)
-    d = mujoco.MjData(m)
+    cpath = resolve_cell(cells_dir, args.view)
+    m, d, _, summary, _ = load_cell(cpath, mesh_roots, args.allow_missing_collision)
     ctx = Ctx(m, summary)
-    with np.load(cdir / 'state.npz', allow_pickle=False) as z:
-        spec = int(z['integration_spec'])
-        mujoco.mj_setState(m, d, np.array(z['integration_state']), spec)
     d.qfrc_applied[:] = 0
     d.xfrc_applied[:] = 0
     if sim['tension'] is not None:
@@ -879,15 +1024,24 @@ def view_trial(args, sim, cells_dir, mesh_roots):
 
 # ----------------------------------------------------------------------------- main
 def select_cells(cells_dir, designs, only, limit):
+    """cell 경로 목록 (폴더 또는 XML 파일). design/cell 이름은 cell_parts()로."""
     out = []
     if not cells_dir.is_dir():
         raise SystemExit(f'cells dir not found: {cells_dir}')
     if only:
-        for c in only:
-            p = cells_dir / c
-            if not (p / 'state.npz').is_file():
-                raise SystemExit(f'no state.npz in {p}')
-            out.append(p)
+        return [resolve_cell(cells_dir, c) for c in only]
+    if is_xml_cells_dir(cells_dir):
+        per = {}
+        for f in sorted(cells_dir.glob('*.xml')):
+            per.setdefault(cell_parts(f)[0], []).append(f)
+        for design in sorted(per):
+            if designs and design not in designs:
+                continue
+            cells = sorted(per[design], key=lambda f: cell_parts(f)[1])
+            if limit and len(cells) > limit:
+                idx = sorted(set(np.linspace(0, len(cells) - 1, limit).round().astype(int)))
+                cells = [cells[i] for i in idx]
+            out += cells
         return out
     for ddir in sorted(cells_dir.iterdir()):
         if not ddir.is_dir() or ddir.name.startswith(('_', '.')):
@@ -909,11 +1063,13 @@ def hms(s):
 
 
 def main(args):
-    cells_dir = Path(args.cells_dir) if args.cells_dir else (
-        HERE / 'grasp_cells' if (HERE / 'grasp_cells').is_dir() else HERE.parent / 'grasp_cells')
-    cells_dir = cells_dir.resolve()
+    cells_dir = default_cells_dir(args.cells_dir)
     out_root = Path(args.out) if args.out else HERE / 'results_B'
     out_dir = (out_root / (f'impulse_{args.tag}' if args.tag else 'impulse')).resolve()
+    if args.clean:
+        if args.rescore or args.view or args.dry_run:
+            raise SystemExit('--clean은 시뮬레이션을 새로 돌릴 때만 씁니다 (--rescore/--view/--dry-run과 같이 못 씀)')
+        clean_results(out_root, cells_dir, 'B')
     mesh_roots = [str(Path(p)) for p in ([args.mesh_dir] if args.mesh_dir else [])] + [
         str(HERE / 'assets' / 'rb5_850e' / 'meshes'), str(cells_dir.parent / 'assets' / 'rb5_850e' / 'meshes')]
     sim = {'pulse_ms': args.pulse_ms, 'shape': args.shape, 'pre_s': args.pre_s, 'after_s': args.after_s,
@@ -964,10 +1120,12 @@ def main(args):
 
     if not args.rescore:
         cells = select_cells(cells_dir, args.designs, args.only, args.limit)
+        warn_old_xml(cells, 'B')
         keys = ['z0'] + [trial_key(dn, k) for dn in dirs_run for k in mags_run]
         jobs = []
         for cdir in cells:
-            tp = out_dir / cdir.parent.name / 'traces' / f'{cdir.name}.npz'
+            design, cell = cell_parts(cdir)
+            tp = out_dir / design / 'traces' / f'{cell}.npz'
             need = keys
             if tp.is_file() and not args.overwrite:
                 try:
@@ -977,14 +1135,15 @@ def main(args):
                 except Exception:
                     pass
             if need:
-                jobs.append({'cell_id': f'{cdir.parent.name}/{cdir.name}', 'design': cdir.parent.name,
-                             'cell': cdir.name, 'cell_dir': str(cdir), 'trace_path': str(tp),
+                jobs.append({'cell_id': f'{design}/{cell}', 'design': design,
+                             'cell': cell, 'cell_dir': str(cdir), 'trace_path': str(tp),
                              'keys': keys, 'sim': sim, 'sim_hash': meta['sim_hash'],
                              'mesh_roots': mesh_roots, 'overwrite': args.overwrite,
                              'monotonic_crit': crit if crit['monotonic'] else None,
                              'allow_missing_collision': args.allow_missing_collision})
         n_trials = sum(len(keys) for _ in jobs)
-        n_designs = len({c.parent.name for c in cells})
+        n_designs = len({cell_parts(c)[0] for c in cells})
+        print(f'[B] cells: {cells_dir} ({"XML, <key lifted>" if is_xml_cells_dir(cells_dir) else "folders, state.npz"})')
         print(f'[B] {len(cells)} cells in {n_designs} designs; {len(jobs)} to run '
               f'({len(cells) - len(jobs)} already done). Per cell: zero control + {len(dirs_run)} dirs x '
               f'{len(mags_run)} mags = {len(keys)} trials of {sim["pulse_ms"]:g} ms + {sim["after_s"]:g} s.')
@@ -1052,13 +1211,16 @@ def main(args):
 def build_parser():
     p = argparse.ArgumentParser(description='실험 B: 짧은 충격(펄스) 후 파지 유지 판정 (grasp_cells 상태에서 시작)')
     g = p.add_argument_group('대상과 출력')
-    g.add_argument('--cells-dir', default=None, help='grasp_cells 폴더 (기본: 이 파일 옆 grasp_cells)')
+    g.add_argument('--cells-dir', default=None,
+                   help='grasp_cells_xml(XML 파일들) 또는 grasp_cells(폴더) (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
     g.add_argument('--designs', nargs='+', default=None, help='설계 이름 (기본: 전부)')
-    g.add_argument('--only', nargs='+', default=None, help='특정 cell만, 예: design0001/r060.0_y015.0')
+    g.add_argument('--only', nargs='+', default=None,
+                   help='특정 cell만, 예: design0001/r060.0_y015.0 또는 design0001_r60y15')
     g.add_argument('--limit', type=int, default=0, help='설계마다 (r, y) 순서로 고르게 N개만 (빠른 시험)')
     g.add_argument('--out', default=None, help='결과 상위 폴더 (기본: 이 파일 옆 results_B)')
     g.add_argument('--tag', default=None, help='결과 폴더 impulse_<tag> (설정이 다른 실험을 따로 보관)')
     g.add_argument('--overwrite', action='store_true', help='설정이 다른 기존 결과를 덮어씀')
+    g.add_argument('--clean', action='store_true', help='시작 전에 결과 상위 폴더(results_B) 안의 기존 파일을 모두 지움')
     g.add_argument('--workers', type=int, default=max(1, min(6, (os.cpu_count() or 2) - 1)))
     g.add_argument('--dry-run', action='store_true', help='cell·시행 수만 출력')
     g.add_argument('--mesh-dir', default=None, help='scene.xml의 mesh 절대경로가 없을 때 찾을 …/assets/rb5_850e/meshes')

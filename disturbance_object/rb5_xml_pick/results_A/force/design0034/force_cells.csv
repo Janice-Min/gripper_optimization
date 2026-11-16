@@ -1,0 +1,14 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,zero_fail,zero_cause,zero_t_fail_s,zero_max_disp_mm,zero_max_rot_deg,F_min_mg,weakest_dir,weakest_cause,weakest_creep_limited,any_type_change,any_censored,F_px_mg,F_nx_mg,F_py_mg,F_ny_mg,F_pz_mg,F_nz_mg,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3,pass@5
+design0034,r040.0_y000.0,40,0,tip,tip,tip,0,,,0.7926,0.2752,0.26,px,rotation,0,0,1,0.26,0.26,0.39,10,2.42,0.47,1,0,0,0,0,0,0,0
+design0034,r040.0_y005.0,40,5,tip,tip,tip,0,,,0.9357,0.7735,0.27,px,rotation,0,0,1,0.27,0.56,0.44,10,2.32,0.34,1,0,0,0,0,0,0,0
+design0034,r040.0_y010.0,40,10,tip,tip,tip,0,,,0.969,0.859,0.21,nz,slip,0,0,1,0.27,0.42,0.47,10,2.23,0.21,0,0,0,0,0,0,0,0
+design0034,r040.0_y015.0,40,15,tip,tip,tip,0,,,0.7948,0.2896,0.26,px,rotation,0,0,0,0.26,0.26,0.26,6.07,2.36,0.37,1,0,0,0,0,0,0,0
+design0034,r045.0_y005.0,45,5,enveloping,tip,tip,0,,,0.8325,0.3454,0.43,py,slip,0,0,1,0.51,0.47,0.43,10,2.46,0.48,1,0,0,0,0,0,0,0
+design0034,r045.0_y010.0,45,10,tip,tip,tip,0,,,1.037,0.9122,0.35,nz,slip,0,0,1,0.55,0.38,0.43,10,2.39,0.35,1,0,0,0,0,0,0,0
+design0034,r050.0_y005.0,50,5,tip,env,env,0,,,1.113,0.7178,0.32,nx,slip,0,1,1,0.38,0.32,0.49,10,2.41,0.37,1,0,0,0,0,0,0,0
+design0034,r050.0_y010.0,50,10,enveloping,tip,tip,0,,,0.8933,0.4482,0.29,nx,slip,0,0,1,0.42,0.29,0.3,10,2.26,0.3,1,0,0,0,0,0,0,0
+design0034,r055.0_y005.0,55,5,enveloping,env,env,0,,,0.8326,0.6245,0.35,py,rotation,0,1,1,0.36,0.38,0.35,10,2.53,0.52,1,0,0,0,0,0,0,0
+design0034,r055.0_y010.0,55,10,enveloping,env,env,0,,,0.9226,0.8699,0.36,nz,slip,0,0,0,0.48,0.52,0.42,2.52,2.19,0.36,1,0,0,0,0,0,0,0
+design0034,r060.0_y005.0,60,5,enveloping,env,env,0,,,1.041,1.072,0.4,py,rotation,0,1,0,0.82,0.82,0.4,3.53,2.39,0.53,1,0,0,0,0,0,0,0
+design0034,r070.0_y010.0,70,10,tip,tip,zero_fail,1,rotation,6.22,2.327,7.578,0.41,nz,slip,0,1,0,0.83,0.84,0.62,5.46,2.41,0.41,0,0,0,0,0,0,0,0
+design0034,r070.0_y015.0,70,15,tip,tip,zero_fail,1,rotation,6.17,2.33,7.625,0.23,nz,slip,0,0,0,0.28,0.29,0.36,1.03,2.23,0.23,0,0,0,0,0,0,0,0

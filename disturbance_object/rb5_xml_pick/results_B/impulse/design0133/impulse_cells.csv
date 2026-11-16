@@ -1,0 +1,15 @@
+﻿design,cell,r_mm,y_mm,workspace_grasp_type,start_type,group,status,zero_held,zero_cause,zero_max_disp_mm,zero_max_rot_deg,level_min,weakest_dir,mass_kg,tension_N,rb5_four_link_contact,level_py,level_nx,level_px,level_ny,level_pz,level_nz,pass@0.25,pass@0.5,pass@0.75,pass@1,pass@1.5,pass@2,pass@3
+design0133,r035.0_y010.0,35,10,enveloping,env,env,success,1,,0.7379,0.2198,0,nx,0.3,10,True,0.5,0,0.25,1.5,2,0.25,0,0,0,0,0,0,0
+design0133,r035.0_y015.0,35,15,enveloping,env,env,success,1,,1.593,0.7769,0,nx|px,0.3,10,True,0.5,0,0,1,2,0.5,0,0,0,0,0,0,0
+design0133,r035.0_y020.0,35,20,enveloping,env,env,success,1,,0.8416,0.4774,0,nx|px,0.3,10,True,0.5,0,0,1,2,0.25,0,0,0,0,0,0,0
+design0133,r035.0_y025.0,35,25,enveloping,env,env,success,1,,0.8611,0.5176,0,nx|px,0.3,10,True,0.5,0,0,0.75,2,0.25,0,0,0,0,0,0,0
+design0133,r040.0_y015.0,40,15,enveloping,env,env,success,1,,0.7842,0.463,0.75,py,0.3,10,True,0.75,2,2,3,3,1,1,1,1,0,0,0,0
+design0133,r040.0_y020.0,40,20,enveloping,env,env,success,1,,0.7788,0.5275,0.75,py,0.3,10,True,0.75,1.5,1.5,3,3,1,1,1,1,0,0,0,0
+design0133,r040.0_y025.0,40,25,enveloping,env,env,success,1,,0.81,1.022,1,py|nz,0.3,10,True,1,1.5,1.5,3,3,1,1,1,1,1,0,0,0
+design0133,r040.0_y030.0,40,30,enveloping,env,env,success,1,,1.009,1.168,0.25,nx|nz,0.3,10,True,0.75,0.25,0.5,1,3,0.25,1,0,0,0,0,0,0
+design0133,r045.0_y020.0,45,20,enveloping,env,env,success,1,,0.9148,1.182,1,py,0.3,10,True,1,1.5,2,3,3,1.5,1,1,1,1,0,0,0
+design0133,r045.0_y025.0,45,25,enveloping,env,env,success,1,,1.157,1.955,0.75,nz,0.3,10,True,1.5,1,1,2,3,0.75,1,1,1,0,0,0,0
+design0133,r050.0_y025.0,50,25,tip,tip,tip,zero_fail,0,rotation,2.322,5.088,0,py|nx|px|ny|pz|nz,0.3,10,True,0,0,0,0,0,0,0,0,0,0,0,0,0
+design0133,r050.0_y030.0,50,30,tip,tip,tip,zero_fail,0,rotation,4.407,23.85,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0
+design0133,r050.0_y035.0,50,35,tip,tip,tip,zero_fail,0,rotation,3.408,17.39,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0
+design0133,r055.0_y030.0,55,30,tip,tip,tip,zero_fail,0,rotation,4.941,23.85,0,py|nx|px|ny|pz|nz,0.3,10,False,0,0,0,0,0,0,0,0,0,0,0,0,0
