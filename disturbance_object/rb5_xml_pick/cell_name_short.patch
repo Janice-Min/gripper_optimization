@@ -1,0 +1,546 @@
+diff --git a/README.md b/README.md
+index 6d2ebef..4e7f97a 100644
+--- a/README.md
++++ b/README.md
+@@ -64,6 +64,7 @@ workspace의 `r`은 원기둥 반지름, `x`는 좌우 오프셋, `y`는 palm 
+ | `rank_impulse_designs.py` | B의 `impact_area` 순위·bootstrap·Pareto 분석. `B_design_ranking.csv`와 순위·방향별 생존 그림 |
+ | `plot_impulse_rb5.py` | B 전용 그림. 설계별 `(r, y)` 지도(`--map`), cell 시간 응답(`--trace`), 방향·크기별 held 비율. 출력 `results_B/impulse[_tag]/plots/` |
+ | `plot_disturb_results.py` | A/B/C의 `all_designs.csv`를 자동 구분해 순위·workspace/품질 Pareto·생존 곡선·방향 heatmap·실패 원인·설계 변수 그림. 출력 `figs_disturb/A/`, `B/`, `C/` |
++| `rename_cells_to_short.py` | 예전 결과의 cell 이름(`r050.0_y005.0`)을 짧은 이름(`r50y05`)으로 한 번에 변환. trace 파일 이름과 CSV의 `cell` 열만 바꾸며 재시뮬레이션 없음. 기본은 미리보기, `--apply`로 적용 |
+ | `compare_abc.py` | 세 실험의 설계 점수를 정규화해 `ABC_score`, Pareto layer, 공통 상위 설계 계산. cell 표가 있으면 같은 cell끼리 매칭해 `joint_area`, `joint_pass@k`, `joint_J@k`도 계산. 출력 `figs_disturb/ABC/` |
+ | `view_cell.py` | 성공 cell XML의 `lifted` key를 바로 여는 간단한 viewer. 두 번째 위치 인자로 다른 key 지정 가능 |
+ | `view_pick_disturb.py` | cell 하나의 집기부터 펄스 외란까지 재생. `--from saved`는 저장 상태부터 시작하며, `--video`로 영상 저장 |
+@@ -91,6 +92,7 @@ workspace의 `r`은 원기둥 반지름, `x`는 좌우 오프셋, `y`는 palm 
+ A/B/C는 기본적으로 `grasp_cells_xml/`을 먼저 찾고, 없으면 `grasp_cells/`을 읽습니다. `--cells-dir`로 사용할 상태 묶음을 명시할 수 있습니다.
+ XML 묶음은 `lifted` key, 폴더 묶음은 `state.npz`를 복원하고, 외력 없이 0.5 s 안정화한 상태 S0에서 각 시행을 시작합니다.
+ 상태를 다시 수집한 경우 `collect_cell_xmls.py`도 다시 실행하거나 `--cells-dir grasp_cells`를 지정해 최신 상태를 사용하세요.
++결과의 cell 이름(trace 파일 이름, CSV의 `cell` 열)은 입력이 폴더든 XML이든 짧은 이름 `r50y05`로 통일됩니다. `--only`, viewer 등에는 `design0001/r50y05`, `design0001_r50y05`, 예전 이름 `design0001/r050.0_y005.0`을 모두 쓸 수 있습니다.
+ 
+ ### 외란 조건과 지표
+ 
+diff --git a/disturbance_object/rb5_xml_pick/compare_abc.py b/disturbance_object/rb5_xml_pick/compare_abc.py
+index 8c3e213..e749d52 100644
+--- a/disturbance_object/rb5_xml_pick/compare_abc.py
++++ b/disturbance_object/rb5_xml_pick/compare_abc.py
+@@ -49,6 +49,7 @@ import pandas as pd
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
+ import plot_disturb_results as P  # noqa: E402
++from disturb_impulse_rb5 import compact_cell_name  # noqa: E402  (r050.0_y005.0 → r50y05)
+ 
+ plt = P.plt
+ KEYS = ('A', 'B', 'C')
+@@ -169,7 +170,7 @@ def load_cells(e):
+     df = pd.concat([pd.read_csv(f, encoding='utf-8-sig', dtype={'cell': str, 'design': str}) for f in files],
+                    ignore_index=True)
+     df['design'] = df['design'].str.strip()
+-    df['cell'] = df['cell'].str.strip()
++    df['cell'] = df['cell'].str.strip().map(compact_cell_name)   # 예전 이름이 섞여 있어도 세 실험이 맞춰지게
+     if e.key == 'A':
+         ok = df['group'].isin(['env', 'tip', 'other'])
+         lvl = pd.to_numeric(df.get('F_min_mg'), errors='coerce')
+diff --git a/disturbance_object/rb5_xml_pick/disturb_force_rb5.py b/disturbance_object/rb5_xml_pick/disturb_force_rb5.py
+index f9b297b..eb2e180 100644
+--- a/disturbance_object/rb5_xml_pick/disturb_force_rb5.py
++++ b/disturbance_object/rb5_xml_pick/disturb_force_rb5.py
+@@ -396,7 +396,7 @@ def score_all(out_dir, cells_dir, meta, crit, dirs, levels, metric, w_tip, desig
+             mg = tmeta['mg_N']
+             cap_N = tmeta['sim']['cap_mg'] * mg
+             thr = tmeta['sim']['lost_n']
+-            base = dict(design=design, cell=tmeta['cell'], r_mm=tmeta.get('r_mm'), y_mm=tmeta.get('y_mm'),
++            base = dict(design=design, cell=B.compact_cell_name(tmeta['cell']), r_mm=tmeta.get('r_mm'), y_mm=tmeta.get('y_mm'),
+                         workspace_grasp_type=tmeta.get('workspace_grasp_type'), start_type=tmeta['start_type'])
+             z = zero_judge(*trials['z0'], cols, crit) if 'z0' in trials else None
+             grp0 = tmeta['start_type'] if tmeta['start_type'] in GROUPS else 'other'
+@@ -648,7 +648,7 @@ def build_parser():
+                    help='grasp_cells_xml(XML 파일들) 또는 grasp_cells(폴더) (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
+     g.add_argument('--designs', nargs='+', default=None)
+     g.add_argument('--only', nargs='+', default=None,
+-                   help='특정 cell만, 예: design0001/r060.0_y015.0 또는 design0001_r60y15')
++                   help='특정 cell만, 예: design0001/r60y15 (design0001_r60y15, 예전 이름 design0001/r060.0_y015.0도 됨)')
+     g.add_argument('--limit', type=int, default=0, help='설계마다 고르게 N개만 (빠른 시험)')
+     g.add_argument('--out', default=None, help='결과 상위 폴더 (기본: 이 파일 옆 results_A)')
+     g.add_argument('--tag', default=None, help='결과 폴더 force_<tag>')
+diff --git a/disturbance_object/rb5_xml_pick/disturb_impulse_rb5.py b/disturbance_object/rb5_xml_pick/disturb_impulse_rb5.py
+index ef9bd8d..461bc19 100644
+--- a/disturbance_object/rb5_xml_pick/disturb_impulse_rb5.py
++++ b/disturbance_object/rb5_xml_pick/disturb_impulse_rb5.py
+@@ -10,12 +10,13 @@ run_rb5_workspace.py가 저장한 grasp_cells/<design>/<cell>/ 의 '들어 올
+   python disturb_impulse_rb5.py --designs design0001 --limit 3 --dirs py nx     # 빠른 시험
+   python disturb_impulse_rb5.py --workers 6                                     # 전체 (끊기면 같은 명령으로 이어서)
+   python disturb_impulse_rb5.py --rescore --slip-mode residual                  # 시뮬레이션 없이 재판정
+-  python disturb_impulse_rb5.py --view design0001/r060.0_y015.0 --dir py --mag 1  # 한 시행을 viewer로
++  python disturb_impulse_rb5.py --view design0001/r60y15 --dir py --mag 1        # 한 시행을 viewer로
+ 
+ 셀 입력: 기본은 이 파일 옆 grasp_cells_xml/ (collect_cell_xmls.py가 만든 XML 하나 = cell 하나,
+ 상태는 <key name="lifted">, summary는 <custom>). 없으면 grasp_cells/ (폴더, state.npz). --cells-dir로 지정.
+ --clean: 시작 전에 results_X 안의 기존 결과를 모두 지움.
+ 시뮬레이션 결과는 cell마다 traces/<cell>.npz 하나에 저장하고, 표(CSV)는 항상 trace에서 다시 계산한다.
++cell 이름은 입력이 폴더(r050.0_y005.0)든 XML이든 짧은 이름 r50y05로 통일한다 (A·C도 같음).
+ 그래서 판정 기준만 바꿀 때는 --rescore로 충분하고, 중단돼도 같은 명령으로 끝난 cell을 건너뛴다.
+ """
+ from __future__ import annotations
+@@ -175,6 +176,41 @@ def load_scene_xml(scene_path, mesh_roots, allow_missing_collision=False):
+ #                                     summary·cell 이름: <custom><text name="cell_summary"/"cell_id">)
+ STATE_KEY = 'lifted'
+ _CELL_ID_RE = re.compile(r'<text\s+name="cell_id"\s+data="([^"]+)"')
++# cell 이름 두 가지: 폴더 이름 r050.0_y005.0 (grasp_cells) / 짧은 이름 r50y05 (collect_cell_xmls.py의 XML 파일 이름).
++# 결과(trace 파일 이름, CSV의 cell 열)는 입력이 폴더든 XML이든 항상 짧은 이름으로 저장한다.
++_LONG_CELL_RE = re.compile(r'^r(-?\d+(?:\.\d+)?)_y(-?\d+(?:\.\d+)?)$')
++_SHORT_CELL_RE = re.compile(r'^r(m?\d+(?:p\d+)?)y(m?\d+(?:p\d+)?)$')
++
++
++def _cell_num(v):
++    """collect_cell_xmls.py의 num()과 같은 규칙: 50.0 → '50', 5.0 → '05', 52.5 → '52p5'."""
++    v = float(v)
++    if v.is_integer():
++        return f'{int(v):02d}'
++    return f'{v:g}'.replace('.', 'p').replace('-', 'm')
++
++
++def compact_cell_name(name):
++    """'r050.0_y005.0' → 'r50y05'. 이미 짧은 이름이거나 형식이 다르면 그대로."""
++    name = str(name).strip()
++    mt = _LONG_CELL_RE.match(name)
++    if mt:
++        return f'r{_cell_num(mt.group(1))}y{_cell_num(mt.group(2))}'
++    return name
++
++
++def cell_ry(name):
++    """cell 이름(두 형식 모두) → (r_mm, y_mm). 해석이 안 되면 (inf, inf) (정렬용)."""
++    name = str(name).strip()
++    mt = _LONG_CELL_RE.match(name)
++    if mt:
++        return float(mt.group(1)), float(mt.group(2))
++    mt = _SHORT_CELL_RE.match(name)
++    if mt:
++        def f(s):
++            return float(s.replace('m', '-').replace('p', '.'))
++        return f(mt.group(1)), f(mt.group(2))
++    return math.inf, math.inf
+ 
+ 
+ def is_xml_cell(p):
+@@ -186,8 +222,8 @@ def is_xml_cells_dir(cells_dir):
+ 
+ 
+ @functools.lru_cache(maxsize=None)
+-def cell_parts(p):
+-    """cell 경로 -> (design, cell). XML이면 안에 적힌 원래 cell 이름(design0001/r060.0_y015.0)을 쓴다."""
++def _raw_cell_parts(p):
++    """cell 경로 -> (design, 원래 cell 이름). 폴더면 폴더 이름, XML이면 <custom> cell_id, 없으면 파일 이름."""
+     p = Path(p)
+     if not is_xml_cell(p):
+         return p.parent.name, p.name
+@@ -200,33 +236,64 @@ def cell_parts(p):
+     return design, (cell or p.stem)
+ 
+ 
++def cell_parts(p):
++    """cell 경로 -> (design, cell). cell은 항상 짧은 이름(r50y05) — 결과 폴더·CSV에 쓰는 이름."""
++    design, cell = _raw_cell_parts(p)
++    return design, compact_cell_name(cell)
++
++
+ def cell_label(p):
+     return '/'.join(cell_parts(p))
+ 
+ 
++def _normalize_cid(cid):
++    """'design0001/r060.0_y015.0', 'design0001/r60y15', 'design0001_r60y15(.xml)' → 'design0001/r60y15'."""
++    cid = str(cid).replace('\\', '/').strip().strip('/')
++    if cid.lower().endswith('.xml'):
++        cid = cid[:-4]
++    parts = cid.split('/')
++    if len(parts) >= 2:
++        return f'{parts[-2]}/{compact_cell_name(parts[-1])}'
++    design, sep, cell = cid.partition('_r')
++    if sep:
++        return f'{design}/{compact_cell_name("r" + cell)}'
++    return cid
++
++
+ @functools.lru_cache(maxsize=None)
+ def _xml_cell_map(cells_dir):
+     out = {}
+     for f in sorted(Path(cells_dir).glob('*.xml')):
+         out[cell_label(f)] = f
++        out['/'.join(_raw_cell_parts(f))] = f
+         out[f.stem] = f
+         out[f.name] = f
+     return out
+ 
+ 
+ def resolve_cell(cells_dir, cid):
+-    """'design0001/r060.0_y015.0', 'design0001_r60y15', 'design0001_r60y15.xml' 모두 받는다."""
++    """'design0001/r60y15', 'design0001/r060.0_y015.0', 'design0001_r60y15', 'design0001_r60y15.xml' 모두 받는다."""
+     cells_dir = Path(cells_dir)
+     cid = str(cid).replace('\\', '/')
+     if is_xml_cells_dir(cells_dir):
+-        f = _xml_cell_map(str(cells_dir)).get(cid) or _xml_cell_map(str(cells_dir)).get(Path(cid).name)
++        mp = _xml_cell_map(str(cells_dir))
++        f = mp.get(cid) or mp.get(Path(cid).name) or mp.get(_normalize_cid(cid))
+         if f is None:
+             raise SystemExit(f'cell {cid!r} not found in {cells_dir}')
+         return f
+     p = cells_dir / cid
+-    if not (p / 'state.npz').is_file():
+-        raise SystemExit(f'no state.npz in {p}')
+-    return p
++    if (p / 'state.npz').is_file():
++        return p
++    # 짧은 이름으로 준 경우: 설계 폴더 안에서 같은 (r, y) 폴더를 찾는다
++    norm = _normalize_cid(cid)
++    if '/' in norm:
++        design, cell = norm.split('/', 1)
++        ddir = cells_dir / design
++        if ddir.is_dir():
++            for c in sorted(ddir.iterdir()):
++                if c.is_dir() and compact_cell_name(c.name) == cell and (c / 'state.npz').is_file():
++                    return c
++    raise SystemExit(f'no state.npz for cell {cid!r} in {cells_dir}')
+ 
+ 
+ def _xml_summary(path):
+@@ -289,7 +356,7 @@ def warn_old_xml(cells, tag):
+     old = [p for p in cells if is_xml_cell(p) and 'name="cell_summary"' not in Path(p).read_text(encoding='utf-8', errors='ignore')]
+     if old:
+         print(f'[{tag}] [WARN] {len(old)} XML files have no <custom> cell_summary (e.g. {Path(old[0]).name}): '
+-              'hand/object names and hand frame fall back to defaults and cell names come from the file name. '
++              'hand/object names and hand frame fall back to defaults. '
+               'Re-run collect_cell_xmls.py to embed summary.json.')
+ 
+ 
+@@ -846,7 +913,7 @@ def score_all(out_dir, cells_dir, meta, crit, mags, dirs, designs_filter, w_tip,
+         for tmeta, cols, trials in cells:
+             lfctx = _LF(tmeta['link_side'])
+             thr = tmeta['sim']['lost_n']
+-            base = {'design': design, 'cell': tmeta['cell'], 'r_mm': tmeta.get('r_mm'),
++            base = {'design': design, 'cell': compact_cell_name(tmeta['cell']), 'r_mm': tmeta.get('r_mm'),
+                     'y_mm': tmeta.get('y_mm'), 'workspace_grasp_type': tmeta.get('workspace_grasp_type'),
+                     'start_type': tmeta['start_type']}
+             z = score_trial(*trials['z0'], cols, crit, T, settle) if 'z0' in trials else None
+@@ -1037,7 +1104,7 @@ def select_cells(cells_dir, designs, only, limit):
+         for design in sorted(per):
+             if designs and design not in designs:
+                 continue
+-            cells = sorted(per[design], key=lambda f: cell_parts(f)[1])
++            cells = sorted(per[design], key=lambda f: (cell_ry(cell_parts(f)[1]), cell_parts(f)[1]))
+             if limit and len(cells) > limit:
+                 idx = sorted(set(np.linspace(0, len(cells) - 1, limit).round().astype(int)))
+                 cells = [cells[i] for i in idx]
+@@ -1215,7 +1282,7 @@ def build_parser():
+                    help='grasp_cells_xml(XML 파일들) 또는 grasp_cells(폴더) (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
+     g.add_argument('--designs', nargs='+', default=None, help='설계 이름 (기본: 전부)')
+     g.add_argument('--only', nargs='+', default=None,
+-                   help='특정 cell만, 예: design0001/r060.0_y015.0 또는 design0001_r60y15')
++                   help='특정 cell만, 예: design0001/r60y15 (design0001_r60y15, 예전 이름 design0001/r060.0_y015.0도 됨)')
+     g.add_argument('--limit', type=int, default=0, help='설계마다 (r, y) 순서로 고르게 N개만 (빠른 시험)')
+     g.add_argument('--out', default=None, help='결과 상위 폴더 (기본: 이 파일 옆 results_B)')
+     g.add_argument('--tag', default=None, help='결과 폴더 impulse_<tag> (설정이 다른 실험을 따로 보관)')
+@@ -1254,7 +1321,7 @@ def build_parser():
+     r.add_argument('--monotonic', action='store_true', help='한 방향에서 실패하면 더 큰 펄스를 실패로 봄(시행 생략)')
+     r.add_argument('--w-tip', type=float, default=0.2, help='J_impulse의 tip 가중치')
+     v = p.add_argument_group('보기')
+-    v.add_argument('--view', default=None, help='한 cell을 viewer로: design0001/r060.0_y015.0')
++    v.add_argument('--view', default=None, help='한 cell을 viewer로: design0001/r60y15')
+     v.add_argument('--dir', default='py', help='--view 방향')
+     v.add_argument('--mag', type=float, default=1.0, help='--view 크기 [mg]')
+     v.add_argument('--speed', type=float, default=1.0, help='--view 재생 속도')
+diff --git a/disturbance_object/rb5_xml_pick/disturb_shake_rb5.py b/disturbance_object/rb5_xml_pick/disturb_shake_rb5.py
+index 5a98e6d..edf6b80 100644
+--- a/disturbance_object/rb5_xml_pick/disturb_shake_rb5.py
++++ b/disturbance_object/rb5_xml_pick/disturb_shake_rb5.py
+@@ -32,7 +32,7 @@ RB5 팔을 움직여 손(palm)을 손 좌표계의 한 방향 u로 왕복시킨
+   python disturb_shake_rb5.py --designs design0001 --limit 3          # 빠른 시험
+   python disturb_shake_rb5.py --workers 6                             # 전체 (끊기면 같은 명령으로 이어서)
+   python disturb_shake_rb5.py --rescore --acc-tol 0.2                 # 시뮬레이션 없이 재판정
+-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir py --mag 1  # 한 시행을 viewer로 (같은 폴더)
++  python view_shake_rb5.py design0001/r60y15 --dir py --mag 1        # 한 시행을 viewer로 (같은 폴더)
+ 
+ 셀 입력: 기본은 이 파일 옆 grasp_cells_xml/ (collect_cell_xmls.py가 만든 XML 하나 = cell 하나,
+ 상태는 <key name="lifted">, summary는 <custom>). 없으면 grasp_cells/ (폴더, state.npz). --cells-dir로 지정.
+@@ -61,7 +61,7 @@ from disturb_impulse_rb5 import (  # noqa: E402  (같은 폴더)
+     ALL_DIRS, Ctx, measure, contact_type, _angle_deg, _LF, parse_dirs,
+     load_scene_xml, read_json, load_trace, save_trace, write_csv, read_csv,
+     find_design_index, load_design_vars, select_cells, hms,
+-    load_cell, cell_parts, is_xml_cells_dir, clean_results, warn_old_xml)
++    load_cell, cell_parts, compact_cell_name, resolve_cell, is_xml_cells_dir, clean_results, warn_old_xml)
+ from disturb_impulse_rb5 import default_cells_dir as _default_cells_dir  # noqa: E402
+ 
+ ARM_JOINTS = ('base', 'shoulder', 'elbow', 'wrist1', 'wrist2', 'wrist3')
+@@ -796,7 +796,7 @@ def score_all(out_dir, cells_dir, meta, crit, mags, dirs, designs_filter, w_tip,
+             Tm = tmeta['motion_s']
+             lfctx = _LF(tmeta['link_side'])
+             thr = tmeta['sim']['lost_n']
+-            base = {'design': design, 'cell': tmeta['cell'], 'r_mm': tmeta.get('r_mm'),
++            base = {'design': design, 'cell': compact_cell_name(tmeta['cell']), 'r_mm': tmeta.get('r_mm'),
+                     'y_mm': tmeta.get('y_mm'), 'workspace_grasp_type': tmeta.get('workspace_grasp_type'),
+                     'start_type': tmeta['start_type']}
+             z = score_trial(*trials['z0'], cols, crit, Tm, settle, 0.0) if 'z0' in trials else None
+@@ -1170,7 +1170,7 @@ def build_parser():
+                    help='grasp_cells_xml(XML 파일들) 또는 grasp_cells(폴더) (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
+     g.add_argument('--designs', nargs='+', default=None, help='설계 이름 (기본: 전부)')
+     g.add_argument('--only', nargs='+', default=None,
+-                   help='특정 cell만, 예: design0001/r060.0_y015.0 또는 design0001_r60y15')
++                   help='특정 cell만, 예: design0001/r60y15 (design0001_r60y15, 예전 이름 design0001/r060.0_y015.0도 됨)')
+     g.add_argument('--limit', type=int, default=0, help='설계마다 (r, y) 순서로 고르게 N개만 (빠른 시험)')
+     g.add_argument('--out', default=None, help='결과 상위 폴더 (기본: 이 파일 옆 results_C)')
+     g.add_argument('--tag', default=None, help='결과 폴더 shake_<tag> (설정이 다른 실험을 따로 보관)')
+diff --git a/disturbance_object/rb5_xml_pick/plot_impulse_rb5.py b/disturbance_object/rb5_xml_pick/plot_impulse_rb5.py
+index da64acf..451af85 100644
+--- a/disturbance_object/rb5_xml_pick/plot_impulse_rb5.py
++++ b/disturbance_object/rb5_xml_pick/plot_impulse_rb5.py
+@@ -6,7 +6,7 @@
+   python plot_impulse_rb5.py                                   # 개요 그림 4장
+   python plot_impulse_rb5.py --k 1                             # 설계 산점도의 기준 펄스 크기 [mg]
+   python plot_impulse_rb5.py --map design0001 design0042       # 설계별 (r, y) 지도
+-  python plot_impulse_rb5.py --trace design0001 r060.0_y015.0  # 한 cell의 시간 응답
++  python plot_impulse_rb5.py --trace design0001 r60y15         # 한 cell의 시간 응답
+ 
+ 출력: results_B/impulse[_tag]/plots/
+ """
+@@ -248,6 +248,11 @@ def plot_map(design, cells, pick, mags, out):
+ 
+ def plot_trace(res_dir, design, cell, meta, out):
+     path = res_dir / design / 'traces' / f'{cell}.npz'
++    if not path.is_file():   # 예전 이름(r060.0_y015.0)으로 준 경우 → 짧은 이름(r60y15)
++        import sys
++        sys.path.insert(0, str(HERE))
++        from disturb_impulse_rb5 import compact_cell_name
++        path = res_dir / design / 'traces' / f'{compact_cell_name(cell)}.npz'
+     if not path.is_file():
+         print(f'[PLOT] no trace {path}')
+         return
+diff --git a/disturbance_object/rb5_xml_pick/rename_cells_to_short.py b/disturbance_object/rb5_xml_pick/rename_cells_to_short.py
+new file mode 100644
+index 0000000..037afc7
+--- /dev/null
++++ b/disturbance_object/rb5_xml_pick/rename_cells_to_short.py
+@@ -0,0 +1,184 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++"""
++이미 저장된 A·B(·C) 결과의 cell 이름을 짧은 형식으로 한 번에 바꾼다 (재시뮬레이션 없음).
++
++  r050.0_y005.0  →  r50y05      (collect_cell_xmls.py의 XML 파일 이름, 실험 C 결과와 같은 형식)
++
++바꾸는 것 (결과 폴더마다, 예: results_A/force):
++  <design>/traces/<cell>.npz   파일 이름만 (내용 그대로 → git이 rename으로 인식, 저장소 크기 증가 없음).
++                               안의 __meta__에 남은 예전 cell 이름은 실험 코드가 읽을 때 짧은 이름으로 바꿔 쓴다.
++                               --update-meta: __meta__(cell, cell_id)도 고쳐 다시 저장 (파일 내용이 바뀜 → git 용량 증가)
++  <design>/*.csv 등            'cell' 열이 있는 CSV의 그 열만 (force_cells/dirs, impulse_cells/trials, …)
++이미 짧은 이름인 것은 건드리지 않고, 같은 이름의 파일을 덮어쓰지 않으므로 여러 번 실행해도 안전하다.
++
++  python rename_cells_to_short.py                         # 미리보기만 (results_A/*, results_B/*, results_C/* 전부)
++  python rename_cells_to_short.py --apply                 # 실제로 바꿈
++  python rename_cells_to_short.py results_A/force results_B/impulse --apply
++
++바꾼 뒤에는 순위·그림·비교를 다시 만든다 (CSV는 이미 바뀌어 있어서 --rescore는 필요 없다):
++  python rank_force_designs.py ; python rank_impulse_designs.py
++  python compare_abc.py results_A/force results_B/impulse results_C/shake
++"""
++from __future__ import annotations
++
++import argparse
++import csv
++import json
++import os
++import sys
++from pathlib import Path
++
++import numpy as np
++
++HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE))
++from disturb_impulse_rb5 import compact_cell_name  # noqa: E402  (같은 폴더, 실험 코드와 같은 규칙)
++
++
++def find_result_dirs(args_dirs):
++    if args_dirs:
++        return [Path(p).resolve() for p in args_dirs]
++    out = []
++    for top in ('results_A', 'results_B', 'results_C'):
++        root = HERE / top
++        if not root.is_dir():
++            continue
++        for d in sorted(root.iterdir()):
++            if d.is_dir() and any(d.glob('*/traces/*.npz')):
++                out.append(d)
++    return out
++
++
++def load_all(path):
++    with np.load(path, allow_pickle=False) as z:
++        return {k: z[k] for k in z.files}
++
++
++def same_arrays(a, b):
++    """__meta__를 뺀 모든 배열이 같은가 (중간에 끊긴 이전 실행의 흔적인지 확인)."""
++    ka, kb = set(a) - {'__meta__'}, set(b) - {'__meta__'}
++    return ka == kb and all(np.array_equal(a[k], b[k]) for k in ka)
++
++
++def rewrite_meta(path):
++    """trace 안의 __meta__ cell/cell_id를 짧은 이름으로 (배열은 그대로, 파일은 다시 압축 저장). 바뀌었으면 True."""
++    arrs = load_all(path)
++    meta = json.loads(str(arrs['__meta__']))
++    design = meta.get('design') or path.parent.parent.name
++    cell = compact_cell_name(meta.get('cell', path.stem))
++    if meta.get('cell') == cell and meta.get('cell_id') == f'{design}/{cell}':
++        return False
++    meta['cell'], meta['cell_id'] = cell, f'{design}/{cell}'
++    arrs['__meta__'] = np.array(json.dumps(meta))
++    tmp = path.with_name(path.stem + '.tmp.npz')
++    np.savez_compressed(tmp, **arrs)
++    os.replace(tmp, path)
++    return True
++
++
++def migrate_trace(old, apply, update_meta):
++    """반환: (상태, 새 경로). 상태: 'renamed' | 'short' | 'cleaned' | 'conflict'
++
++    기본은 파일 이름만 바꾼다(내용 그대로 → git에서 rename으로 잡혀 저장소가 커지지 않음).
++    trace 안 __meta__의 예전 cell 이름은 실험 코드가 읽을 때 짧은 이름으로 바꿔 쓴다.
++    --update-meta면 __meta__도 고쳐서 다시 저장한다(파일 내용이 바뀜)."""
++    new_stem = compact_cell_name(old.stem)
++    if new_stem == old.stem:
++        if apply and update_meta:
++            rewrite_meta(old)
++        return 'short', None
++    new = old.with_name(new_stem + '.npz')
++    if new.exists():
++        if same_arrays(load_all(old), load_all(new)):
++            if apply:
++                old.unlink()           # 같은 결과가 새 이름으로 이미 있음 → 예전 파일만 정리
++                if update_meta:
++                    rewrite_meta(new)
++            return 'cleaned', new
++        return 'conflict', new
++    if apply:
++        os.rename(old, new)            # 대상이 있으면 실패하므로 덮어쓰지 않는다
++        if update_meta:
++            rewrite_meta(new)
++    return 'renamed', new
++
++
++def migrate_csv(path, apply):
++    """'cell' 열만 짧은 이름으로. 나머지 값·열 순서·인코딩은 그대로. 반환: 바뀐 행 수."""
++    with open(path, newline='', encoding='utf-8-sig') as f:
++        rows = list(csv.reader(f))
++    if not rows or 'cell' not in rows[0]:
++        return 0
++    ci = rows[0].index('cell')
++    n = 0
++    for r in rows[1:]:
++        if ci < len(r):
++            new = compact_cell_name(r[ci])
++            if new != r[ci]:
++                r[ci] = new
++                n += 1
++    if n and apply:
++        tmp = path.with_name(path.name + '.tmp')
++        with open(tmp, 'w', newline='', encoding='utf-8-sig') as f:
++            csv.writer(f).writerows(rows)
++        os.replace(tmp, path)
++    return n
++
++
++def main():
++    ap = argparse.ArgumentParser(description='저장된 결과의 cell 이름을 r50y05 형식으로 (재시뮬레이션 없음)')
++    ap.add_argument('dirs', nargs='*', help='결과 폴더 (기본: 이 파일 옆 results_A/*, results_B/*, results_C/*)')
++    ap.add_argument('--apply', action='store_true', help='실제로 바꿈 (없으면 미리보기만)')
++    ap.add_argument('--update-meta', action='store_true',
++                    help='trace 안 __meta__의 cell 이름도 고쳐 다시 저장 (기본: 파일 이름만 바꿈)')
++    ap.add_argument('--show', type=int, default=3, help='폴더마다 보여 줄 예시 수')
++    a = ap.parse_args()
++
++    dirs = find_result_dirs(a.dirs)
++    if not dirs:
++        sys.exit('결과 폴더를 못 찾음 (traces/*.npz가 있는 results_X/<name>)')
++    mode = '적용' if a.apply else '미리보기 (--apply로 실제 적용)'
++    print(f'[rename] {mode}')
++    total = dict(renamed=0, short=0, cleaned=0, conflict=0, csv_files=0, csv_rows=0)
++    conflicts = []
++    for rd in dirs:
++        cnt = dict(renamed=0, short=0, cleaned=0, conflict=0)
++        shown = 0
++        traces = sorted(p for p in rd.glob('*/traces/*.npz') if not p.name.endswith('.tmp.npz'))
++        for tp in traces:
++            st, new = migrate_trace(tp, a.apply, a.update_meta)
++            cnt[st] += 1
++            if st == 'conflict':
++                conflicts.append((tp, new))
++            elif st == 'renamed' and shown < a.show:
++                print(f'    {tp.parent.parent.name}/traces/{tp.name}  →  {new.name}')
++                shown += 1
++        csv_files = csv_rows = 0
++        for cp in sorted(rd.rglob('*.csv')):
++            if 'traces' in cp.parts:
++                continue
++            n = migrate_csv(cp, a.apply)
++            if n:
++                csv_files += 1
++                csv_rows += n
++        print(f'  {rd.parent.name}/{rd.name}: trace {len(traces)}개 중 이름 변경 {cnt["renamed"]}, '
++              f'이미 짧은 이름 {cnt["short"]}, 중복 정리 {cnt["cleaned"]}, 충돌 {cnt["conflict"]} | '
++              f'CSV {csv_files}개 파일 {csv_rows}행')
++        for k in cnt:
++            total[k] += cnt[k]
++        total['csv_files'] += csv_files
++        total['csv_rows'] += csv_rows
++    if conflicts:
++        print('\n[rename] 충돌: 같은 cell의 두 이름 파일이 모두 있고 내용이 다름 → 둘 다 그대로 둠. 어느 쪽을 쓸지 확인 필요:')
++        for o, n in conflicts[:20]:
++            print(f'    {o}  /  {n.name}')
++        if len(conflicts) > 20:
++            print(f'    … 외 {len(conflicts) - 20}개')
++    print(f'\n[rename] 합계: trace 이름 변경 {total["renamed"]}, 중복 정리 {total["cleaned"]}, 충돌 {total["conflict"]}, '
++          f'CSV {total["csv_files"]}개 파일 {total["csv_rows"]}행' + ('' if a.apply else '  (미리보기, 아무것도 안 바뀜)'))
++    return 1 if conflicts else 0
++
++
++if __name__ == '__main__':
++    sys.exit(main())
+diff --git a/disturbance_object/rb5_xml_pick/view_shake_rb5.py b/disturbance_object/rb5_xml_pick/view_shake_rb5.py
+index dd84c7e..5ff5a3f 100644
+--- a/disturbance_object/rb5_xml_pick/view_shake_rb5.py
++++ b/disturbance_object/rb5_xml_pick/view_shake_rb5.py
+@@ -6,10 +6,10 @@
+ disturb_shake_rb5.py와 같은 코드(CellSim, plan_trial, run_trial, score_trial)로 돌리므로
+ 출발점(S0), 팔 궤적, 판정이 실험 C와 같다. 끝나면 판정을 출력하고 창은 닫을 때까지 남는다.
+ 
+-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir py --mag 1
+-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir nz --mag 0.5 --speed 0.1 --after-s 3
+-  python view_shake_rb5.py design0001/r060.0_y015.0 --zero                     # 외력 0 대조 (팔 정지)
+-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir px --mag 1 --headless --video px_1g.mp4 --plot px_1g.png
++  python view_shake_rb5.py design0001/r60y15 --dir py --mag 1
++  python view_shake_rb5.py design0001/r60y15 --dir nz --mag 0.5 --speed 0.1 --after-s 3
++  python view_shake_rb5.py design0001/r60y15 --zero                     # 외력 0 대조 (팔 정지)
++  python view_shake_rb5.py design0001/r60y15 --dir px --mag 1 --headless --video px_1g.mp4 --plot px_1g.png
+ 
+ 화면:
+   주황 화살표 = 명령 손 가속도, 하늘색 화살표(1.5 cm 위) = 측정 손 가속도 (palm 위 8 cm의 회색 점에서, 1 g = --arrow-m),
+@@ -166,9 +166,9 @@ def print_result(cs, plan, r):
+ def main(args):
+     import mujoco
+     cells_dir = C.default_cells_dir(args)
+-    cdir = cells_dir / args.cell
+-    if not (cdir / 'state.npz').is_file():
+-        raise SystemExit(f'no state.npz in {cdir}')
++    cdir = Path(args.cell)
++    if not ((cdir / 'state.npz').is_file() or (cdir.suffix.lower() == '.xml' and cdir.is_file())):
++        cdir = C.resolve_cell(cells_dir, args.cell)   # design0001/r60y15, 예전 이름, XML 이름 모두
+     sim = C.sim_from_args(args)
+     if not args.batch_stop:
+         sim['stop_mm'] = 1e9
+@@ -347,7 +347,7 @@ def write_video(path, frames, fps):
+ 
+ def build_parser():
+     p = argparse.ArgumentParser(description='실험 C viewer: cell 하나에서 팔 흔들기 시행 하나를 MuJoCo로 본다')
+-    p.add_argument('cell', help='grasp_cells 아래 경로, 예: design0001/r060.0_y015.0')
++    p.add_argument('cell', help='design0001/r60y15, design0001/r060.0_y015.0, XML 파일 경로 또는 cell 폴더 경로')
+     p.add_argument('--cells-dir', default=None, help='grasp_cells 폴더 (기본: 이 파일 옆 grasp_cells)')
+     p.add_argument('--mesh-dir', default=None, help='scene.xml의 mesh 절대경로가 없을 때 찾을 …/assets/rb5_850e/meshes')
+     p.add_argument('--allow-missing-collision', action='store_true')
