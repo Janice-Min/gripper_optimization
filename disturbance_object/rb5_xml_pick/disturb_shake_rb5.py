@@ -32,7 +32,7 @@ RB5 팔을 움직여 손(palm)을 손 좌표계의 한 방향 u로 왕복시킨�
   python disturb_shake_rb5.py --designs design0001 --limit 3          # 빠른 시험
   python disturb_shake_rb5.py --workers 6                             # 전체 (끊기면 같은 명령으로 이어서)
   python disturb_shake_rb5.py --rescore --acc-tol 0.2                 # 시뮬레이션 없이 재판정
-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir py --mag 1  # 한 시행을 viewer로 (같은 폴더)
+  python view_shake_rb5.py design0001/r60y15 --dir py --mag 1        # 한 시행을 viewer로 (같은 폴더)
 
 셀 입력: 기본은 이 파일 옆 grasp_cells_xml/ (collect_cell_xmls.py가 만든 XML 하나 = cell 하나,
 상태는 <key name="lifted">, summary는 <custom>). 없으면 grasp_cells/ (폴더, state.npz). --cells-dir로 지정.
@@ -61,7 +61,7 @@ from disturb_impulse_rb5 import (  # noqa: E402  (같은 폴더)
     ALL_DIRS, Ctx, measure, contact_type, _angle_deg, _LF, parse_dirs,
     load_scene_xml, read_json, load_trace, save_trace, write_csv, read_csv,
     find_design_index, load_design_vars, select_cells, hms,
-    load_cell, cell_parts, is_xml_cells_dir, clean_results, warn_old_xml)
+    load_cell, cell_parts, compact_cell_name, resolve_cell, is_xml_cells_dir, clean_results, warn_old_xml)
 from disturb_impulse_rb5 import default_cells_dir as _default_cells_dir  # noqa: E402
 
 ARM_JOINTS = ('base', 'shoulder', 'elbow', 'wrist1', 'wrist2', 'wrist3')
@@ -796,7 +796,7 @@ def score_all(out_dir, cells_dir, meta, crit, mags, dirs, designs_filter, w_tip,
             Tm = tmeta['motion_s']
             lfctx = _LF(tmeta['link_side'])
             thr = tmeta['sim']['lost_n']
-            base = {'design': design, 'cell': tmeta['cell'], 'r_mm': tmeta.get('r_mm'),
+            base = {'design': design, 'cell': compact_cell_name(tmeta['cell']), 'r_mm': tmeta.get('r_mm'),
                     'y_mm': tmeta.get('y_mm'), 'workspace_grasp_type': tmeta.get('workspace_grasp_type'),
                     'start_type': tmeta['start_type']}
             z = score_trial(*trials['z0'], cols, crit, Tm, settle, 0.0) if 'z0' in trials else None
@@ -1170,7 +1170,7 @@ def build_parser():
                    help='grasp_cells_xml(XML 파일들) 또는 grasp_cells(폴더) (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
     g.add_argument('--designs', nargs='+', default=None, help='설계 이름 (기본: 전부)')
     g.add_argument('--only', nargs='+', default=None,
-                   help='특정 cell만, 예: design0001/r060.0_y015.0 또는 design0001_r60y15')
+                   help='특정 cell만, 예: design0001/r60y15 (design0001_r60y15, 예전 이름 design0001/r060.0_y015.0도 됨)')
     g.add_argument('--limit', type=int, default=0, help='설계마다 (r, y) 순서로 고르게 N개만 (빠른 시험)')
     g.add_argument('--out', default=None, help='결과 상위 폴더 (기본: 이 파일 옆 results_C)')
     g.add_argument('--tag', default=None, help='결과 폴더 shake_<tag> (설정이 다른 실험을 따로 보관)')

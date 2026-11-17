@@ -396,7 +396,7 @@ def score_all(out_dir, cells_dir, meta, crit, dirs, levels, metric, w_tip, desig
             mg = tmeta['mg_N']
             cap_N = tmeta['sim']['cap_mg'] * mg
             thr = tmeta['sim']['lost_n']
-            base = dict(design=design, cell=tmeta['cell'], r_mm=tmeta.get('r_mm'), y_mm=tmeta.get('y_mm'),
+            base = dict(design=design, cell=B.compact_cell_name(tmeta['cell']), r_mm=tmeta.get('r_mm'), y_mm=tmeta.get('y_mm'),
                         workspace_grasp_type=tmeta.get('workspace_grasp_type'), start_type=tmeta['start_type'])
             z = zero_judge(*trials['z0'], cols, crit) if 'z0' in trials else None
             grp0 = tmeta['start_type'] if tmeta['start_type'] in GROUPS else 'other'
@@ -648,7 +648,7 @@ def build_parser():
                    help='grasp_cells_xml(XML 파일들) 또는 grasp_cells(폴더) (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
     g.add_argument('--designs', nargs='+', default=None)
     g.add_argument('--only', nargs='+', default=None,
-                   help='특정 cell만, 예: design0001/r060.0_y015.0 또는 design0001_r60y15')
+                   help='특정 cell만, 예: design0001/r60y15 (design0001_r60y15, 예전 이름 design0001/r060.0_y015.0도 됨)')
     g.add_argument('--limit', type=int, default=0, help='설계마다 고르게 N개만 (빠른 시험)')
     g.add_argument('--out', default=None, help='결과 상위 폴더 (기본: 이 파일 옆 results_A)')
     g.add_argument('--tag', default=None, help='결과 폴더 force_<tag>')

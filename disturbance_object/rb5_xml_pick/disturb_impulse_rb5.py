@@ -10,12 +10,13 @@ run_rb5_workspace.py가 저장한 grasp_cells/<design>/<cell>/ 의 '들어 올�
   python disturb_impulse_rb5.py --designs design0001 --limit 3 --dirs py nx     # 빠른 시험
   python disturb_impulse_rb5.py --workers 6                                     # 전체 (끊기면 같은 명령으로 이어서)
   python disturb_impulse_rb5.py --rescore --slip-mode residual                  # 시뮬레이션 없이 재판정
-  python disturb_impulse_rb5.py --view design0001/r060.0_y015.0 --dir py --mag 1  # 한 시행을 viewer로
+  python disturb_impulse_rb5.py --view design0001/r60y15 --dir py --mag 1        # 한 시행을 viewer로
 
 셀 입력: 기본은 이 파일 옆 grasp_cells_xml/ (collect_cell_xmls.py가 만든 XML 하나 = cell 하나,
 상태는 <key name="lifted">, summary는 <custom>). 없으면 grasp_cells/ (폴더, state.npz). --cells-dir로 지정.
 --clean: 시작 전에 results_X 안의 기존 결과를 모두 지움.
 시뮬레이션 결과는 cell마다 traces/<cell>.npz 하나에 저장하고, 표(CSV)는 항상 trace에서 다시 계산한다.
+cell 이름은 입력이 폴더(r050.0_y005.0)든 XML이든 짧은 이름 r50y05로 통일한다 (A·C도 같음).
 그래서 판정 기준만 바꿀 때는 --rescore로 충분하고, 중단돼도 같은 명령으로 끝난 cell을 건너뛴다.
 """
 from __future__ import annotations
@@ -175,6 +176,41 @@ def load_scene_xml(scene_path, mesh_roots, allow_missing_collision=False):
 #                                     summary·cell 이름: <custom><text name="cell_summary"/"cell_id">)
 STATE_KEY = 'lifted'
 _CELL_ID_RE = re.compile(r'<text\s+name="cell_id"\s+data="([^"]+)"')
+# cell 이름 두 가지: 폴더 이름 r050.0_y005.0 (grasp_cells) / 짧은 이름 r50y05 (collect_cell_xmls.py의 XML 파일 이름).
+# 결과(trace 파일 이름, CSV의 cell 열)는 입력이 폴더든 XML이든 항상 짧은 이름으로 저장한다.
+_LONG_CELL_RE = re.compile(r'^r(-?\d+(?:\.\d+)?)_y(-?\d+(?:\.\d+)?)$')
+_SHORT_CELL_RE = re.compile(r'^r(m?\d+(?:p\d+)?)y(m?\d+(?:p\d+)?)$')
+
+
+def _cell_num(v):
+    """collect_cell_xmls.py의 num()과 같은 규칙: 50.0 → '50', 5.0 → '05', 52.5 → '52p5'."""
+    v = float(v)
+    if v.is_integer():
+        return f'{int(v):02d}'
+    return f'{v:g}'.replace('.', 'p').replace('-', 'm')
+
+
+def compact_cell_name(name):
+    """'r050.0_y005.0' → 'r50y05'. 이미 짧은 이름이거나 형식이 다르면 그대로."""
+    name = str(name).strip()
+    mt = _LONG_CELL_RE.match(name)
+    if mt:
+        return f'r{_cell_num(mt.group(1))}y{_cell_num(mt.group(2))}'
+    return name
+
+
+def cell_ry(name):
+    """cell 이름(두 형식 모두) → (r_mm, y_mm). 해석이 안 되면 (inf, inf) (정렬용)."""
+    name = str(name).strip()
+    mt = _LONG_CELL_RE.match(name)
+    if mt:
+        return float(mt.group(1)), float(mt.group(2))
+    mt = _SHORT_CELL_RE.match(name)
+    if mt:
+        def f(s):
+            return float(s.replace('m', '-').replace('p', '.'))
+        return f(mt.group(1)), f(mt.group(2))
+    return math.inf, math.inf
 
 
 def is_xml_cell(p):
@@ -186,8 +222,8 @@ def is_xml_cells_dir(cells_dir):
 
 
 @functools.lru_cache(maxsize=None)
-def cell_parts(p):
-    """cell 경로 -> (design, cell). XML이면 안에 적힌 원래 cell 이름(design0001/r060.0_y015.0)을 쓴다."""
+def _raw_cell_parts(p):
+    """cell 경로 -> (design, 원래 cell 이름). 폴더면 폴더 이름, XML이면 <custom> cell_id, 없으면 파일 이름."""
     p = Path(p)
     if not is_xml_cell(p):
         return p.parent.name, p.name
@@ -200,8 +236,28 @@ def cell_parts(p):
     return design, (cell or p.stem)
 
 
+def cell_parts(p):
+    """cell 경로 -> (design, cell). cell은 항상 짧은 이름(r50y05) — 결과 폴더·CSV에 쓰는 이름."""
+    design, cell = _raw_cell_parts(p)
+    return design, compact_cell_name(cell)
+
+
 def cell_label(p):
     return '/'.join(cell_parts(p))
+
+
+def _normalize_cid(cid):
+    """'design0001/r060.0_y015.0', 'design0001/r60y15', 'design0001_r60y15(.xml)' → 'design0001/r60y15'."""
+    cid = str(cid).replace('\\', '/').strip().strip('/')
+    if cid.lower().endswith('.xml'):
+        cid = cid[:-4]
+    parts = cid.split('/')
+    if len(parts) >= 2:
+        return f'{parts[-2]}/{compact_cell_name(parts[-1])}'
+    design, sep, cell = cid.partition('_r')
+    if sep:
+        return f'{design}/{compact_cell_name("r" + cell)}'
+    return cid
 
 
 @functools.lru_cache(maxsize=None)
@@ -209,24 +265,35 @@ def _xml_cell_map(cells_dir):
     out = {}
     for f in sorted(Path(cells_dir).glob('*.xml')):
         out[cell_label(f)] = f
+        out['/'.join(_raw_cell_parts(f))] = f
         out[f.stem] = f
         out[f.name] = f
     return out
 
 
 def resolve_cell(cells_dir, cid):
-    """'design0001/r060.0_y015.0', 'design0001_r60y15', 'design0001_r60y15.xml' 모두 받는다."""
+    """'design0001/r60y15', 'design0001/r060.0_y015.0', 'design0001_r60y15', 'design0001_r60y15.xml' 모두 받는다."""
     cells_dir = Path(cells_dir)
     cid = str(cid).replace('\\', '/')
     if is_xml_cells_dir(cells_dir):
-        f = _xml_cell_map(str(cells_dir)).get(cid) or _xml_cell_map(str(cells_dir)).get(Path(cid).name)
+        mp = _xml_cell_map(str(cells_dir))
+        f = mp.get(cid) or mp.get(Path(cid).name) or mp.get(_normalize_cid(cid))
         if f is None:
             raise SystemExit(f'cell {cid!r} not found in {cells_dir}')
         return f
     p = cells_dir / cid
-    if not (p / 'state.npz').is_file():
-        raise SystemExit(f'no state.npz in {p}')
-    return p
+    if (p / 'state.npz').is_file():
+        return p
+    # 짧은 이름으로 준 경우: 설계 폴더 안에서 같은 (r, y) 폴더를 찾는다
+    norm = _normalize_cid(cid)
+    if '/' in norm:
+        design, cell = norm.split('/', 1)
+        ddir = cells_dir / design
+        if ddir.is_dir():
+            for c in sorted(ddir.iterdir()):
+                if c.is_dir() and compact_cell_name(c.name) == cell and (c / 'state.npz').is_file():
+                    return c
+    raise SystemExit(f'no state.npz for cell {cid!r} in {cells_dir}')
 
 
 def _xml_summary(path):
@@ -289,7 +356,7 @@ def warn_old_xml(cells, tag):
     old = [p for p in cells if is_xml_cell(p) and 'name="cell_summary"' not in Path(p).read_text(encoding='utf-8', errors='ignore')]
     if old:
         print(f'[{tag}] [WARN] {len(old)} XML files have no <custom> cell_summary (e.g. {Path(old[0]).name}): '
-              'hand/object names and hand frame fall back to defaults and cell names come from the file name. '
+              'hand/object names and hand frame fall back to defaults. '
               'Re-run collect_cell_xmls.py to embed summary.json.')
 
 
@@ -846,7 +913,7 @@ def score_all(out_dir, cells_dir, meta, crit, mags, dirs, designs_filter, w_tip,
         for tmeta, cols, trials in cells:
             lfctx = _LF(tmeta['link_side'])
             thr = tmeta['sim']['lost_n']
-            base = {'design': design, 'cell': tmeta['cell'], 'r_mm': tmeta.get('r_mm'),
+            base = {'design': design, 'cell': compact_cell_name(tmeta['cell']), 'r_mm': tmeta.get('r_mm'),
                     'y_mm': tmeta.get('y_mm'), 'workspace_grasp_type': tmeta.get('workspace_grasp_type'),
                     'start_type': tmeta['start_type']}
             z = score_trial(*trials['z0'], cols, crit, T, settle) if 'z0' in trials else None
@@ -1037,7 +1104,7 @@ def select_cells(cells_dir, designs, only, limit):
         for design in sorted(per):
             if designs and design not in designs:
                 continue
-            cells = sorted(per[design], key=lambda f: cell_parts(f)[1])
+            cells = sorted(per[design], key=lambda f: (cell_ry(cell_parts(f)[1]), cell_parts(f)[1]))
             if limit and len(cells) > limit:
                 idx = sorted(set(np.linspace(0, len(cells) - 1, limit).round().astype(int)))
                 cells = [cells[i] for i in idx]
@@ -1215,7 +1282,7 @@ def build_parser():
                    help='grasp_cells_xml(XML 파일들) 또는 grasp_cells(폴더) (기본: 이 파일 옆 grasp_cells_xml, 없으면 grasp_cells)')
     g.add_argument('--designs', nargs='+', default=None, help='설계 이름 (기본: 전부)')
     g.add_argument('--only', nargs='+', default=None,
-                   help='특정 cell만, 예: design0001/r060.0_y015.0 또는 design0001_r60y15')
+                   help='특정 cell만, 예: design0001/r60y15 (design0001_r60y15, 예전 이름 design0001/r060.0_y015.0도 됨)')
     g.add_argument('--limit', type=int, default=0, help='설계마다 (r, y) 순서로 고르게 N개만 (빠른 시험)')
     g.add_argument('--out', default=None, help='결과 상위 폴더 (기본: 이 파일 옆 results_B)')
     g.add_argument('--tag', default=None, help='결과 폴더 impulse_<tag> (설정이 다른 실험을 따로 보관)')
@@ -1254,7 +1321,7 @@ def build_parser():
     r.add_argument('--monotonic', action='store_true', help='한 방향에서 실패하면 더 큰 펄스를 실패로 봄(시행 생략)')
     r.add_argument('--w-tip', type=float, default=0.2, help='J_impulse의 tip 가중치')
     v = p.add_argument_group('보기')
-    v.add_argument('--view', default=None, help='한 cell을 viewer로: design0001/r060.0_y015.0')
+    v.add_argument('--view', default=None, help='한 cell을 viewer로: design0001/r60y15')
     v.add_argument('--dir', default='py', help='--view 방향')
     v.add_argument('--mag', type=float, default=1.0, help='--view 크기 [mg]')
     v.add_argument('--speed', type=float, default=1.0, help='--view 재생 속도')

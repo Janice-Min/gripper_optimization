@@ -64,6 +64,7 @@ workspace의 `r`은 원기둥 반지름, `x`는 좌우 오프셋, `y`는 palm �
 | `rank_impulse_designs.py` | B의 `impact_area` 순위·bootstrap·Pareto 분석. `B_design_ranking.csv`와 순위·방향별 생존 그림 |
 | `plot_impulse_rb5.py` | B 전용 그림. 설계별 `(r, y)` 지도(`--map`), cell 시간 응답(`--trace`), 방향·크기별 held 비율. 출력 `results_B/impulse[_tag]/plots/` |
 | `plot_disturb_results.py` | A/B/C의 `all_designs.csv`를 자동 구분해 순위·workspace/품질 Pareto·생존 곡선·방향 heatmap·실패 원인·설계 변수 그림. 출력 `figs_disturb/A/`, `B/`, `C/` |
+| `rename_cells_to_short.py` | 예전 결과의 cell 이름(`r050.0_y005.0`)을 짧은 이름(`r50y05`)으로 한 번에 변환. trace 파일 이름과 CSV의 `cell` 열만 바꾸며 재시뮬레이션 없음. 기본은 미리보기, `--apply`로 적용 |
 | `compare_abc.py` | 세 실험의 설계 점수를 정규화해 `ABC_score`, Pareto layer, 공통 상위 설계 계산. cell 표가 있으면 같은 cell끼리 매칭해 `joint_area`, `joint_pass@k`, `joint_J@k`도 계산. 출력 `figs_disturb/ABC/` |
 | `view_cell.py` | 성공 cell XML의 `lifted` key를 바로 여는 간단한 viewer. 두 번째 위치 인자로 다른 key 지정 가능 |
 | `view_pick_disturb.py` | cell 하나의 집기부터 펄스 외란까지 재생. `--from saved`는 저장 상태부터 시작하며, `--video`로 영상 저장 |
@@ -91,6 +92,7 @@ workspace의 `r`은 원기둥 반지름, `x`는 좌우 오프셋, `y`는 palm �
 A/B/C는 기본적으로 `grasp_cells_xml/`을 먼저 찾고, 없으면 `grasp_cells/`을 읽습니다. `--cells-dir`로 사용할 상태 묶음을 명시할 수 있습니다.
 XML 묶음은 `lifted` key, 폴더 묶음은 `state.npz`를 복원하고, 외력 없이 0.5 s 안정화한 상태 S0에서 각 시행을 시작합니다.
 상태를 다시 수집한 경우 `collect_cell_xmls.py`도 다시 실행하거나 `--cells-dir grasp_cells`를 지정해 최신 상태를 사용하세요.
+결과의 cell 이름(trace 파일 이름, CSV의 `cell` 열)은 입력이 폴더든 XML이든 짧은 이름 `r50y05`로 통일됩니다. `--only`, viewer 등에는 `design0001/r50y05`, `design0001_r50y05`, 예전 이름 `design0001/r050.0_y005.0`을 모두 쓸 수 있습니다.
 
 ### 외란 조건과 지표
 

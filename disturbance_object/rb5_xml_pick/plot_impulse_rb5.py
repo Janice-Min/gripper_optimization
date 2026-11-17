@@ -6,7 +6,7 @@
   python plot_impulse_rb5.py                                   # 개요 그림 4장
   python plot_impulse_rb5.py --k 1                             # 설계 산점도의 기준 펄스 크기 [mg]
   python plot_impulse_rb5.py --map design0001 design0042       # 설계별 (r, y) 지도
-  python plot_impulse_rb5.py --trace design0001 r060.0_y015.0  # 한 cell의 시간 응답
+  python plot_impulse_rb5.py --trace design0001 r60y15         # 한 cell의 시간 응답
 
 출력: results_B/impulse[_tag]/plots/
 """
@@ -248,6 +248,11 @@ def plot_map(design, cells, pick, mags, out):
 
 def plot_trace(res_dir, design, cell, meta, out):
     path = res_dir / design / 'traces' / f'{cell}.npz'
+    if not path.is_file():   # 예전 이름(r060.0_y015.0)으로 준 경우 → 짧은 이름(r60y15)
+        import sys
+        sys.path.insert(0, str(HERE))
+        from disturb_impulse_rb5 import compact_cell_name
+        path = res_dir / design / 'traces' / f'{compact_cell_name(cell)}.npz'
     if not path.is_file():
         print(f'[PLOT] no trace {path}')
         return

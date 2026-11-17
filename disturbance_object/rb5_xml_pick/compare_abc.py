@@ -49,6 +49,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import plot_disturb_results as P  # noqa: E402
+from disturb_impulse_rb5 import compact_cell_name  # noqa: E402  (r050.0_y005.0 → r50y05)
 
 plt = P.plt
 KEYS = ('A', 'B', 'C')
@@ -169,7 +170,7 @@ def load_cells(e):
     df = pd.concat([pd.read_csv(f, encoding='utf-8-sig', dtype={'cell': str, 'design': str}) for f in files],
                    ignore_index=True)
     df['design'] = df['design'].str.strip()
-    df['cell'] = df['cell'].str.strip()
+    df['cell'] = df['cell'].str.strip().map(compact_cell_name)   # 예전 이름이 섞여 있어도 세 실험이 맞춰지게
     if e.key == 'A':
         ok = df['group'].isin(['env', 'tip', 'other'])
         lvl = pd.to_numeric(df.get('F_min_mg'), errors='coerce')

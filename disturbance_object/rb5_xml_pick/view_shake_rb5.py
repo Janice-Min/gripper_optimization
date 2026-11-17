@@ -6,10 +6,10 @@
 disturb_shake_rb5.py와 같은 코드(CellSim, plan_trial, run_trial, score_trial)로 돌리므로
 출발점(S0), 팔 궤적, 판정이 실험 C와 같다. 끝나면 판정을 출력하고 창은 닫을 때까지 남는다.
 
-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir py --mag 1
-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir nz --mag 0.5 --speed 0.1 --after-s 3
-  python view_shake_rb5.py design0001/r060.0_y015.0 --zero                     # 외력 0 대조 (팔 정지)
-  python view_shake_rb5.py design0001/r060.0_y015.0 --dir px --mag 1 --headless --video px_1g.mp4 --plot px_1g.png
+  python view_shake_rb5.py design0001/r60y15 --dir py --mag 1
+  python view_shake_rb5.py design0001/r60y15 --dir nz --mag 0.5 --speed 0.1 --after-s 3
+  python view_shake_rb5.py design0001/r60y15 --zero                     # 외력 0 대조 (팔 정지)
+  python view_shake_rb5.py design0001/r60y15 --dir px --mag 1 --headless --video px_1g.mp4 --plot px_1g.png
 
 화면:
   주황 화살표 = 명령 손 가속도, 하늘색 화살표(1.5 cm 위) = 측정 손 가속도 (palm 위 8 cm의 회색 점에서, 1 g = --arrow-m),
@@ -166,9 +166,9 @@ def print_result(cs, plan, r):
 def main(args):
     import mujoco
     cells_dir = C.default_cells_dir(args)
-    cdir = cells_dir / args.cell
-    if not (cdir / 'state.npz').is_file():
-        raise SystemExit(f'no state.npz in {cdir}')
+    cdir = Path(args.cell)
+    if not ((cdir / 'state.npz').is_file() or (cdir.suffix.lower() == '.xml' and cdir.is_file())):
+        cdir = C.resolve_cell(cells_dir, args.cell)   # design0001/r60y15, 예전 이름, XML 이름 모두
     sim = C.sim_from_args(args)
     if not args.batch_stop:
         sim['stop_mm'] = 1e9
@@ -347,7 +347,7 @@ def write_video(path, frames, fps):
 
 def build_parser():
     p = argparse.ArgumentParser(description='실험 C viewer: cell 하나에서 팔 흔들기 시행 하나를 MuJoCo로 본다')
-    p.add_argument('cell', help='grasp_cells 아래 경로, 예: design0001/r060.0_y015.0')
+    p.add_argument('cell', help='design0001/r60y15, design0001/r060.0_y015.0, XML 파일 경로 또는 cell 폴더 경로')
     p.add_argument('--cells-dir', default=None, help='grasp_cells 폴더 (기본: 이 파일 옆 grasp_cells)')
     p.add_argument('--mesh-dir', default=None, help='scene.xml의 mesh 절대경로가 없을 때 찾을 …/assets/rb5_850e/meshes')
     p.add_argument('--allow-missing-collision', action='store_true')
